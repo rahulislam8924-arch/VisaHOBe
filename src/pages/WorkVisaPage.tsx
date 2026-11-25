@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/ui';
 
 interface WorkVisaPageProps {
   onBookConsultation: () => void;
@@ -232,13 +233,14 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
         <h3 className="text-xl sm:text-2xl font-bold text-[#202124]">
           Need professional document verification for your overseas employment file?
         </h3>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="lg"
           onClick={onBookConsultation}
-          className="px-8 py-3.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+          leadingIcon="engineering"
         >
           Book Work Visa Documentation Advisory
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { iconButtonClass, cn } from './ui';
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+          className={cn(iconButtonClass(), 'absolute right-3 top-3')}
           aria-label="Close dialog"
         >
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">

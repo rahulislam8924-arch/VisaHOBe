@@ -4,6 +4,7 @@ import {
   ComprehensiveCountryData,
   generate29PointCountryReport,
 } from '../data/allCountriesData';
+import { Button, FilterChip, SearchInput } from '../components/ui';
 
 interface CountriesPageProps {
   /** Country name to open straight away (used by the home page destination picker) */
@@ -111,67 +112,44 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       {/* Control Bar: Search & Quick Type Filters */}
       <div className="bg-white rounded-3xl p-4 sm:p-6 border border-black/5 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search Box */}
-          <div className="relative w-full md:w-96">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by country, capital, or visa type..."
-              className="w-full bg-[#f8fafd] pl-11 pr-4 py-3 rounded-full border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a73e8] shadow-inner"
-            />
-            <div className="absolute left-4 top-3.5 text-neutral-400">
-              <span className="material-icons text-lg">search</span>
-            </div>
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-4 top-3 text-neutral-400 hover:text-black cursor-pointer"
-              >
-                <span className="material-icons text-base">close</span>
-              </button>
-            )}
-          </div>
+          {/* Search */}
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by country, capital, or visa type…"
+            label="Country search"
+            className="md:w-96"
+          />
 
-          {/* Quick Visa Type Badges */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full md:w-auto">
-            {[
-              { id: 'all', label: 'All Entry Regimes' },
-              { id: 'eVisa', label: 'E-Visa Available' },
-              { id: 'voa', label: 'Visa on Arrival' },
-              { id: 'sticker', label: 'Consular Sticker Visa' },
-            ].map((f) => (
-              <button
+          {/* Quick visa type filters */}
+          <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 md:w-auto">
+            {([
+              { id: 'all', label: 'All entry regimes' },
+              { id: 'eVisa', label: 'E-Visa available' },
+              { id: 'voa', label: 'Visa on arrival' },
+              { id: 'sticker', label: 'Consular sticker' },
+            ] as const).map((f) => (
+              <FilterChip
                 key={f.id}
-                type="button"
-                onClick={() => setFilterType(f.id as any)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                  filterType === f.id
-                    ? 'bg-[#1a73e8] text-white shadow-2xs'
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                }`}
+                active={filterType === f.id}
+                onClick={() => setFilterType(f.id)}
               >
                 {f.label}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>
 
-        {/* Continents Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-neutral-100">
+        {/* Continent filters */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-t border-black/[0.06] pt-3">
           {continents.map((cont) => (
-            <button
+            <FilterChip
               key={cont.id}
-              type="button"
+              active={selectedContinent === cont.id}
               onClick={() => setSelectedContinent(cont.id)}
-              className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-                selectedContinent === cont.id
-                  ? 'bg-[#001d35] text-white font-bold shadow-xs'
-                  : 'text-[#444746] hover:bg-neutral-100'
-              }`}
             >
               {cont.label}
-            </button>
+            </FilterChip>
           ))}
         </div>
       </div>
@@ -612,37 +590,40 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               )}
             </div>
 
-            {/* Modal Sticky Footer Action Bar (Points 26 & 27: CTAs) */}
-            <div className="p-4 sm:p-5 bg-[#f8fafd] border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs text-neutral-500">
+            {/* Modal sticky action bar */}
+            <div className="flex flex-col gap-3 border-t border-neutral-200 bg-[#f8fafd] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <span className="material-icons text-sm leading-none text-emerald-600">verified</span>
                 <span>{activeReport.latestUpdateDate}</span>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                {/* Open the client portal */}
-                <button
-                  type="button"
+              <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+                <Button
+                  variant="secondary"
+                  size="md"
                   onClick={() => {
                     setActiveCountry(null);
                     onOpenPortal();
                   }}
-                  className="flex-1 sm:flex-none px-5 py-2.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-medium text-xs cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto"
+                  aria-label="Open the client portal"
                 >
                   Open Client Portal
-                </button>
+                </Button>
 
-                {/* Book a consultation for this country */}
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="md"
+                  leadingIcon="calendar_month"
                   onClick={() => {
                     const countryName = activeCountry.name;
                     setActiveCountry(null);
                     onBookConsultation(countryName);
                   }}
-                  className="flex-1 sm:flex-none px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto"
                 >
-                  Book Consultation for {activeCountry.name}
-                </button>
+                  Book for {activeCountry.name}
+                </Button>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { cn, iconButtonClass } from './ui';
 
 interface FloatingQRCodeProps {
   onOpenDownloadModal: () => void;
@@ -65,8 +66,12 @@ export const FloatingQRCode: React.FC<FloatingQRCodeProps> = ({ onOpenDownloadMo
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-8 h-8 rounded-full bg-white shadow-md border border-neutral-200/80 hover:bg-neutral-50 flex items-center justify-center text-neutral-600 hover:text-black transition-colors"
-          aria-label={isCollapsed ? 'Show QR Code' : 'Hide QR Code'}
+          className={cn(
+            iconButtonClass(),
+            'h-8 w-8 border border-black/[0.07] bg-white text-[#5f6368] shadow-md'
+          )}
+          aria-label={isCollapsed ? 'Show QR code' : 'Hide QR code'}
+          aria-expanded={!isCollapsed}
         >
           <svg className="w-4 h-4 fill-current transition-transform duration-300" viewBox="0 0 24 24">
             {isCollapsed ? (

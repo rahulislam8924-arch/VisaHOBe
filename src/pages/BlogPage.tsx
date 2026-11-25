@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { BLOG_POSTS, BlogPost } from '../data/visahobeData';
+import { Button, FilterChip, SearchInput } from '../components/ui';
 
 interface BlogPageProps {
   onBookConsultation: () => void;
@@ -43,37 +44,25 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
         </p>
       </div>
 
-      {/* Search and Category Filter */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Search Input */}
-        <div className="relative w-full sm:w-80">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search guides, clauses, checklists..."
-            className="w-full bg-white pl-10 pr-4 py-2.5 rounded-full border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a73e8] shadow-2xs"
-          />
-          <div className="absolute left-3.5 top-3 text-neutral-400">
-            <span className="material-icons text-lg">search</span>
-          </div>
-        </div>
+      {/* Search and category filters */}
+      <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search guides, clauses, checklists…"
+          label="Article search"
+          className="sm:w-80"
+        />
 
-        {/* Category Pills */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
           {categories.map((cat) => (
-            <button
+            <FilterChip
               key={cat}
-              type="button"
+              active={selectedCategory === cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-[#1a73e8] text-white shadow-xs'
-                  : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
-              }`}
             >
-              {cat === 'all' ? 'All Guides' : cat}
-            </button>
+              {cat === 'all' ? 'All guides' : cat}
+            </FilterChip>
           ))}
         </div>
       </div>
@@ -213,16 +202,18 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
               <p className="text-xs text-neutral-500 max-w-sm">
                 Visa guidelines change frequently. Always confirm your file with current official embassy circulars.
               </p>
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="md"
+                leadingIcon="calendar_month"
                 onClick={() => {
                   setActiveArticle(null);
                   onBookConsultation();
                 }}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs shadow-sm cursor-pointer"
+                className="w-full sm:w-auto"
               >
                 Book a Consultation
-              </button>
+              </Button>
             </div>
           </div>
         </div>

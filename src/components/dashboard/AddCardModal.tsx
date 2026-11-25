@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { iconButtonClass, cn } from '../ui';
 
 export interface CardItem {
   id: string;
@@ -142,7 +143,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+          className={cn(iconButtonClass(), 'absolute right-3 top-3')}
           aria-label="Close"
         >
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -182,9 +183,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
                 className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm tracking-wider"
                 required
               />
-              <div className="absolute right-3 top-2.5 flex items-center gap-1.5 text-xs text-neutral-400">
-                <span className="material-icons text-base">lock</span>
-              </div>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <span className="material-icons text-base leading-none">lock</span>
+              </span>
             </div>
           </div>
 

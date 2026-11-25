@@ -80,6 +80,41 @@ const click = (el) => el.dispatchEvent(new window.MouseEvent('click', { bubbles:
 window.eval(bundle);
 await wait(300);
 
+// Navigation bar
+const mainNav = doc.querySelector('nav[aria-label="Main navigation"]');
+check('desktop nav is present', Boolean(mainNav));
+check(
+  'nav marks the current page',
+  mainNav?.querySelector('[aria-current="page"]') !== null,
+  'no aria-current in nav'
+);
+const servicesTrigger = [...(mainNav?.querySelectorAll('button') ?? [])].find(
+  (b) => text(b).startsWith('Visa Services')
+);
+click(servicesTrigger);
+await wait(80);
+const servicesMenu = doc.querySelector('[role="menu"][aria-label="Visa services"]');
+check('nav dropdown opens on click', Boolean(servicesMenu));
+check(
+  'nav dropdown lists services',
+  text(servicesMenu).includes('Document Attestation'),
+  text(servicesMenu).slice(0, 80)
+);
+doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+await wait(80);
+check('Escape closes the nav dropdown', !doc.querySelector('[role="menu"]'));
+
+const menuToggle = doc.querySelector('button[aria-controls="mobile-navigation"]');
+click(menuToggle);
+await wait(120);
+const drawer = doc.querySelector('#mobile-navigation');
+check('mobile drawer opens', drawer?.className.includes('translate-x-0'));
+check('open drawer locks page scroll', doc.body.style.overflow === 'hidden');
+click(drawer?.querySelector('button[aria-label="Close navigation menu"]'));
+await wait(120);
+check('mobile drawer closes', drawer?.className.includes('-translate-x-full'));
+check('closing the drawer restores page scroll', doc.body.style.overflow === '');
+
 // Home page
 check('home page renders', text(doc.querySelector('h1')).includes('Tap into'));
 check('190 countries in the dataset label', text(doc.body).includes('Explore all 190 Countries'));
@@ -109,9 +144,12 @@ check('country card exists', Boolean(japanCard));
 if (japanCard) {
   click(japanCard);
   await wait();
-  const dialog = [...doc.querySelectorAll('[role="dialog"]')][0];
+  const dialog = [...doc.querySelectorAll('[role="dialog"]')].find((el) =>
+    text(el).includes('Country Overview')
+  );
   const before = text(dialog).length;
   click(findByText('Document Checklist', '[role="dialog"] button'));
+
   await wait();
   const after = text(dialog);
   check('report tab filters the report', after.length < before);

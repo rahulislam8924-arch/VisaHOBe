@@ -1,4 +1,5 @@
 import React from 'react';
+import { iconButtonClass, cn } from '../ui';
 
 interface BarcodeModalProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({ isOpen, onClose, pas
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+          className={cn(iconButtonClass(), 'absolute right-3 top-3')}
           aria-label="Close"
         >
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">

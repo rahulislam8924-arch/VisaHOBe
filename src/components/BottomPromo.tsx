@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './ui';
 
 interface BottomPromoProps {
   onBookConsultation: () => void;
@@ -29,23 +30,26 @@ export const BottomPromo: React.FC<BottomPromoProps> = ({
           checklists, and zero false promises.
         </p>
 
-        <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <button
-            type="button"
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onBookConsultation}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-[15px] transition-all shadow-sm hover:shadow active:scale-[0.98] cursor-pointer"
+            leadingIcon="calendar_month"
+            className="shadow-md hover:shadow-lg"
           >
-            <span className="material-icons text-base">calendar_month</span>
-            <span>Book a Consultation</span>
-          </button>
+            Book a Consultation
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={onOpenPortal}
-            className="inline-flex items-center justify-center px-7 py-3 rounded-full bg-transparent hover:bg-neutral-300/40 text-[#3c4043] border border-[#747775]/50 hover:border-[#3c4043] font-medium text-[15px] transition-all active:scale-[0.98] cursor-pointer"
+            leadingIcon="dashboard"
+            className="border-[#747775]/40 bg-white/70 backdrop-blur-xs hover:bg-white"
           >
             Log into Client Portal
-          </button>
+          </Button>
         </div>
 
         {/* Secondary action: open the interactive digital visa pass demo */}
@@ -53,10 +57,12 @@ export const BottomPromo: React.FC<BottomPromoProps> = ({
           <button
             type="button"
             onClick={onOpenDemo}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1a73e8] hover:text-[#1557b0] hover:underline underline-offset-4 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-[#0b57d0] transition-colors hover:bg-[#e8f0fe] hover:text-[#1557b0] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/70"
           >
-            <span className="material-icons text-base">touch_app</span>
-            <span>Preview a live digital visa pass demo</span>
+            <span className="material-icons text-base leading-none">touch_app</span>
+            <span className="underline decoration-[#0b57d0]/30 underline-offset-4">
+              Preview a live digital visa pass demo
+            </span>
           </button>
         </div>
 

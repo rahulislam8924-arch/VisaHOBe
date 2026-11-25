@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DEMO_CARDS } from '../data/walletData';
 import { WalletCard } from '../types';
+import { iconButtonClass, cn } from './ui';
 
 interface WalletSimulatorModalProps {
   isOpen: boolean;
@@ -82,9 +83,10 @@ export const WalletSimulatorModal: React.FC<WalletSimulatorModalProps> = ({ isOp
               ICAO e-Gate Active
             </span>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full cursor-pointer"
-              aria-label="Close"
+              className={cn(iconButtonClass(), 'h-8 w-8')}
+              aria-label="Close digital pass demo"
             >
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                 <use href="#close" />

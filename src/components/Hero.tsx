@@ -1,5 +1,7 @@
 import React from 'react';
 import { LottiePlayer } from './LottiePlayer';
+import { ALL_COUNTRIES } from '../data/allCountriesData';
+import { Button } from './ui';
 
 interface HeroProps {
   onBookConsultation: () => void;
@@ -40,24 +42,41 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <button
-            type="button"
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-10 sm:gap-4">
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onBookConsultation}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-[15px] transition-all shadow-sm hover:shadow-md active:scale-[0.98] cursor-pointer"
+            leadingIcon="calendar_month"
+            className="shadow-md hover:shadow-lg"
           >
-            <span className="material-icons text-base">calendar_month</span>
-            <span>Book a Consultation</span>
-          </button>
+            Book a Consultation
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={onOpenPortal}
-            className="inline-flex items-center justify-center px-7 py-3 rounded-full bg-transparent hover:bg-neutral-300/40 text-[#3c4043] border border-[#747775]/50 hover:border-[#3c4043] font-medium text-[15px] transition-all active:scale-[0.98] cursor-pointer"
+            leadingIcon="dashboard"
+            className="border-[#747775]/40 bg-white/70 backdrop-blur-xs hover:bg-white"
           >
             Log into Client Portal
-          </button>
+          </Button>
         </div>
+
+        {/* Trust strip */}
+        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] font-medium text-[#5f6368]">
+          {[
+            { icon: 'public', text: `${ALL_COUNTRIES.length}-country visa database` },
+            { icon: 'receipt_long', text: 'Transparent, itemised embassy fees' },
+            { icon: 'shield', text: 'No false promises or fabricated documents' },
+          ].map((item) => (
+            <li key={item.text} className="inline-flex items-center gap-1.5">
+              <span className="material-icons text-base leading-none text-[#1a73e8]">{item.icon}</span>
+              <span>{item.text}</span>
+            </li>
+          ))}
+        </ul>
 
         {/* Legal Disclaimer Pill Notice */}
         <p className="mt-4 text-xs text-[#70757a] max-w-xl mx-auto leading-relaxed">

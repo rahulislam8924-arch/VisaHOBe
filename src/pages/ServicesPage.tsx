@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { VISAHOBE_SERVICES, ServiceItem } from '../data/visahobeData';
+import { Button, FilterChip, iconButtonClass, cn } from '../components/ui';
 
 interface ServicesPageProps {
   onBookConsultation: () => void;
@@ -45,26 +46,34 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
         </p>
       </div>
 
-      {/* Category Filter Chips */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar pb-2">
+      {/* Category filters */}
+      <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar pb-1">
         {[
-          { id: 'all', label: 'All Services (9)' },
-          { id: 'core', label: 'Core Visa Services' },
-          { id: 'specialized', label: 'Specialized & Legalization' },
-          { id: 'corporate', label: 'Corporate & B2B' },
+          { id: 'all', label: 'All services', meta: VISAHOBE_SERVICES.length },
+          {
+            id: 'core',
+            label: 'Core visa services',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'core').length,
+          },
+          {
+            id: 'specialized',
+            label: 'Specialized & legalization',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'specialized').length,
+          },
+          {
+            id: 'corporate',
+            label: 'Corporate & B2B',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'corporate').length,
+          },
         ].map((tab) => (
-          <button
+          <FilterChip
             key={tab.id}
-            type="button"
-            onClick={() => setActiveCategory(tab.id as any)}
-            className={`px-5 py-2.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-              activeCategory === tab.id
-                ? 'bg-[#1a73e8] text-white shadow-xs'
-                : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
-            }`}
+            active={activeCategory === tab.id}
+            onClick={() => setActiveCategory(tab.id as typeof activeCategory)}
+            meta={tab.meta}
           >
             {tab.label}
-          </button>
+          </FilterChip>
         ))}
       </div>
 
@@ -190,7 +199,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
             <button
               type="button"
               onClick={() => setSelectedService(null)}
-              className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full cursor-pointer"
+              className={cn(iconButtonClass(), 'absolute right-4 top-4 bg-white/85 backdrop-blur-xs shadow-xs')}
               aria-label="Close service details"
             >
               <span className="material-icons text-xl">close</span>
@@ -289,20 +298,22 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
             </div>
 
             {/* Disclaimer & Action */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-100">
-              <p className="text-[11px] text-neutral-400 max-w-sm">
+            <div className="flex flex-col gap-4 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-sm text-[11px] leading-relaxed text-[#70757a]">
                 {selectedService.disclaimer}
               </p>
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="lg"
+                leadingIcon="calendar_month"
                 onClick={() => {
                   setSelectedService(null);
                   onBookConsultation();
                 }}
-                className="w-full sm:w-auto px-7 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs shadow-sm cursor-pointer"
+                className="w-full sm:w-auto"
               >
                 Book This Service
-              </button>
+              </Button>
             </div>
           </div>
         </div>

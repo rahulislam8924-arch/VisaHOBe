@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '../components/ui';
 
 interface BusinessNetworkPageProps {
   onOpenPortal: () => void;
@@ -164,13 +165,15 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
               <strong>{companyName}</strong>'s profile and contact you at <strong>{email}</strong>{' '}
               to set up an onboarding briefing.
             </p>
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="md"
               onClick={onOpenPortal}
-              className="px-6 py-2.5 rounded-full bg-[#1a73e8] text-white text-xs font-semibold shadow-xs"
+              leadingIcon="dashboard"
+              trailingIcon="arrow_forward"
             >
               Explore Partner Dashboard Demo
-            </button>
+            </Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
@@ -247,13 +250,13 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
               not promise guaranteed visa approvals or collect unauthorized fees from clients.
             </div>
 
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                className="px-8 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
-              >
+            <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center">
+              <p className="flex-1 text-[11px] leading-relaxed text-neutral-500">
+                Applications are reviewed within 3 business days after trade-licence verification.
+              </p>
+              <Button type="submit" variant="primary" size="lg" leadingIcon="send">
                 Submit Partner Application
-              </button>
+              </Button>
             </div>
           </form>
         )}

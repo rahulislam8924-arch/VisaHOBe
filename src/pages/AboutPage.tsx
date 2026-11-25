@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/ui';
 
 interface AboutPageProps {
   onOpenConsultation: () => void;
@@ -199,20 +200,22 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
           Experience visa assistance backed by integrity and accuracy.
         </h3>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onOpenConsultation}
-            className="px-7 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+            leadingIcon="calendar_month"
           >
             Schedule a Confidential Consultation
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={onOpenPortal}
-            className="px-7 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-medium text-sm transition-all active:scale-[0.98] cursor-pointer"
+            leadingIcon="dashboard"
           >
             Access Client Portal
-          </button>
+          </Button>
         </div>
       </div>
     </div>

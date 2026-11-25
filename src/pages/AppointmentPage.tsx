@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ALL_COUNTRIES } from '../data/allCountriesData';
+import { Button } from '../components/ui';
 
 const toISODate = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
@@ -104,14 +105,10 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
             </p>
           </div>
 
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={onBookingSuccess}
-              className="px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-medium cursor-pointer shadow-xs"
-            >
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Button variant="primary" size="md" onClick={onBookingSuccess} leadingIcon="home">
               Return to Homepage
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -176,33 +173,53 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
               <span>Consultation Format & Schedule</span>
             </h2>
 
-            {/* Online vs Office */}
-            <div className="grid grid-cols-2 gap-4">
-              <div
-                onClick={() => setConsultationType('online')}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer text-center ${
-                  consultationType === 'online'
-                    ? 'border-blue-600 bg-blue-50/50'
-                    : 'border-neutral-200 hover:bg-neutral-50'
-                }`}
-              >
-                <span className="material-icons text-blue-600 text-2xl mb-1">video_camera_front</span>
-                <p className="text-sm font-bold text-neutral-800">Online Video Consultation</p>
-                <p className="text-xs text-neutral-500">Google Meet / Zoom / WhatsApp</p>
-              </div>
-
-              <div
-                onClick={() => setConsultationType('office')}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer text-center ${
-                  consultationType === 'office'
-                    ? 'border-blue-600 bg-blue-50/50'
-                    : 'border-neutral-200 hover:bg-neutral-50'
-                }`}
-              >
-                <span className="material-icons text-blue-600 text-2xl mb-1">business</span>
-                <p className="text-sm font-bold text-neutral-800">In-Office Session</p>
-                <p className="text-xs text-neutral-500">Dhaka Advisory Office</p>
-              </div>
+            {/* Meeting format toggle */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4" role="group" aria-label="Consultation format">
+              {[
+                {
+                  id: 'online' as const,
+                  icon: 'video_camera_front',
+                  title: 'Online video consultation',
+                  hint: 'Google Meet / Zoom / WhatsApp',
+                },
+                {
+                  id: 'office' as const,
+                  icon: 'business',
+                  title: 'In-office session',
+                  hint: 'Dhaka advisory office',
+                },
+              ].map((option) => {
+                const isActive = consultationType === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setConsultationType(option.id)}
+                    aria-pressed={isActive}
+                    className={`flex flex-col items-center gap-1 rounded-2xl border-2 p-4 text-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 ${
+                      isActive
+                        ? 'border-[#1a73e8] bg-[#e8f0fe]/60 shadow-xs'
+                        : 'border-black/[0.08] bg-white hover:border-[#c2d7f5] hover:bg-[#f6f9fe]'
+                    }`}
+                  >
+                    <span
+                      className={`material-icons text-2xl leading-none ${
+                        isActive ? 'text-[#1a73e8]' : 'text-[#5f6368]'
+                      }`}
+                    >
+                      {option.icon}
+                    </span>
+                    <span className="text-sm font-semibold text-[#202124]">{option.title}</span>
+                    <span className="text-xs text-[#5f6368]">{option.hint}</span>
+                    {isActive && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#0b57d0] ring-1 ring-[#c2e7ff]">
+                        <span className="material-icons text-[12px] leading-none">check</span>
+                        Selected
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -338,13 +355,13 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
               {error}
             </p>
           )}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="submit"
-              className="px-8 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
-            >
+          <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center">
+            <p className="flex-1 text-[11px] leading-relaxed text-neutral-500">
+              No payment is required to request a consultation. We will confirm your slot by email.
+            </p>
+            <Button type="submit" variant="primary" size="lg" leadingIcon="event_available">
               Confirm Consultation Booking
-            </button>
+            </Button>
           </div>
         </form>
       )}
