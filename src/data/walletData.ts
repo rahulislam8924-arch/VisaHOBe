@@ -148,16 +148,14 @@ export const ACCESS_SECTION_DATA = {
       title: 'Online Application Autofill',
       description:
         'Biometric passport data, previous travel dates, and verified sponsor details securely populate when completing official DS-160, ESTA, and Schengen application forms in Google Chrome.',
-      image:
-        'https://www.gstatic.com/marketing-cms/assets/images/b1/c7/bd300b824aa0a400eab8384e323d/buy-with-gpay-en-us.webp=n-w2560-h1436-fcrop64=1,00000000ffffffff-rw',
+      image: '/images/access-autofill.jpg',
       imageAlt: 'Online visa application autofill and consular fee payment with VisaHOBe',
     },
     {
       title: 'Across Global Travel Platforms',
       description:
         'Access your approved e-Visas, interview appointment slips, and live courier tracking everywhere you are signed into your VisaHOBe account – across desktop, mobile browser, and partner apps.',
-      image:
-        'https://www.gstatic.com/marketing-cms/assets/images/4d/b2/18017d9840dc819d7d16b3a1dff0/card-image-1x-en-us.webp=n-w2560-h1436-fcrop64=1,00000000ffffffff-rw',
+      image: '/images/access-platforms.jpg',
       imageAlt: 'Access VisaHOBe digital travel documents across global platforms',
     },
   ],

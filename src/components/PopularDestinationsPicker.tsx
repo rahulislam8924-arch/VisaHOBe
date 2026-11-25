@@ -1,5 +1,6 @@
 import React from 'react';
 import { ALL_COUNTRIES } from '../data/allCountriesData';
+import { Button } from './ui';
 
 interface PopularDestinationsPickerProps {
   onSelectCountry: (countryName: string) => void;
@@ -13,43 +14,68 @@ export const PopularDestinationsPicker: React.FC<PopularDestinationsPickerProps>
   const topCountries = ALL_COUNTRIES.filter((c) => c.popularDestination).slice(0, 10);
 
   return (
-    <section className="py-6 px-4 sm:px-6 max-w-6xl mx-auto text-left" aria-label="Popular Visa Destinations">
-      <div className="bg-white/80 rounded-3xl p-5 sm:p-6 border border-black/5 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-[#202124] flex items-center gap-2">
-              <span className="material-icons text-blue-600 text-xl">travel_explore</span>
-              <span>Popular Visa Destinations from Bangladesh</span>
-            </h2>
-            <p className="text-xs text-neutral-500">
-              Quick access to 29-point consular requirements, embassy fees, and checklists
-            </p>
+    <section
+      className="relative px-4 py-4 sm:px-6 sm:py-8 max-w-6xl mx-auto text-left"
+      aria-label="Popular Visa Destinations"
+    >
+      <div className="relative overflow-hidden rounded-3xl border border-black/[0.06] bg-white/85 shadow-[0_10px_30px_-24px_rgba(60,64,67,0.5)] backdrop-blur-sm">
+        {/* Top accent line */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#1a73e8] via-[#4a9bff] to-emerald-400"
+        />
+
+        <div className="space-y-4 p-5 pt-6 sm:p-6 sm:pt-7">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#e8f0fe] text-[#1a73e8]">
+                <span className="material-icons text-[21px] leading-none">travel_explore</span>
+              </span>
+              <div>
+                <h2 className="text-[15px] font-bold leading-tight text-[#202124] sm:text-[17px]">
+                  Popular visa destinations from Bangladesh
+                </h2>
+                <p className="mt-1 text-[12px] leading-snug text-[#5f6368]">
+                  29-point consular requirements, embassy fees and checklists — one tap away
+                </p>
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onViewAllCountries}
+              trailingIcon="arrow_forward"
+              className="w-full shrink-0 sm:w-auto"
+            >
+              All {ALL_COUNTRIES.length} countries
+            </Button>
           </div>
 
-          <button
-            type="button"
-            onClick={onViewAllCountries}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 cursor-pointer"
-          >
-            <span>Explore all {ALL_COUNTRIES.length} Countries Database</span>
-            <span className="material-icons text-sm">arrow_forward</span>
-          </button>
-        </div>
-
-        {/* Horizontal Scrollable Pills */}
-        <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1 pt-1">
-          {topCountries.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => onSelectCountry(c.name)}
-              className="px-3.5 py-2 rounded-2xl bg-neutral-50 hover:bg-blue-50/80 border border-neutral-200/80 hover:border-blue-300 text-xs font-medium text-neutral-800 flex items-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs group"
-            >
-              <span className="text-xl">{c.flag}</span>
-              <span className="font-semibold group-hover:text-blue-700">{c.name}</span>
-              <span className="text-[10px] text-neutral-400 font-mono">({c.continent})</span>
-            </button>
-          ))}
+          {/* Scrollable destination cards */}
+          <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-2.5 overflow-x-auto no-scrollbar px-1 pb-1 pt-1">
+            {topCountries.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onSelectCountry(c.name)}
+                className="group flex shrink-0 snap-start items-center gap-2.5 rounded-2xl border border-black/[0.07] bg-white px-3 py-2 text-left shadow-2xs transition-all duration-150 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:bg-[#f8fbff] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 cursor-pointer"
+                aria-label={`Open the ${c.name} visa guide`}
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f6f9fe] text-lg transition-colors group-hover:bg-white">
+                  {c.flag}
+                </span>
+                <span className="flex flex-col">
+                  <span className="text-[12.5px] font-semibold leading-tight text-[#202124] group-hover:text-[#0b57d0]">
+                    {c.name}
+                  </span>
+                  <span className="mt-0.5 text-[9.5px] font-semibold uppercase tracking-[0.08em] text-[#80868b]">
+                    {c.continent}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -2,6 +2,38 @@
 /* Provides the `animate-in` / `fade-in` / `zoom-in-*` utilities used by the dialogs */
 @import "tw-animate-css";
 
+/* Self-hosted Material Icons so the icon set renders even when the Google CDN
+   is unreachable (offline previews, locked-down networks, air-gapped demos). */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-icons.woff2') format('woff2'),
+    url('/fonts/material-icons.woff') format('woff');
+}
+
+@layer base {
+  .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'liga';
+  }
+}
+
+
 @layer base {
   html {
     scroll-behavior: smooth;

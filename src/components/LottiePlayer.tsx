@@ -24,11 +24,17 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
   const animRef = useRef<AnimationItem | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
     const container = containerRef.current;
     if (!container) return;
+
+    // Never leave an empty frame behind: fall back if the JSON does not arrive
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted && !loadedRef.current) setHasError(true);
+    }, 4500);
 
     try {
       const anim = lottie.loadAnimation({
@@ -46,6 +52,7 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
       animRef.current = anim;
 
       anim.addEventListener('DOMLoaded', () => {
+        loadedRef.current = true;
         if (isMounted) {
           setIsLoaded(true);
         }
@@ -81,6 +88,7 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
         observer.observe(container);
 
         return () => {
+          clearTimeout(fallbackTimer);
           observer.disconnect();
           anim.destroy();
           isMounted = false;
@@ -88,10 +96,12 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
       }
 
       return () => {
+        clearTimeout(fallbackTimer);
         anim.destroy();
         isMounted = false;
       };
     } catch {
+      clearTimeout(fallbackTimer);
       setHasError(true);
     }
   }, [src, loop, trigger, autoplay]);
@@ -114,18 +124,33 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
         aria-label={alt}
       />
 
-      {/* Fallback Phone Graphic if Network Blocked */}
+      {/* Branded fallback when the animation cannot be fetched */}
       {hasError && (
-        <div className="w-full max-w-[420px] aspect-[4/5] bg-white rounded-[36px] shadow-xl border-4 border-neutral-800 p-4 flex flex-col justify-between items-center text-center">
-          <div className="w-24 h-4 bg-neutral-800 rounded-full mb-6" />
-          <div className="w-20 h-20 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
-            <span className="material-icons text-4xl">{badgeIcon || 'wallet'}</span>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-[#1a73e8] shadow-[0_10px_28px_-14px_rgba(60,64,67,0.6)] ring-1 ring-black/[0.04]">
+            <span className="material-icons text-[30px] leading-none">
+              {badgeIcon || 'wallet'}
+            </span>
+            <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm ring-2 ring-white">
+              <span className="material-icons text-[13px] leading-none">check</span>
+            </span>
+          </span>
+
+          <div className="space-y-1">
+            <p className="text-[13px] font-semibold tracking-tight text-[#202124]">
+              VisaHOBe portal preview
+            </p>
+            <p className="mx-auto max-w-[24rem] text-[11px] leading-relaxed text-[#70757a]">
+              {alt}
+            </p>
           </div>
-          <div className="space-y-2 px-4">
-            <p className="font-medium text-neutral-800 text-sm">VisaHOBe Portal</p>
-            <p className="text-xs text-neutral-500">{alt}</p>
+
+          {/* Skeleton bars hint at the interface behind the animation */}
+          <div className="mt-1 w-full max-w-[15rem] space-y-1.5" aria-hidden="true">
+            <div className="h-1.5 w-full rounded-full bg-[#1a73e8]/15" />
+            <div className="h-1.5 w-4/5 rounded-full bg-[#202124]/10" />
+            <div className="h-1.5 w-2/3 rounded-full bg-[#202124]/8" />
           </div>
-          <div className="w-full h-12 bg-neutral-100 rounded-xl" />
         </div>
       )}
     </div>

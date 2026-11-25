@@ -13,7 +13,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
   return (
     <section
       id={section.id}
-      className="py-14 sm:py-20 md:py-24 scroll-mt-[140px] transition-opacity duration-700 bg-[#f2f0ec]"
+      className="relative py-14 sm:py-20 md:py-24 scroll-mt-[140px] transition-opacity duration-700 bg-[#f2f0ec]"
       data-modulewell=""
     >
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,15 +30,26 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                 : 'lg:col-span-6 lg:order-2'
             }`}
           >
-            <div className="w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[520px] relative">
-              <LottiePlayer
-                src={section.lottieUrl}
-                className="w-full aspect-square"
-                trigger="enter-viewport"
-                loop={true}
-                alt={section.altText}
-                badgeIcon={section.inlineIcon}
+            <div className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[520px]">
+              {/* Soft stage behind the animation */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-4 rounded-[42px] bg-[radial-gradient(closest-side,rgba(26,115,232,0.14),transparent)] blur-xl"
               />
+              <div className="relative overflow-hidden rounded-[32px] border border-white/70 bg-[linear-gradient(155deg,#ffffff_0%,#f6faff_55%,#f1f8f5_100%)] p-1.5 shadow-[0_20px_50px_-34px_rgba(60,64,67,0.5)] ring-1 ring-black/[0.03] sm:rounded-[36px] sm:p-2">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(#c8c4bc_0.8px,transparent_0.8px)] [background-size:16px_16px] opacity-35 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75px)]"
+                />
+                <LottiePlayer
+                  src={section.lottieUrl}
+                  className="relative w-full aspect-square rounded-[26px] sm:rounded-[30px]"
+                  trigger="enter-viewport"
+                  loop={true}
+                  alt={section.altText}
+                  badgeIcon={section.inlineIcon}
+                />
+              </div>
             </div>
           </div>
 
@@ -50,8 +61,12 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                 : 'lg:col-span-6 lg:order-1 lg:pr-6'
             }`}
           >
-            {/* Category Subtitle */}
-            <p className="text-[13px] sm:text-[14px] font-medium tracking-[0.08em] text-[#5f6368] uppercase mb-2">
+            {/* Category subtitle */}
+            <p className="mb-3 inline-flex items-center gap-2 self-start rounded-full border border-black/[0.06] bg-white/70 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.11em] text-[#5f6368]">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: section.iconColor || '#1a73e8' }}
+              />
               <span>{section.category}</span>
             </p>
 

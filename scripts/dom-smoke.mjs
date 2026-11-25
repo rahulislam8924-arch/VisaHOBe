@@ -117,7 +117,7 @@ check('closing the drawer restores page scroll', doc.body.style.overflow === '')
 
 // Home page
 check('home page renders', text(doc.querySelector('h1')).includes('Tap into'));
-check('190 countries in the dataset label', text(doc.body).includes('Explore all 190 Countries'));
+check('190 countries in the dataset label', text(doc.body).includes('All 190 countries'));
 check('download QR asset is self-hosted', doc.querySelector('img[src*="visahobe-app-qr"]') !== null ||
   doc.body.innerHTML.includes('/visahobe-app-qr.png'));
 
