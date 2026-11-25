@@ -63,7 +63,7 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
   };
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-left space-y-12 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-4xl space-y-12 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -82,7 +82,7 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
       </div>
 
       {isSubmitted ? (
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-emerald-200 text-center space-y-6 shadow-sm">
+        <div className="glass-panel space-y-6 rounded-3xl border-emerald-200/70 p-8 text-center sm:p-12">
           <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
             <span className="material-icons text-4xl">check_circle</span>
           </div>
@@ -114,7 +114,7 @@ export const AppointmentPage: React.FC<AppointmentPageProps> = ({
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl p-6 sm:p-10 border border-black/5 shadow-xs space-y-8"
+          className="glass glass-sheen rounded-3xl p-6 sm:p-10 space-y-8"
         >
           {/* Section 1: Travel & Visa Selection */}
           <div className="space-y-4">

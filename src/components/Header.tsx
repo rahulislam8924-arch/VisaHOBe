@@ -247,11 +247,8 @@ export const Header: React.FC<HeaderProps> = ({
 
       <header
         className={cn(
-          'sticky top-0 z-50 border-b transition-all duration-200',
-          'bg-[#f2f0ec]/90 backdrop-blur-xl',
-          isScrolled
-            ? 'border-black/[0.08] shadow-[0_1px_16px_rgba(60,64,67,0.10)]'
-            : 'border-transparent'
+          'glass-bar sticky top-0 z-50 transition-shadow duration-200',
+          isScrolled && 'shadow-[0_10px_30px_-22px_rgba(32,33,36,0.45)]'
         )}
         aria-label="Site header"
       >
@@ -300,7 +297,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Desktop navigation */}
           <nav
             ref={navRef}
-            className="mx-auto hidden items-center gap-1 rounded-full border border-black/[0.05] bg-white/40 p-1 xl:flex"
+            className="glass-thin glass-sheen mx-auto hidden items-center gap-1 rounded-full p-1 xl:flex"
             aria-label="Main navigation"
           >
             <button
@@ -432,7 +429,7 @@ export const Header: React.FC<HeaderProps> = ({
         onKeyDown={handleDrawerKeyDown}
         id="mobile-navigation"
         className={cn(
-          'fixed inset-y-0 left-0 z-[60] flex w-[min(21rem,88vw)] flex-col bg-[#f7f5f1] shadow-2xl transition-transform duration-300 ease-out xl:hidden',
+          'glass-panel fixed inset-y-0 left-0 z-[60] flex w-[min(21rem,88vw)] flex-col rounded-r-[28px] shadow-2xl transition-transform duration-300 ease-out xl:hidden',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
         aria-hidden={!isMobileMenuOpen}
@@ -441,7 +438,7 @@ export const Header: React.FC<HeaderProps> = ({
         aria-modal="true"
         aria-label="Navigation menu"
       >
-        <div className="flex items-center justify-between border-b border-black/[0.06] bg-white/70 px-4 py-3.5">
+        <div className="flex items-center justify-between border-b border-black/[0.06] bg-white/40 px-4 py-3.5">
           <span className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] text-white">
               <span className="material-icons text-lg leading-none">verified_user</span>
@@ -485,7 +482,7 @@ export const Header: React.FC<HeaderProps> = ({
           </DrawerSection>
         </div>
 
-        <div className="space-y-2 border-t border-black/[0.06] bg-white/70 p-3">
+        <div className="space-y-2 border-t border-black/[0.06] bg-white/40 p-3">
           <Button
             variant="secondary"
             size="md"

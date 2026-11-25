@@ -15,7 +15,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
     : VISAHOBE_SERVICES.filter((s) => s.category === activeCategory);
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-left space-y-16 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-6xl space-y-16 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -83,7 +83,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
           <div
             key={service.id}
             onClick={() => setSelectedService(service)}
-            className="group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:shadow-[0_18px_40px_-30px_rgba(60,64,67,0.6)]"
+            className="glass glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
           >
             {/* Card Image Header */}
             {service.imageUrl && (
@@ -127,7 +127,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Comprehensive Service Standards & Quality Checklist */}
-      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 sm:p-10 space-y-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">Our Document Pre-Screening Protocol</h2>
           <p className="text-sm text-[#5f6368] mt-1">Every application dossier undergoes our 4-point administrative quality check</p>
@@ -161,7 +161,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Document attestation chain explanation */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-4">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-4">
         <h2 className="text-xl sm:text-2xl font-bold text-[#202124]">Document Attestation Chain Guidance</h2>
         <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
           For educational degrees, marriage certificates, police clearances, and corporate documents destined for foreign embassies (e.g. UAE, Saudi Arabia, Kuwait, Qatar), documents must follow an authenticated statutory chain:

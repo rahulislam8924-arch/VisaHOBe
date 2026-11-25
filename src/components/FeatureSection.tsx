@@ -15,7 +15,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section, index }
   return (
     <section
       id={section.id}
-      className={`relative scroll-mt-[140px] py-14 transition-opacity duration-700 sm:py-20 md:py-24 ${
+      className={`ambient-wash relative scroll-mt-[140px] py-14 transition-opacity duration-700 sm:py-20 md:py-24 ${
         index % 2 === 1 ? 'bg-[#f6f4f0]' : 'bg-[#f2f0ec]'
       }`}
       data-modulewell=""

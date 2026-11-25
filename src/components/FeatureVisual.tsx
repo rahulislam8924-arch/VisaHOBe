@@ -58,7 +58,7 @@ const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="relative w-full max-w-[332px]">
     <div aria-hidden="true" className="absolute inset-x-7 top-5 h-full rounded-3xl bg-white/45 ring-1 ring-white/60" />
     <div aria-hidden="true" className="absolute inset-x-4 top-2.5 h-full rounded-3xl bg-white/70 ring-1 ring-white/70" />
-    <div className="relative rounded-[24px] border border-white bg-white p-4 shadow-[0_20px_50px_-30px_rgba(60,64,67,0.6)] ring-1 ring-black/[0.04]">
+    <div className="glass-panel glass-sheen relative rounded-[24px] p-4">
       {children}
     </div>
   </div>

@@ -54,7 +54,7 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
       </div>
 
       {/* Cards List in Material 3 container */}
-      <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 space-y-6">
+      <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
         <div className="space-y-4 divide-y divide-neutral-100">
           {cards.map((card, idx) => {
             const isEditing = editingCardId === card.id;

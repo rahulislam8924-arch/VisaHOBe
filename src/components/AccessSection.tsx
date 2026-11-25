@@ -48,7 +48,7 @@ export const AccessSection: React.FC = () => {
   const icons = ['phone_iphone', 'public'];
 
   return (
-    <section className="bg-[#f2f0ec] py-16 sm:py-24" aria-label="Visa Portal Access Across Global Travel Platforms">
+    <section className="ambient-wash bg-[#f2f0ec] py-16 sm:py-24" aria-label="Visa Portal Access Across Global Travel Platforms">
       <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-start gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           {/* Headline column */}

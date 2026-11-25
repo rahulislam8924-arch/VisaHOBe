@@ -65,7 +65,7 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
           <div
             key={pass.id}
             onClick={() => onSelectPass(pass)}
-            className="bg-white rounded-[28px] border border-black/5 overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
+            className="glass glass-sheen rounded-[28px]  overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
           >
             {/* Header banner */}
             <div

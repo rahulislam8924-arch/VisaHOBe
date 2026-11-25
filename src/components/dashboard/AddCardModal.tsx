@@ -137,7 +137,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative border border-black/10 flex flex-col text-left max-h-[90vh] overflow-y-auto"
+        className="glass-panel relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-[28px] p-6 text-left sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button

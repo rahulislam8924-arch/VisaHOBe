@@ -36,7 +36,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
     <div className="space-y-6 text-left animate-in fade-in duration-300">
       {/* 1. Welcome banner */}
       {showWelcomeBanner && (
-        <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           {/* Close Banner Button */}
           <button
             type="button"
@@ -70,7 +70,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
         {/* Left Column (Wider, ~7 cols on lg) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Card 1: Add payment card for embassy & consular visa fees */}
-          <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 relative overflow-hidden flex flex-col justify-between min-h-[320px]">
+          <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  relative overflow-hidden flex flex-col justify-between min-h-[320px]">
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
               <div className="space-y-3 max-w-md">
                 <h3 className="font-['Google_Sans',Roboto,sans-serif] text-2xl sm:text-[26px] font-normal text-[#1f1f1f] leading-snug">
@@ -142,7 +142,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
           </div>
 
           {/* Card 2: Visas & Passes */}
-          <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 flex flex-col justify-between min-h-[260px]">
+          <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  flex flex-col justify-between min-h-[260px]">
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
               <div className="space-y-2 max-w-sm">
                 <h3 className="font-['Google_Sans',Roboto,sans-serif] text-2xl font-normal text-[#1f1f1f]">
@@ -203,7 +203,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
           </div>
 
           {/* Card 3: Recent Consular Transactions */}
-          <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 space-y-4">
+          <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
@@ -255,7 +255,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
         {/* Right Column (Narrower, ~5 cols on lg) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Card 1: Check out faster with autofill */}
-          <div className="bg-white rounded-[28px] p-6 shadow-xs border border-black/5 flex flex-col justify-between space-y-4">
+          <div className="glass glass-sheen rounded-[28px] p-6 shadow-xs  flex flex-col justify-between space-y-4">
             {/* Top Yellow Graphic */}
             <AutofillIllustration />
 
@@ -282,7 +282,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
           </div>
 
           {/* Card 2: Consular-Grade Security */}
-          <div className="bg-white rounded-[28px] p-6 shadow-xs border border-black/5 flex flex-col justify-between space-y-4">
+          <div className="glass glass-sheen rounded-[28px] p-6 shadow-xs  flex flex-col justify-between space-y-4">
             {/* Top Light Blue Security Graphic */}
             <SecurityIllustration />
 

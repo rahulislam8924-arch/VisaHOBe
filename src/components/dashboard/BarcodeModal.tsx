@@ -28,7 +28,7 @@ export const BarcodeModal: React.FC<BarcodeModalProps> = ({ isOpen, onClose, pas
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl relative border border-black/10 flex flex-col items-center text-center overflow-hidden"
+        className="glass-panel relative flex w-full max-w-sm flex-col items-center overflow-hidden rounded-[28px] p-6 text-center sm:p-7"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Close Button */}

@@ -54,9 +54,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const currentPath = navItems.find((n) => n.id === currentTab)?.path || '/portal/home';
 
   return (
-    <div className="min-h-screen bg-[#f0f4f9] text-[#1f1f1f] flex flex-col font-['Google_Sans_Text',Roboto,sans-serif]">
+    <div className="ambient-wash flex min-h-screen flex-col bg-[#f0f4f9] text-[#1f1f1f] font-['Google_Sans_Text',Roboto,sans-serif]">
       {/* 1. Chrome Browser URL Bar Simulation */}
-      <div className="bg-[#e9eef6] border-b border-[#c4c7c5]/50 px-3 py-1.5 flex items-center justify-between text-xs text-[#444746] select-none sticky top-0 z-50">
+      <div className="glass-bar sticky top-0 z-50 flex select-none items-center justify-between px-3 py-1.5 text-xs text-[#444746]">
         <div className="flex items-center gap-2 overflow-hidden flex-1 max-w-4xl">
           <button
             onClick={onExitDashboard}
@@ -73,7 +73,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <span className="material-icons text-base">refresh</span>
           </button>
 
-          <div className="bg-white border border-[#c4c7c5] rounded-full px-3.5 py-1 flex items-center gap-2 flex-1 shadow-2xs truncate">
+          <div className="glass-thin flex flex-1 items-center gap-2 truncate rounded-full px-3.5 py-1">
             <span className="material-icons text-neutral-600 text-sm">lock</span>
             <span className="font-mono text-[11px] sm:text-xs text-[#1f1f1f] truncate">
               https://visahobe.com{currentPath}?utm_medium=settings&utm_campaign=paymentmethods&utm_source=chrome
@@ -144,7 +144,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </button>
 
             {isHelpMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-neutral-200 py-2 z-50 text-left">
+              <div className="glass-panel absolute right-0 z-50 mt-2 w-64 rounded-2xl py-2 text-left">
                 <a
                   href="mailto:support@visahobe.com?subject=VisaHOBe%20portal%20support"
                   className="block px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
@@ -187,7 +187,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
             {isProfileMenuOpen && (
               <div
-                className="absolute right-0 mt-2 w-72 bg-white rounded-3xl shadow-2xl border border-neutral-200 p-4 z-50 text-center animate-in fade-in"
+                className="glass-panel absolute right-0 z-50 mt-2 w-72 animate-in rounded-3xl p-4 text-center fade-in"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex flex-col items-center pb-3 border-b border-neutral-100">

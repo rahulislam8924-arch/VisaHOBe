@@ -34,7 +34,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose })
       aria-labelledby="download-modal-title"
     >
       <div
-        className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-black/5 flex flex-col items-center text-center transform transition-all duration-300 scale-100"
+        className="glass-panel relative flex w-full max-w-md scale-100 transform flex-col items-center rounded-[28px] p-6 text-center transition-all duration-300 sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

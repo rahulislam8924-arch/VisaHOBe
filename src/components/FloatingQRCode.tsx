@@ -17,7 +17,7 @@ export const FloatingQRCode: React.FC<FloatingQRCodeProps> = ({ onOpenDownloadMo
         {/* The QR Card */}
         <div
           onClick={onOpenDownloadModal}
-          className={`bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-black/5 p-3 flex items-center gap-3 cursor-pointer hover:shadow-[0_6px_22px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-all duration-300 ${
+          className={`glass-panel flex cursor-pointer items-center gap-3 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] ${
             isCollapsed ? 'opacity-0 scale-90 pointer-events-none translate-x-8' : 'opacity-100 scale-100'
           }`}
           title="Click to view full download QR Code"

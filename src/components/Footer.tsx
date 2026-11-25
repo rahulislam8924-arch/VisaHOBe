@@ -349,7 +349,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage, onNavigateFaq })
           onClick={() => setCookieConsentOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-black/10 text-left"
+            className="glass-panel w-full max-w-md rounded-2xl p-6 text-left"
             onClick={(e) => e.stopPropagation()}
           >
             <h4 className="text-lg font-bold text-[#202124] mb-2">Privacy & Cookie Settings</h4>

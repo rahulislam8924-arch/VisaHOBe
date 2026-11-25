@@ -91,7 +91,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
   const showFaqs = reportTab === 'all' || reportTab === 'faqs';
 
   return (
-    <div className="py-10 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-left space-y-10 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-7xl animate-in space-y-10 px-4 py-10 text-left fade-in duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -131,7 +131,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
         ].map((stat) => (
           <div
             key={stat.label}
-            className="flex items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-white/80 px-3 py-2.5 shadow-2xs backdrop-blur-sm"
+            className="glass-thin flex items-center gap-2.5 rounded-2xl px-3 py-2.5"
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
               <span className="material-icons text-[16px] leading-none">{stat.icon}</span>
@@ -149,7 +149,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       </div>
 
       {/* Control Bar: Search & Quick Type Filters */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-black/5 shadow-xs space-y-4">
+      <div className="glass glass-sheen rounded-3xl p-4 sm:p-6 space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Search */}
           <SearchInput
@@ -200,7 +200,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       </div>
 
       {/* Countries Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5">
         {filteredCountries.map((c) => (
           <button
             key={c.id}
@@ -209,7 +209,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               setReportTab('all');
               setActiveCountry(c);
             }}
-            className="group flex h-full flex-col rounded-2xl border border-black/[0.06] bg-white p-4 text-left shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:shadow-[0_18px_40px_-30px_rgba(60,64,67,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 cursor-pointer"
+            className="glass glass-sheen group flex h-full cursor-pointer flex-col rounded-2xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
             aria-label={`Open the 29-point ${c.name} visa report`}
           >
             <div className="flex items-start justify-between gap-2">
@@ -260,13 +260,13 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       {/* 29-Point Complete Official Country Modal */}
       {activeCountry && activeReport && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 backdrop-blur-md animate-in fade-in sm:items-center sm:p-5"
           onClick={() => setActiveCountry(null)}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="bg-white rounded-[32px] max-w-4xl w-full max-h-[92vh] overflow-hidden shadow-2xl relative border border-black/10 flex flex-col text-left"
+            className="glass-panel relative flex h-[100dvh] w-full max-w-4xl animate-in slide-in-from-bottom-4 flex-col overflow-hidden rounded-t-[24px] text-left sm:h-auto sm:max-h-[92vh] sm:rounded-[32px] sm:slide-in-from-bottom-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header Bar with Thematic Visual */}
@@ -351,7 +351,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
             </div>
 
             {/* Scrollable Modal Body: Full 29-Point Structure */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 text-sm text-[#3c4043] leading-relaxed">
+            <div className="flex-1 space-y-8 overflow-y-auto p-5 text-sm leading-relaxed text-[#3c4043] sm:p-8">
               {showProcess && (
                 <>
                   {/* Point 1: Country Overview */}

@@ -17,19 +17,28 @@ const base =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f2f0ec] ' +
   'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50';
 
+/** Liquid-glass envelope shared by the translucent variants */
+const glassy =
+  'backdrop-blur-xl backdrop-saturate-150 ' +
+  'shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(255,255,255,0.4),0_10px_24px_-16px_rgba(32,33,36,0.35)]';
+
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-[#1a73e8] text-white shadow-sm hover:bg-[#1557b0] hover:shadow-md',
+    'bg-gradient-to-b from-[#2b7ff0] to-[#1a6de0] text-white border border-[#1557b0]/60 ' +
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_10px_24px_-12px_rgba(21,87,176,0.6)] ' +
+    'hover:from-[#3187f5] hover:to-[#1557b0] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_14px_30px_-12px_rgba(21,87,176,0.65)]',
   secondary:
-    'bg-white text-[#0b57d0] border border-[#dadce0] shadow-2xs hover:bg-[#f6f9fe] hover:border-[#c2d7f5] hover:shadow-xs',
+    'text-[#0b57d0] border border-white/80 bg-white/65 hover:bg-white/85 hover:text-[#0a4bb0] ' + glassy,
   tonal:
-    'bg-[#e8f0fe] text-[#0b57d0] hover:bg-[#d7e6fd] border border-transparent hover:border-[#c2e7ff]',
+    'text-[#0b57d0] border border-white/70 bg-[#e8f0fe]/75 hover:bg-[#e8f0fe]/95 ' +
+    'backdrop-blur-xl backdrop-saturate-150 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]',
   outline:
-    'bg-transparent text-[#3c4043] border border-[#747775]/50 hover:bg-neutral-300/40 hover:border-[#3c4043]',
+    'text-[#3c4043] border border-white/70 bg-white/30 backdrop-blur-md ' +
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:bg-white/65 hover:text-[#202124]',
   ghost:
-    'bg-transparent text-[#3c4043] hover:bg-black/[0.06]',
+    'bg-transparent text-[#3c4043] hover:bg-white/55 hover:backdrop-blur-md',
   danger:
-    'bg-transparent text-[#c5221f] hover:bg-[#fce8e6]',
+    'bg-white/60 text-[#c5221f] border border-white/70 backdrop-blur-md hover:bg-[#fce8e6]/90',
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -57,7 +66,8 @@ export const buttonClass = ({
 export const iconButtonClass = (className?: string) =>
   cn(
     'inline-flex items-center justify-center w-9 h-9 rounded-full text-[#5f6368] cursor-pointer',
-    'transition-colors hover:bg-black/[0.06] hover:text-[#202124]',
+    'bg-white/45 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]',
+    'transition-colors hover:bg-white/80 hover:text-[#202124]',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/70',
     className
   );

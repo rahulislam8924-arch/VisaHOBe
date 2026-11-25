@@ -14,10 +14,10 @@ export const BottomPromo: React.FC<BottomPromoProps> = ({
 }) => {
   return (
     <section
-      className="relative px-4 py-16 sm:px-6 sm:py-24"
+      className="ambient-wash relative px-4 py-16 sm:px-6 sm:py-24"
       aria-label="Get VisaHOBe Support"
     >
-      <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[32px] border border-black/[0.06] bg-[linear-gradient(135deg,#eaf2ff_0%,#fbfcff_45%,#eefaf4_100%)] px-5 py-14 text-center shadow-[0_30px_70px_-50px_rgba(60,64,67,0.65)] sm:rounded-[40px] sm:px-12 sm:py-20">
+      <div className="glass glass-sheen relative mx-auto max-w-5xl overflow-hidden rounded-[28px] px-5 py-12 text-center sm:rounded-[40px] sm:px-12 sm:py-16">
         {/* Decorative rings + glow */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full border border-[#1a73e8]/12" />

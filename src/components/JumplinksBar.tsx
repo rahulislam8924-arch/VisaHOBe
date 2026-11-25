@@ -55,7 +55,7 @@ export const JumplinksBar: React.FC<JumplinksBarProps> = ({
   return (
     <div className="pointer-events-none sticky top-[76px] z-40 mb-6 px-3 sm:top-[84px] sm:px-4">
       <nav
-        className="pointer-events-auto mx-auto flex max-w-5xl items-center gap-1 rounded-full border border-black/[0.06] bg-white/95 px-2 py-1.5 shadow-[0_2px_10px_rgba(60,64,67,0.16)] backdrop-blur-md"
+        className="glass glass-sheen pointer-events-auto mx-auto flex max-w-5xl items-center gap-1 rounded-full px-2 py-1.5"
         role="navigation"
         aria-label="Jump to page section"
       >

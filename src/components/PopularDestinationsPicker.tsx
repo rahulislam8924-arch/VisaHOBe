@@ -18,7 +18,7 @@ export const PopularDestinationsPicker: React.FC<PopularDestinationsPickerProps>
       className="relative px-4 py-4 sm:px-6 sm:py-8 max-w-6xl mx-auto text-left"
       aria-label="Popular Visa Destinations"
     >
-      <div className="relative overflow-hidden rounded-3xl border border-black/[0.06] bg-white/85 shadow-[0_10px_30px_-24px_rgba(60,64,67,0.5)] backdrop-blur-sm">
+      <div className="glass glass-sheen relative overflow-hidden rounded-3xl">
         {/* Top accent line */}
         <div
           aria-hidden="true"
@@ -59,7 +59,7 @@ export const PopularDestinationsPicker: React.FC<PopularDestinationsPickerProps>
                 key={c.id}
                 type="button"
                 onClick={() => onSelectCountry(c.name)}
-                className="group flex shrink-0 snap-start items-center gap-2.5 rounded-2xl border border-black/[0.07] bg-white px-3 py-2 text-left shadow-2xs transition-all duration-150 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:bg-[#f8fbff] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 cursor-pointer"
+                className="glass-thin group flex shrink-0 cursor-pointer snap-start items-center gap-2.5 rounded-2xl px-3 py-2 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
                 aria-label={`Open the ${c.name} visa guide`}
               >
                 <span className="flex h-9 w-[42px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f6f9fe] transition-colors group-hover:bg-white">

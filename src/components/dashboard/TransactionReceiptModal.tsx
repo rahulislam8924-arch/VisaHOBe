@@ -39,7 +39,7 @@ export const TransactionReceiptModal: React.FC<TransactionReceiptModalProps> = (
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative border border-black/10 flex flex-col overflow-hidden text-left"
+        className="glass-panel relative flex w-full max-w-md flex-col overflow-hidden rounded-[28px] p-6 text-left sm:p-7"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

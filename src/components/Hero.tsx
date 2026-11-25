@@ -10,79 +10,114 @@ interface HeroProps {
 }
 
 const TRUST_ITEMS = [
-  { icon: 'public', text: `${ALL_COUNTRIES.length}-country visa database` },
-  { icon: 'receipt_long', text: 'Transparent, itemised embassy fees' },
-  { icon: 'verified_user', text: 'No false promises or fabricated documents' },
+  { icon: 'public', text: `${ALL_COUNTRIES.length} countries` },
+  { icon: 'receipt_long', text: 'Itemised embassy fees' },
+  { icon: 'verified_user', text: 'No false promises' },
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) => {
   return (
     <section
-      className="relative isolate overflow-hidden bg-[#f2f0ec] pt-8 pb-12 sm:pt-12 sm:pb-16 md:pt-14 md:pb-20"
+      className="relative isolate overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20"
       aria-label="VisaHOBe Introduction"
     >
-      {/* Ambient background: soft colour washes + dot grid, purely decorative */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 left-1/2 h-[560px] w-[min(1000px,120vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,115,232,0.16),transparent)] blur-2xl" />
-        <div className="absolute -right-32 top-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(16,185,129,0.14),transparent)] blur-3xl" />
-        <div className="absolute -left-32 bottom-10 h-[380px] w-[380px] rounded-full bg-[radial-gradient(closest-side,rgba(251,188,4,0.12),transparent)] blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-[460px] bg-[radial-gradient(#c8c4bc_1px,transparent_1px)] [background-size:22px_22px] opacity-50 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" />
+      {/* Ambient colour field — gives the glass surfaces something to refract */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[#f2f0ec]">
+        <div className="absolute -top-56 left-1/2 h-[620px] w-[min(1100px,130vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,115,232,0.28),transparent)] blur-3xl" />
+        <div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(16,185,129,0.22),transparent)] blur-3xl" />
+        <div className="absolute -left-40 bottom-0 h-[460px] w-[460px] rounded-full bg-[radial-gradient(closest-side,rgba(251,188,4,0.20),transparent)] blur-3xl" />
+        <div className="absolute right-1/4 bottom-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(161,66,244,0.16),transparent)] blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(#c8c4bc_1px,transparent_1px)] [background-size:22px_22px] opacity-50 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" />
       </div>
 
-      <div className="mx-auto flex max-w-[1240px] flex-col items-center px-4 text-center sm:px-6 lg:px-8">
-        {/* Status badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-black/[0.07] bg-white/75 px-3 py-1.5 shadow-[0_1px_2px_rgba(60,64,67,0.09)] backdrop-blur-md sm:gap-2.5 sm:px-4">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.13em] text-[#3c4043] sm:text-[11.5px]">
-            VisaHOBe · Dhaka
-          </span>
-          <span className="hidden h-3 w-px bg-black/10 sm:block" />
-          <span className="hidden text-[11.5px] font-medium text-[#5f6368] sm:block">
-            Independent consular advisory
-          </span>
+      <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14 lg:px-8">
+        {/* Copy */}
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          <div className="glass-thin inline-flex items-center gap-2 rounded-full px-3 py-1.5 sm:gap-2.5 sm:px-4">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-[10.5px] font-semibold uppercase tracking-[0.13em] text-[#3c4043] sm:text-[11px]">
+              VisaHOBe · Dhaka
+            </span>
+            <span className="hidden h-3 w-px bg-black/10 sm:block" />
+            <span className="hidden text-[11px] font-medium text-[#5f6368] sm:block">
+              Independent consular advisory
+            </span>
+          </div>
+
+          <h1 className="mt-5 text-[34px] font-bold leading-[1.08] tracking-[-0.025em] text-[#202124] sm:mt-6 sm:text-[46px] lg:text-[54px] xl:text-[60px]">
+            <span>Tap into m</span>
+            <span className="material-icons hero-inline-title-icon" aria-hidden="true">
+              contactless
+            </span>
+            <span>re</span>
+            <br />
+            <span className="bg-gradient-to-r from-[#1a73e8] via-[#1967d2] to-[#0d47a1] bg-clip-text text-transparent">
+              with VisaHOBe
+            </span>
+          </h1>
+
+          <p className="mt-4 max-w-xl text-[15px] leading-[1.7] text-[#5f6368] sm:mt-5 sm:text-[16.5px]">
+            Visa guidance and application support, made clearer. Your approved e-Visas, consular fee
+            receipts, embassy appointment passes and verified checklists — in one safe place,
+            wherever you travel.
+          </p>
+
+          <div className="mt-7 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={onBookConsultation}
+              leadingIcon="calendar_month"
+            >
+              Book a Consultation
+            </Button>
+
+            <Button variant="secondary" size="lg" onClick={onOpenPortal} leadingIcon="dashboard">
+              Log into Client Portal
+            </Button>
+          </div>
+
+          <ul className="mt-7 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            {TRUST_ITEMS.map((item) => (
+              <li
+                key={item.text}
+                className="glass-thin inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5"
+              >
+                <span className="material-icons text-[14px] leading-none text-[#1a73e8]">
+                  {item.icon}
+                </span>
+                <span className="text-[11.5px] font-medium text-[#3c4043]">{item.text}</span>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-5 max-w-md text-[11px] leading-relaxed text-[#80868b]">
+            Visa decisions are made solely by the relevant embassy, consulate or immigration
+            authority. Our services do not guarantee visa approval.
+          </p>
         </div>
 
-        {/* Headline */}
-        <h1 className="mt-5 max-w-[19ch] text-[37px] font-bold leading-[1.08] tracking-[-0.02em] text-[#202124] sm:mt-6 sm:max-w-none sm:text-6xl md:text-[68px] lg:text-[74px]">
-          <span>Tap into m</span>
-          <span className="material-icons hero-inline-title-icon" aria-hidden="true">
-            contactless
-          </span>
-          <span>re</span>
-          <br />
-          <span className="bg-gradient-to-r from-[#1a73e8] via-[#1967d2] to-[#0d47a1] bg-clip-text text-transparent">
-            with VisaHOBe
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="mt-4 max-w-2xl text-[15.5px] leading-[1.7] text-[#5f6368] sm:mt-5 sm:text-[17.5px] md:text-[18.5px]">
-          Visa guidance and application support, made clearer. Keep everything — your approved
-          e-Visas, consular fee receipts, embassy appointment passes, and verified document
-          checklists — in one safe place, no matter where you travel.
-        </p>
-
-        {/* Showcase card + animation, directly beneath the headline */}
-        <div className="relative mx-auto mt-8 w-full max-w-[820px] sm:mt-9">
+        {/* Glass showcase with the animation */}
+        <div className="relative mx-auto w-full max-w-[560px] lg:mx-0">
           <div
             aria-hidden="true"
-            className="absolute inset-x-10 -top-2 bottom-6 rounded-[48px] bg-gradient-to-br from-[#1a73e8]/14 via-[#7ab7ff]/8 to-emerald-400/12 blur-2xl"
+            className="absolute -inset-5 rounded-[46px] bg-gradient-to-br from-[#1a73e8]/25 via-[#7ab7ff]/12 to-emerald-400/20 blur-2xl"
           />
 
-          <div className="relative rounded-[24px] border border-white/70 bg-white/55 p-1.5 shadow-[0_26px_70px_-40px_rgba(60,64,67,0.55)] backdrop-blur-xl sm:rounded-[32px] sm:p-2">
-            <div className="relative overflow-hidden rounded-[19px] bg-[linear-gradient(155deg,#ffffff_0%,#f5f9ff_42%,#eef8f4_100%)] ring-1 ring-inset ring-white/80 sm:rounded-[26px]">
+          <div className="glass glass-sheen relative overflow-hidden rounded-[30px] p-2 sm:rounded-[34px] sm:p-2.5">
+            <div className="relative overflow-hidden rounded-[24px] bg-white/25 ring-1 ring-inset ring-white/60 sm:rounded-[28px]">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(#c8c4bc_0.9px,transparent_0.9px)] [background-size:18px_18px] opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_0.9px,transparent_0.9px)] [background-size:20px_20px] opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
               />
 
-              <div className="relative flex h-[352px] w-full items-center justify-center overflow-hidden sm:h-[380px] md:h-[404px]">
+              <div className="relative flex h-[300px] w-full items-center justify-center overflow-hidden sm:h-[360px] lg:h-[404px]">
                 <LottiePlayer
                   src="https://www.gstatic.com/marketing-cms/84/e0/4ea3d6ec422284df08def68fc0ef/gwallet-hero-en-us.json"
-                  className="h-full w-full max-w-[660px]"
+                  className="h-full w-full max-w-[520px]"
                   autoplay={true}
                   loop={true}
                   trigger="autoplay"
@@ -93,53 +128,42 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Primary actions */}
-        <div className="mt-8 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={onBookConsultation}
-            leadingIcon="calendar_month"
-            className="shadow-[0_10px_24px_-10px_rgba(26,115,232,0.65)] hover:shadow-[0_14px_30px_-10px_rgba(26,115,232,0.7)]"
+          {/* Floating glass labels */}
+          <div
+            aria-hidden="true"
+            className="glass-thin absolute -left-3 top-8 hidden items-center gap-2 rounded-2xl px-3 py-2 sm:flex"
           >
-            Book a Consultation
-          </Button>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#e8f0fe] text-[#1a73e8]">
+              <span className="material-icons text-[15px] leading-none">fact_check</span>
+            </span>
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-wide text-[#80868b]">
+                29-point
+              </span>
+              <span className="block text-[11.5px] font-bold leading-none text-[#202124]">
+                Country reports
+              </span>
+            </span>
+          </div>
 
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={onOpenPortal}
-            leadingIcon="dashboard"
-            className="border-[#747775]/30 bg-white/80 backdrop-blur-sm hover:bg-white"
+          <div
+            aria-hidden="true"
+            className="glass-thin absolute -right-2 bottom-10 hidden items-center gap-2 rounded-2xl px-3 py-2 sm:flex"
           >
-            Log into Client Portal
-          </Button>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+              <span className="material-icons text-[15px] leading-none">verified</span>
+            </span>
+            <span>
+              <span className="block text-[10px] font-semibold uppercase tracking-wide text-[#80868b]">
+                Checklist
+              </span>
+              <span className="block text-[11.5px] font-bold leading-none text-emerald-700">
+                Verified
+              </span>
+            </span>
+          </div>
         </div>
-
-        {/* Trust markers */}
-        <ul className="mt-7 grid w-full max-w-3xl grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {TRUST_ITEMS.map((item) => (
-            <li
-              key={item.text}
-              className="flex items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-white/60 px-3.5 py-2.5 text-left backdrop-blur-sm transition-colors hover:border-[#c2d7f5] hover:bg-white/80"
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
-                <span className="material-icons text-[15px] leading-none">{item.icon}</span>
-              </span>
-              <span className="text-[12px] font-medium leading-snug text-[#3c4043]">
-                {item.text}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Legal microcopy */}
-        <p className="mt-4 max-w-xl text-[11.5px] leading-relaxed text-[#80868b]">
-          Visa decisions are made solely by the relevant embassy, consulate, or immigration
-          authority. Our services do not guarantee visa approval.
-        </p>
       </div>
     </section>
   );

@@ -26,7 +26,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
   }, [search, selectedCategory]);
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-left space-y-12 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-6xl space-y-12 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -73,7 +73,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
           <article
             key={post.id}
             onClick={() => setActiveArticle(post)}
-            className="group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:shadow-[0_18px_40px_-30px_rgba(60,64,67,0.6)]"
+            className="glass glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
           >
             {/* Editorial Image Header */}
             {post.imageUrl && (
