@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="VisaHOBe">
+  <defs>
+    <linearGradient id="visahobe" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a73e8" />
+      <stop offset="1" stop-color="#0d47a1" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#visahobe)" />
+  <path d="M32 12l16 6v13c0 10-7 17-16 21-9-4-16-11-16-21V18z" fill="#ffffff" fill-opacity="0.18" />
+  <path d="M22 32.5l7 7L43 24" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
