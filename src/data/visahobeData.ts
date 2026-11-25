@@ -52,7 +52,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Visa Information & Consultation',
     category: 'core',
     icon: 'support_agent',
-    imageUrl: 'https://images.pexels.com/photos/8441780/pexels-photo-8441780.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/consultation.jpg',
     shortDesc: 'Comprehensive guidance on visa categories, embassy requirements, and eligibility factors.',
     included: [
       'Evaluation of your travel purpose (Tourism, Business, Conference, Family Visit, Study)',
@@ -79,7 +79,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Document Checklist Guidance',
     category: 'core',
     icon: 'checklist',
-    imageUrl: 'https://images.pexels.com/photos/33497885/pexels-photo-33497885.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/document-checklist.jpg',
     shortDesc: 'Customized, verified document checklists based on current embassy requirements.',
     included: [
       'Category-specific checklist (Passport validity, photographs, financial evidence, employment proof)',
@@ -105,7 +105,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Visa Form-Filling Assistance',
     category: 'core',
     icon: 'edit_note',
-    imageUrl: 'https://images.pexels.com/photos/7876150/pexels-photo-7876150.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/form-filling.jpg',
     shortDesc: 'Meticulous data entry and verification on official government online portals (DS-160, Schengen, UKVI).',
     included: [
       'Drafting official application forms using applicant-supplied information',
@@ -131,7 +131,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'E-Visa Application Assistance',
     category: 'core',
     icon: 'airplane_ticket',
-    imageUrl: 'https://images.pexels.com/photos/5622659/pexels-photo-5622659.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/evisa-assistance.jpg',
     shortDesc: 'End-to-end processing for electronic visas, entry cards, and electronic travel authorizations (eTA).',
     included: [
       'Reviewing eligibility for official e-Visa portals (UAE, Turkey, Singapore SGAC, Malaysia MDAC, etc.)',
@@ -157,7 +157,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Visa Appointment Guidance',
     category: 'specialized',
     icon: 'event',
-    imageUrl: 'https://images.pexels.com/photos/16453351/pexels-photo-16453351.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/appointment-guidance.jpg',
     shortDesc: 'Guidance on navigating official embassy and VFS / TLS appointment booking portals.',
     included: [
       'Monitoring legitimate appointment availability on official scheduling systems',
@@ -183,7 +183,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Skilled Work Visa & Employment Information',
     category: 'specialized',
     icon: 'engineering',
-    imageUrl: 'https://images.pexels.com/photos/14614016/pexels-photo-14614016.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/work-visa-info.jpg',
     shortDesc: 'Verified procedural guidance for skilled technical workers, employer sponsorships, and Qiwa verification.',
     included: [
       'Explaining legal work permit versus tourist visa differences',
@@ -210,7 +210,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Document Attestation & Legalisation',
     category: 'specialized',
     icon: 'verified',
-    imageUrl: 'https://images.pexels.com/photos/4922356/pexels-photo-4922356.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/document-attestation.jpg',
     shortDesc: 'Coordination of notary public, Ministry of Foreign Affairs (MOFA), and embassy attestation chains.',
     included: [
       'Step-by-step attestation chain mapping (Notary → Education Board → Ministry of Foreign Affairs → Embassy)',
@@ -236,7 +236,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Visa Refusal Document Review',
     category: 'specialized',
     icon: 'search',
-    imageUrl: 'https://images.pexels.com/photos/36765718/pexels-photo-36765718.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/refusal-review.jpg',
     shortDesc: 'Objective administrative analysis of official refusal letters and previous application files.',
     included: [
       'Detailed reading of the official refusal letter and cited legal clauses (e.g., INA 214(b), Schengen Rule 2)',
@@ -262,7 +262,7 @@ export const VISAHOBE_SERVICES: ServiceItem[] = [
     title: 'Corporate Travel & B2B Partner Portal',
     category: 'corporate',
     icon: 'corporate_fare',
-    imageUrl: 'https://images.pexels.com/photos/20752572/pexels-photo-20752572.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    imageUrl: '/images/services/corporate-services.jpg',
     shortDesc: 'Dedicated visa tracking, executive documentation, and compliance support for businesses and agencies.',
     included: [
       'Centralized employee business visa tracking and expiry reminders',

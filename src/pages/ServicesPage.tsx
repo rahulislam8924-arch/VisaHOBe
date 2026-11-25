@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { VISAHOBE_SERVICES, ServiceItem } from '../data/visahobeData';
-import { Button, FilterChip, iconButtonClass, cn } from '../components/ui';
+import { Button, CardImage, FilterChip, iconButtonClass, cn } from '../components/ui';
 
 interface ServicesPageProps {
   onBookConsultation: () => void;
@@ -88,11 +88,11 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
             {/* Card Image Header */}
             {service.imageUrl && (
               <div className="w-full h-44 overflow-hidden relative bg-neutral-100">
-                <img
+                <CardImage
                   src={service.imageUrl}
                   alt={service.title}
+                  icon={service.icon}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-[#001d35] px-2.5 py-1 rounded-full shadow-2xs">

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { BLOG_POSTS, BlogPost } from '../data/visahobeData';
-import { Button, FilterChip, SearchInput } from '../components/ui';
+import { Button, CardImage, FilterChip, SearchInput } from '../components/ui';
 
 interface BlogPageProps {
   onBookConsultation: () => void;
@@ -78,11 +78,11 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
             {/* Editorial Image Header */}
             {post.imageUrl && (
               <div className="w-full h-44 overflow-hidden relative bg-neutral-100">
-                <img
+                <CardImage
                   src={post.imageUrl}
                   alt={post.title}
+                  icon="menu_book"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-[#001d35] px-2.5 py-1 rounded-full shadow-2xs">

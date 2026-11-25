@@ -222,7 +222,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f0ec] text-[#3c4043] flex flex-col selection:bg-[#c2e7ff] relative">
+    <div className="relative flex min-h-screen flex-col bg-transparent text-[#3c4043] selection:bg-[#c2e7ff]">
       {/* SVG Symbols Definition */}
       <IconsMap />
 

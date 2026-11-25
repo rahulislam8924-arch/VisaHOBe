@@ -22,12 +22,11 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
       aria-label="VisaHOBe Introduction"
     >
       {/* Ambient colour field — gives the glass surfaces something to refract */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[#f2f0ec]">
-        <div className="absolute -top-56 left-1/2 h-[620px] w-[min(1100px,130vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,115,232,0.28),transparent)] blur-3xl" />
-        <div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(16,185,129,0.22),transparent)] blur-3xl" />
-        <div className="absolute -left-40 bottom-0 h-[460px] w-[460px] rounded-full bg-[radial-gradient(closest-side,rgba(251,188,4,0.20),transparent)] blur-3xl" />
-        <div className="absolute right-1/4 bottom-10 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(161,66,244,0.16),transparent)] blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(#c8c4bc_1px,transparent_1px)] [background-size:22px_22px] opacity-50 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-64 left-1/2 h-[680px] w-[min(1150px,135vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(26,115,232,0.16),transparent)] blur-3xl" />
+        <div className="absolute -right-48 top-0 h-[560px] w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(56,189,248,0.14),transparent)] blur-3xl" />
+        <div className="absolute -left-48 bottom-0 h-[480px] w-[480px] rounded-full bg-[radial-gradient(closest-side,rgba(16,185,129,0.10),transparent)] blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(#cdc9c1_1px,transparent_1px)] [background-size:22px_22px] opacity-30 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]" />
       </div>
 
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-14 lg:px-8">
