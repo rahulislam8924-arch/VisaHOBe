@@ -109,6 +109,45 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
         </p>
       </div>
 
+      {/* Dataset snapshot */}
+      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {[
+          { icon: 'public', value: `${ALL_COUNTRIES.length}`, label: 'Countries covered' },
+          {
+            icon: 'newspaper',
+            value: `${new Set(ALL_COUNTRIES.map((c) => c.continent)).size}`,
+            label: 'Continents',
+          },
+          {
+            icon: 'bolt',
+            value: `${ALL_COUNTRIES.filter((c) => c.eVisaAvailable).length}`,
+            label: 'E-visa routes',
+          },
+          {
+            icon: 'flight_land',
+            value: `${ALL_COUNTRIES.filter((c) => c.visaOnArrival).length}`,
+            label: 'Visa on arrival',
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="flex items-center gap-2.5 rounded-2xl border border-black/[0.06] bg-white/80 px-3 py-2.5 shadow-2xs backdrop-blur-sm"
+          >
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+              <span className="material-icons text-[16px] leading-none">{stat.icon}</span>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[15px] font-bold leading-none text-[#202124]">
+                {stat.value}
+              </span>
+              <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-[0.06em] text-[#80868b]">
+                {stat.label}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+
       {/* Control Bar: Search & Quick Type Filters */}
       <div className="bg-white rounded-3xl p-4 sm:p-6 border border-black/5 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -276,27 +315,39 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               </div>
             </div>
 
-            {/* Sub-Tabs Inside Modal */}
-            <div className="px-6 py-2.5 bg-white border-b border-neutral-200 flex items-center gap-2 overflow-x-auto no-scrollbar">
-              {[
-                { id: 'all', label: 'Full 29-Point Report' },
-                { id: 'checklist', label: 'Document Checklist' },
-                { id: 'process', label: 'Application Steps & Fees' },
-                { id: 'faqs', label: 'Refusals & FAQs' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setReportTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                    reportTab === tab.id
-                      ? 'bg-[#1a73e8] text-white shadow-2xs'
-                      : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Report tabs */}
+            <div className="border-b border-black/[0.06] bg-white/95 px-4 py-2.5 backdrop-blur sm:px-6">
+              <div
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+                role="tablist"
+                aria-label="Report sections"
+              >
+                {[
+                  { id: 'all', label: 'Full 29-point report', icon: 'description' },
+                  { id: 'checklist', label: 'Document Checklist', icon: 'checklist' },
+                  { id: 'process', label: 'Steps & fees', icon: 'timeline' },
+                  { id: 'faqs', label: 'Refusals & FAQs', icon: 'help_outline' },
+                ].map((tab) => {
+                  const isActive = reportTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setReportTab(tab.id as typeof reportTab)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-semibold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 ${
+                        isActive
+                          ? 'bg-[#0b57d0] text-white shadow-xs'
+                          : 'text-[#5f6368] hover:bg-black/[0.05] hover:text-[#202124]'
+                      }`}
+                    >
+                      <span className="material-icons text-[15px] leading-none">{tab.icon}</span>
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Scrollable Modal Body: Full 29-Point Structure */}
