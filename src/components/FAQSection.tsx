@@ -28,7 +28,7 @@ export const FAQSection: React.FC = () => {
             return (
               <div
                 key={faq.id}
-                className="glass glass-sheen overflow-hidden rounded-2xl transition-all duration-200 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)]"
+                className="glass-flat glass-sheen overflow-hidden rounded-2xl transition-all duration-200 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)]"
               >
                 <button
                   type="button"

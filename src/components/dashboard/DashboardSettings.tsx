@@ -22,7 +22,7 @@ export const DashboardSettings: React.FC = () => {
       </div>
 
       {/* Card 1: Consular email & notification settings */}
-      <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
+      <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
         <div>
           <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
             Email & consular notifications
@@ -103,7 +103,7 @@ export const DashboardSettings: React.FC = () => {
       </div>
 
       {/* Card 2: Privacy & Biometric Data */}
-      <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
+      <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
         <div>
           <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
             Privacy & biometric security
@@ -189,7 +189,7 @@ export const DashboardSettings: React.FC = () => {
       </div>
 
       {/* Card 3: Saved Traveler Addresses */}
-      <div className="glass glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-4">
+      <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-4">
         <div>
           <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
             Saved applicant travel addresses

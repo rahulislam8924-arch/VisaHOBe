@@ -90,7 +90,7 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
       </div>
 
       {/* Transactions List */}
-      <div className="glass glass-sheen rounded-[28px]  shadow-xs divide-y divide-neutral-100 overflow-hidden">
+      <div className="glass-flat glass-sheen rounded-[28px]  shadow-xs divide-y divide-neutral-100 overflow-hidden">
         {filtered.length === 0 ? (
           <div className="p-12 text-center text-neutral-500">
             <span className="material-icons text-4xl text-neutral-300 mb-2">receipt_long</span>

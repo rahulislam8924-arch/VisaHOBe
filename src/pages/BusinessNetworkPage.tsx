@@ -41,7 +41,7 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
 
       {/* Partner Pillars with Images */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
+        <div className="glass-flat glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
           <div className="w-full h-40 overflow-hidden relative">
             <img
               src="https://images.pexels.com/photos/16453351/pexels-photo-16453351.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
@@ -63,7 +63,7 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
           </div>
         </div>
 
-        <div className="glass glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
+        <div className="glass-flat glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
           <div className="w-full h-40 overflow-hidden relative">
             <img
               src="https://images.pexels.com/photos/20752572/pexels-photo-20752572.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
@@ -85,7 +85,7 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
           </div>
         </div>
 
-        <div className="glass glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
+        <div className="glass-flat glass-sheen overflow-hidden rounded-3xl transition-all hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)] flex flex-col justify-between group">
           <div className="w-full h-40 overflow-hidden relative">
             <img
               src="https://images.pexels.com/photos/4922356/pexels-photo-4922356.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
@@ -109,7 +109,7 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
       </div>
 
       {/* Corporate Features List */}
-      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
+      <div className="glass-flat glass-sheen rounded-3xl p-8 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-[#202124]">Corporate Travel Portal Capabilities</h2>
           <p className="text-sm text-[#5f6368] mt-1">
@@ -153,7 +153,7 @@ export const BusinessNetworkPage: React.FC<BusinessNetworkPageProps> = ({
       </div>
 
       {/* Partner Registration Form */}
-      <div className="glass glass-sheen rounded-3xl p-6 sm:p-10">
+      <div className="glass-flat glass-sheen rounded-3xl p-6 sm:p-10">
         {submitted ? (
           <div className="text-center py-10 space-y-4">
             <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">

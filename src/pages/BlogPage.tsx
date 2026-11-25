@@ -73,7 +73,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onBookConsultation }) => {
           <article
             key={post.id}
             onClick={() => setActiveArticle(post)}
-            className="glass glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
+            className="glass-flat glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
           >
             {/* Editorial Image Header */}
             {post.imageUrl && (

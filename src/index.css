@@ -203,6 +203,16 @@
       0 6px 18px -12px rgba(32, 33, 36, 0.3);
   }
 
+  /* Blur-free glass for long card grids — same look, no per-tile compositing */
+  .glass-flat {
+    background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.66) 55%, rgba(255, 255, 255, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.35),
+      0 10px 26px -18px rgba(32, 33, 36, 0.3);
+  }
+
   /* Denser surface for large panels and dialogs that hold body copy */
   .glass-panel {
     background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 60%, rgba(250, 252, 255, 0.9) 100%);
@@ -235,6 +245,7 @@
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
+  .glass-flat,
   .glass-thin,
   .glass-panel {
     background-image: none;
@@ -248,6 +259,7 @@
 
 @media (prefers-reduced-transparency: reduce) {
   .glass,
+  .glass-flat,
   .glass-thin,
   .glass-panel {
     background-image: none;

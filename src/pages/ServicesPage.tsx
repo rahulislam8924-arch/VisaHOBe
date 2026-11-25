@@ -83,7 +83,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
           <div
             key={service.id}
             onClick={() => setSelectedService(service)}
-            className="glass glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
+            className="glass-flat glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
           >
             {/* Card Image Header */}
             {service.imageUrl && (
@@ -127,7 +127,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Comprehensive Service Standards & Quality Checklist */}
-      <div className="glass glass-sheen rounded-3xl p-8 sm:p-10 space-y-6">
+      <div className="glass-flat glass-sheen rounded-3xl p-8 sm:p-10 space-y-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">Our Document Pre-Screening Protocol</h2>
           <p className="text-sm text-[#5f6368] mt-1">Every application dossier undergoes our 4-point administrative quality check</p>
@@ -161,7 +161,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Document attestation chain explanation */}
-      <div className="glass glass-sheen rounded-3xl p-8 space-y-4">
+      <div className="glass-flat glass-sheen rounded-3xl p-8 space-y-4">
         <h2 className="text-xl sm:text-2xl font-bold text-[#202124]">Document Attestation Chain Guidance</h2>
         <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
           For educational degrees, marriage certificates, police clearances, and corporate documents destined for foreign embassies (e.g. UAE, Saudi Arabia, Kuwait, Qatar), documents must follow an authenticated statutory chain:

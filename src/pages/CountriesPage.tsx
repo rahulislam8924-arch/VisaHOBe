@@ -149,7 +149,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       </div>
 
       {/* Control Bar: Search & Quick Type Filters */}
-      <div className="glass glass-sheen rounded-3xl p-4 sm:p-6 space-y-4">
+      <div className="glass-flat glass-sheen rounded-3xl p-4 sm:p-6 space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Search */}
           <SearchInput
@@ -209,7 +209,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               setReportTab('all');
               setActiveCountry(c);
             }}
-            className="glass glass-sheen group flex h-full cursor-pointer flex-col rounded-2xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+            className="glass-flat glass-sheen group flex h-full cursor-pointer flex-col rounded-2xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
             aria-label={`Open the 29-point ${c.name} visa report`}
           >
             <div className="flex items-start justify-between gap-2">
