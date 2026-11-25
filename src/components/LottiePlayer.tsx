@@ -9,6 +9,8 @@ interface LottiePlayerProps {
   trigger?: 'enter-viewport' | 'autoplay';
   alt?: string;
   badgeIcon?: string;
+  /** Custom visual shown when the animation cannot be fetched */
+  fallback?: React.ReactNode;
 }
 
 export const LottiePlayer: React.FC<LottiePlayerProps> = ({
@@ -19,6 +21,7 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
   trigger = 'enter-viewport',
   alt = 'VisaHOBe Portal Feature Animation',
   badgeIcon,
+  fallback,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<AnimationItem | null>(null);
@@ -125,7 +128,9 @@ export const LottiePlayer: React.FC<LottiePlayerProps> = ({
       />
 
       {/* Branded fallback when the animation cannot be fetched */}
-      {hasError && (
+      {hasError && fallback}
+
+      {hasError && !fallback && (
         <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
           <span className="relative flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-[#1a73e8] shadow-[0_10px_28px_-14px_rgba(60,64,67,0.6)] ring-1 ring-black/[0.04]">
             <span className="material-icons text-[30px] leading-none">

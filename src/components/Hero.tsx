@@ -2,6 +2,7 @@ import React from 'react';
 import { LottiePlayer } from './LottiePlayer';
 import { ALL_COUNTRIES } from '../data/allCountriesData';
 import { Button } from './ui';
+import { HeroVisual } from './FeatureVisual';
 
 interface HeroProps {
   onBookConsultation: () => void;
@@ -12,28 +13,6 @@ const TRUST_ITEMS = [
   { icon: 'public', text: `${ALL_COUNTRIES.length}-country visa database` },
   { icon: 'receipt_long', text: 'Transparent, itemised embassy fees' },
   { icon: 'verified_user', text: 'No false promises or fabricated documents' },
-];
-
-/* Decorative glass labels that float around the showcase stage */
-const STAGE_LABELS = [
-  {
-    icon: 'fact_check',
-    title: '29-point reports',
-    caption: 'Per country, verified',
-    className: 'left-[-18px] top-14',
-  },
-  {
-    icon: 'event_available',
-    title: 'Appointment passes',
-    caption: 'Embassy slots tracked',
-    className: 'right-[-18px] top-32',
-  },
-  {
-    icon: 'folder_shared',
-    title: 'Document vault',
-    caption: 'Checklists in one place',
-    className: 'bottom-16 left-[-8px]',
-  },
 ];
 
 export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) => {
@@ -135,11 +114,11 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
         </div>
 
         {/* Showcase stage around the hero animation */}
-        <div className="relative mx-auto mt-12 w-full max-w-[940px] sm:mt-16">
+        <div className="relative mx-auto mt-9 w-full max-w-[900px] sm:mt-12">
           {/* Halo behind the frame */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-8 -top-4 bottom-8 rounded-[56px] bg-gradient-to-br from-[#1a73e8]/18 via-[#7ab7ff]/10 to-emerald-400/15 blur-2xl"
+            className="absolute inset-x-12 -top-3 bottom-10 rounded-[52px] bg-gradient-to-br from-[#1a73e8]/14 via-[#7ab7ff]/8 to-emerald-400/12 blur-2xl"
           />
 
           <div className="relative rounded-[28px] border border-white/70 bg-white/55 p-1.5 shadow-[0_30px_80px_-40px_rgba(60,64,67,0.55)] backdrop-blur-xl sm:rounded-[40px] sm:p-2.5">
@@ -152,36 +131,15 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
 
               <LottiePlayer
                 src="https://www.gstatic.com/marketing-cms/84/e0/4ea3d6ec422284df08def68fc0ef/gwallet-hero-en-us.json"
-                className="relative w-full h-auto min-h-[320px] sm:min-h-[460px] md:min-h-[580px] max-w-[880px] mx-auto"
+                className="relative mx-auto h-auto w-full min-h-[300px] max-w-[860px] sm:min-h-[420px] md:min-h-[500px]"
                 autoplay={true}
                 loop={true}
                 trigger="autoplay"
                 alt="VisaHOBe Digital Visa & Consular Application Showcase"
                 badgeIcon="verified_user"
+                fallback={<HeroVisual />}
               />
             </div>
-          </div>
-
-          {/* Floating glass labels (decorative, desktop only) */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-            {STAGE_LABELS.map((label) => (
-              <div
-                key={label.title}
-                className={`absolute flex items-center gap-2.5 rounded-2xl border border-white/80 bg-white/85 px-3.5 py-2.5 shadow-[0_10px_30px_-14px_rgba(60,64,67,0.5)] backdrop-blur-md ${label.className}`}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
-                  <span className="material-icons text-[17px] leading-none">{label.icon}</span>
-                </span>
-                <span className="text-left">
-                  <span className="block text-[12px] font-semibold leading-tight text-[#202124]">
-                    {label.title}
-                  </span>
-                  <span className="mt-0.5 block text-[10.5px] leading-tight text-[#5f6368]">
-                    {label.caption}
-                  </span>
-                </span>
-              </div>
-            ))}
           </div>
 
           {/* Blend into the next section */}

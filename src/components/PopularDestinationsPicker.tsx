@@ -1,6 +1,6 @@
 import React from 'react';
 import { ALL_COUNTRIES } from '../data/allCountriesData';
-import { Button } from './ui';
+import { Button, CountryFlag } from './ui';
 
 interface PopularDestinationsPickerProps {
   onSelectCountry: (countryName: string) => void;
@@ -62,8 +62,8 @@ export const PopularDestinationsPicker: React.FC<PopularDestinationsPickerProps>
                 className="group flex shrink-0 snap-start items-center gap-2.5 rounded-2xl border border-black/[0.07] bg-white px-3 py-2 text-left shadow-2xs transition-all duration-150 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:bg-[#f8fbff] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 cursor-pointer"
                 aria-label={`Open the ${c.name} visa guide`}
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f6f9fe] text-lg transition-colors group-hover:bg-white">
-                  {c.flag}
+                <span className="flex h-9 w-[42px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f6f9fe] transition-colors group-hover:bg-white">
+                  <CountryFlag flag={c.flag} name={c.name} size="md" />
                 </span>
                 <span className="flex flex-col">
                   <span className="text-[12.5px] font-semibold leading-tight text-[#202124] group-hover:text-[#0b57d0]">

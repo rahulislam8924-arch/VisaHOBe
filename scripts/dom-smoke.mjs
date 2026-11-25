@@ -137,8 +137,13 @@ await wait(250);
 check('hash routing opens the country guides', text(doc.querySelector('h1')).includes('Global Visa Guides'));
 
 // Country report tabs now filter content
-const japanCard = [...doc.querySelectorAll('div')].find(
-  (el) => text(el.querySelector('h3')) === 'Japan' && text(el).includes('29-Point Guide')
+const japanCard = [...doc.querySelectorAll('div, button')].find(
+  (el) => text(el.querySelector('h3')) === 'Japan' && /29-point guide/i.test(text(el))
+);
+check(
+  'country cards render bundled flags',
+  [...doc.querySelectorAll('img[src^="/flags/"]')].length > 0,
+  'no /flags/ images found'
 );
 check('country card exists', Boolean(japanCard));
 if (japanCard) {

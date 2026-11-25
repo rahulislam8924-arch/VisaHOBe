@@ -4,7 +4,7 @@ import {
   ComprehensiveCountryData,
   generate29PointCountryReport,
 } from '../data/allCountriesData';
-import { Button, FilterChip, SearchInput } from '../components/ui';
+import { Button, CountryFlag, FilterChip, SearchInput } from '../components/ui';
 
 interface CountriesPageProps {
   /** Country name to open straight away (used by the home page destination picker) */
@@ -163,61 +163,58 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       {/* Countries Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
         {filteredCountries.map((c) => (
-          <div
+          <button
             key={c.id}
+            type="button"
             onClick={() => {
               setReportTab('all');
               setActiveCountry(c);
             }}
-            className="bg-white rounded-3xl p-5 border border-black/5 shadow-xs hover:shadow-md hover:border-blue-400/60 transition-all cursor-pointer flex flex-col justify-between group"
+            className="group flex h-full flex-col rounded-2xl border border-black/[0.06] bg-white p-4 text-left shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:shadow-[0_18px_40px_-30px_rgba(60,64,67,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 cursor-pointer"
+            aria-label={`Open the 29-point ${c.name} visa report`}
           >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-3xl">{c.flag}</span>
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase">
-                  {c.continent}
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-bold text-[#202124] group-hover:text-[#1a73e8] transition-colors leading-snug">
-                  {c.name}
-                </h3>
-                <p className="text-xs text-neutral-500">Capital: {c.capital}</p>
-              </div>
-
-              {/* Status Pills */}
-              <div className="space-y-1.5 pt-1 text-xs">
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Entry Regime:</span>
-                  <span className="font-semibold text-neutral-800 text-[11px] text-right truncate max-w-[130px]">
-                    {c.visaTypeSummary}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Submission:</span>
-                  <span className="font-medium text-[11px] text-neutral-700 truncate max-w-[130px]">
-                    {c.submissionLocation}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Processing:</span>
-                  <span className="font-medium text-[11px] text-neutral-700">
-                    {c.processingTime}
-                  </span>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <CountryFlag flag={c.flag} name={c.name} size="lg" />
+                <div className="min-w-0">
+                  <h3 className="truncate text-[14.5px] font-bold leading-tight text-[#202124] transition-colors group-hover:text-[#0b57d0]">
+                    {c.name}
+                  </h3>
+                  <p className="mt-0.5 truncate text-[11px] text-[#80868b]">{c.capital}</p>
                 </div>
               </div>
+
+              <span className="shrink-0 rounded-full bg-[#f1f4f9] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em] text-[#5f6368]">
+                {c.continent}
+              </span>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-semibold text-blue-600">
-              <span className="group-hover:underline">29-Point Guide</span>
-              <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">
+            <dl className="mt-3 space-y-1.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Entry</dt>
+                <dd className="max-w-[9.5rem] truncate text-right text-[11px] font-semibold text-[#3c4043]">
+                  {c.visaTypeSummary}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Apply at</dt>
+                <dd className="max-w-[9.5rem] truncate text-right text-[11px] font-medium text-[#5f6368]">
+                  {c.submissionLocation}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Takes</dt>
+                <dd className="text-right text-[11px] font-medium text-[#5f6368]">{c.processingTime}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-3 flex items-center justify-between border-t border-black/[0.05] pt-2.5 text-[11px] font-semibold text-[#0b57d0]">
+              <span>29-point guide</span>
+              <span className="material-icons text-[15px] leading-none transition-transform duration-200 group-hover:translate-x-0.5">
                 arrow_forward
               </span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -237,8 +234,8 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
             <div className="relative overflow-hidden bg-gradient-to-r from-[#001d35] via-[#0b57d0] to-[#1a73e8] text-white p-6 sm:p-7">
               <div className="relative z-10 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-4xl shadow-inner border border-white/20 shrink-0">
-                    {activeCountry.flag}
+                  <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/10 shadow-inner backdrop-blur-md">
+                    <CountryFlag flag={activeCountry.flag} name={activeCountry.name} size="lg" className="!h-11 !w-[60px] !rounded-md ring-white/40" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5 flex-wrap">

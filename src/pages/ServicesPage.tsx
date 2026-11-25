@@ -83,7 +83,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
           <div
             key={service.id}
             onClick={() => setSelectedService(service)}
-            className="bg-white rounded-3xl overflow-hidden border border-black/5 shadow-xs hover:shadow-md hover:border-blue-300/80 transition-all cursor-pointer flex flex-col justify-between group"
+            className="group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c2d7f5] hover:shadow-[0_18px_40px_-30px_rgba(60,64,67,0.6)]"
           >
             {/* Card Image Header */}
             {service.imageUrl && (

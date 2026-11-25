@@ -1,6 +1,7 @@
 import React from 'react';
 import { FeatureSectionData } from '../types';
 import { LottiePlayer } from './LottiePlayer';
+import { FeatureVisual } from './FeatureVisual';
 
 interface FeatureSectionProps {
   section: FeatureSectionData;
@@ -48,6 +49,9 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                   loop={true}
                   alt={section.altText}
                   badgeIcon={section.inlineIcon}
+                  fallback={
+                    <FeatureVisual variant={section.id} accent={section.iconColor || '#1a73e8'} />
+                  }
                 />
               </div>
             </div>
