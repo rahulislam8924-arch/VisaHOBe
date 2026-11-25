@@ -131,7 +131,7 @@ export const Hero: React.FC<HeroProps> = ({ onBookConsultation, onOpenPortal }) 
 
               <LottiePlayer
                 src="https://www.gstatic.com/marketing-cms/84/e0/4ea3d6ec422284df08def68fc0ef/gwallet-hero-en-us.json"
-                className="relative mx-auto h-auto w-full min-h-[300px] max-w-[860px] sm:min-h-[420px] md:min-h-[500px]"
+                className="relative mx-auto h-auto w-full min-h-[340px] max-w-[860px] sm:min-h-[420px] md:min-h-[460px]"
                 autoplay={true}
                 loop={true}
                 trigger="autoplay"
