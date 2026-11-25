@@ -193,9 +193,14 @@ export function App() {
         return;
       }
       setIsDashboardView(false);
-      setCurrentPage(
-        (ROUTABLE_PAGES as string[]).includes(hash) ? (hash as AppPage) : 'home'
-      );
+      if (!hash) {
+        setCurrentPage('home');
+        return;
+      }
+      // Leave in-page anchors (#faqs, #page-content, section ids) on the current route
+      if ((ROUTABLE_PAGES as string[]).includes(hash)) {
+        setCurrentPage(hash as AppPage);
+      }
     };
     window.addEventListener('popstate', syncRouteFromLocation);
     // Makes plain <a href="#services"> links (feature section CTAs, dashboard links) work
