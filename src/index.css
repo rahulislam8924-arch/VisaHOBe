@@ -37,6 +37,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Decorative blobs should never create a sideways scrollbar */
+    overflow-x: clip;
     font-family: 'Google Sans Text', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, sans-serif;
     color: #3c4043;
     background-color: #f2f0ec;
