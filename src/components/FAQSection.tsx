@@ -11,7 +11,7 @@ export const FAQSection: React.FC = () => {
   };
 
   return (
-    <section id="faqs" className="py-16 sm:py-24 bg-[#f2f0ec] border-t border-black/5 scroll-mt-20">
+    <section id="faqs" className="py-16 sm:py-24 bg-[#f2f0ec] border-t border-black/5 scroll-mt-[140px]">
       <div className="max-w-[880px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-12 sm:mb-16">
           <p className="text-sm font-semibold tracking-wider text-[#5f6368] uppercase mb-2">

@@ -13,7 +13,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
   return (
     <section
       id={section.id}
-      className="py-14 sm:py-20 md:py-24 scroll-mt-24 transition-opacity duration-700 bg-[#f2f0ec]"
+      className="py-14 sm:py-20 md:py-24 scroll-mt-[140px] transition-opacity duration-700 bg-[#f2f0ec]"
       data-modulewell=""
     >
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">

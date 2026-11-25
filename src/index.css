@@ -93,8 +93,7 @@
 
 /* Jumplinks sticky styles */
 .glue-jumplinks {
-  position: sticky;
-  top: 16px;
+  position: relative;
   z-index: 40;
   display: flex;
   align-items: center;

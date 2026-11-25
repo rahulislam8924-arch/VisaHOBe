@@ -38,7 +38,7 @@ export const JumplinksBar: React.FC<JumplinksBarProps> = ({
   };
 
   return (
-    <div className="sticky top-4 z-40 px-3 sm:px-4 pointer-events-none mb-6">
+    <div className="sticky top-[76px] sm:top-[84px] z-40 px-3 sm:px-4 pointer-events-none mb-6">
       <nav
         className="glue-jumplinks pointer-events-auto bg-white border border-black/5 shadow-[0_1px_3px_0_rgba(60,64,67,0.25),0_4px_8px_3px_rgba(60,64,67,0.12)] rounded-full px-2 py-1.5 max-w-5xl mx-auto flex items-center transition-all duration-300"
         role="navigation"

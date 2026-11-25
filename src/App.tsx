@@ -133,7 +133,7 @@ export function App() {
     setActiveSection(id);
     const element = document.getElementById(id);
     if (element) {
-      const yOffset = -90;
+      const yOffset = -140;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
