@@ -33,7 +33,7 @@ const buildReceipt = (tx: TransactionData, profile?: PortalProfile) => {
     'VisaHOBe — Official consular fee receipt',
     '=========================================',
     `Receipt no.      : ${tx.id.toUpperCase()}`,
-    `Issued to        : ${profile?.name ?? 'VisaHOBe client'}`,
+    `Issued to        : ${profile?.fullName ?? 'VisaHOBe client'}`,
     `Email            : ${profile?.email ?? '—'}`,
     `Issued on        : ${new Date().toLocaleString('en-US')}`,
     '',

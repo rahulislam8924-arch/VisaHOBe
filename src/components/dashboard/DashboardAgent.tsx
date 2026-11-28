@@ -1,361 +1,303 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ALL_COUNTRIES } from '../../data/allCountriesData';
-import { DashboardPassItem } from '../../data/dashboardMockData';
-import { DashboardTab } from './DashboardLayout';
-import { TransactionData } from './TransactionReceiptModal';
-
-interface DashboardAgentProps {
-  passes: DashboardPassItem[];
-  transactions: TransactionData[];
-  onNavigateTab?: (tab: DashboardTab) => void;
-}
+import {
+  AGENT_QUICK_PROMPTS,
+  emptyAgentSession,
+  runAgentTurn,
+  type AgentSession,
+} from '../../lib/aiAgent';
+import { getPortalMetrics } from '../../lib/portalMetrics';
+import type { PortalState } from '../../lib/portalStore';
+import type { NewApplicationInput } from '../../lib/portalStore';
+import type { VisaApplication } from '../../lib/portalTypes';
+import { useToast } from './PortalToast';
 
 interface Message {
   id: number;
-  role: 'agent' | 'client';
+  role: 'client' | 'agent';
   text: string;
-  chips?: string[];
+  at: string;
 }
 
-const QUICK_PROMPTS = [
-  'Do I need a visa for the UAE?',
-  'What documents do I need for Schengen?',
-  'Show my application status',
-  'How much have I paid in embassy fees?',
-];
+interface DashboardAgentProps {
+  state: PortalState;
+  onCreateApplication: (input: NewApplicationInput) => VisaApplication;
+  onOpenApplication: (applicationId: string) => void;
+  onOpenSupport: () => void;
+}
 
-const DOCUMENT_CHECKLIST = [
-  'Passport valid for at least 6 months with 2 blank pages',
-  'Recent biometric photos to the mission’s specification',
-  'Bank statement (last 3–6 months) plus solvency letter',
-  'Confirmed itinerary, accommodation and travel insurance',
-  'Employment or student letter and approved leave',
-  'Cover letter explaining purpose, dates and funding',
-];
+const now = () =>
+  new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-/** Everyday names and abbreviations clients actually type */
-const COUNTRY_ALIASES: Record<string, string> = {
-  uae: 'United Arab Emirates',
-  dubai: 'United Arab Emirates',
-  'abu dhabi': 'United Arab Emirates',
-  emirates: 'United Arab Emirates',
-  usa: 'United States',
-  us: 'United States',
-  america: 'United States',
-  uk: 'United Kingdom',
-  britain: 'United Kingdom',
-  england: 'United Kingdom',
-  ksa: 'Saudi Arabia',
-  riyadh: 'Saudi Arabia',
-  saudia: 'Saudi Arabia',
-  korea: 'South Korea',
-  'south korea': 'South Korea',
-  holland: 'Netherlands',
-  germany: 'Germany',
-  italy: 'Italy',
-  spain: 'Spain',
-  france: 'France',
-  canada: 'Canada',
-  australia: 'Australia',
-  japan: 'Japan',
-  china: 'China',
-  malaysia: 'Malaysia',
-  singapore: 'Singapore',
-  thailand: 'Thailand',
-  qatar: 'Qatar',
-  oman: 'Oman',
-  kuwait: 'Kuwait',
-  bahrain: 'Bahrain',
-  turkey: 'Turkey',
-  turkiye: 'Turkey',
-};
+export const DashboardAgent: React.FC<DashboardAgentProps> = ({
+  state,
+  onCreateApplication,
+  onOpenApplication,
+  onOpenSupport,
+}) => {
+  const { notify } = useToast();
+  const metrics = useMemo(() => getPortalMetrics(state), [state]);
 
-const findCountry = (question: string) => {
-  const q = question.toLowerCase();
-
-  const alias = Object.keys(COUNTRY_ALIASES).find((key) =>
-    new RegExp(`(^|[^a-z])${key}([^a-z]|$)`).test(q)
-  );
-  if (alias) {
-    const target = ALL_COUNTRIES.find((c) => c.name === COUNTRY_ALIASES[alias]);
-    if (target) return target;
-  }
-
-  return (
-    ALL_COUNTRIES.find((c) => q.includes(c.name.toLowerCase())) ||
-    ALL_COUNTRIES.find((c) => c.name.toLowerCase().startsWith(q.trim())) ||
-    null
-  );
-};
-
-const countryAnswer = (country: (typeof ALL_COUNTRIES)[number]) => {
-  const entry = [
-    country.eVisaAvailable ? 'e-Visa available' : null,
-    country.visaOnArrival ? 'visa on arrival' : null,
-    country.biometricRequired ? 'biometrics required' : null,
-    country.interviewRequired ? 'interview may be required' : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
-  return [
-    `${country.name} (${country.continent}) — capital ${country.capital}, currency ${country.currency}.`,
-    `Entry route: ${country.visaTypeSummary}.`,
-    country.visaRequiredForBD
-      ? 'Bangladeshi passport holders need a visa before travel.'
-      : 'Bangladeshi passport holders do not need a visa for this destination.',
-    entry ? `Notes: ${entry}.` : '',
-    `Apply through: ${country.submissionLocation}.`,
-    `Typical processing: ${country.processingTime}. Embassy fee range: ${country.embassyFeeRange}.`,
-    'Open Countries in the main site for the full 29-point consular report. Embassy decisions are always final.',
-  ]
-    .filter(Boolean)
-    .join('\n');
-};
-
-export const DashboardAgent: React.FC<DashboardAgentProps> = ({ passes, transactions }) => {
+  const [session, setSession] = useState<AgentSession>(emptyAgentSession);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       role: 'agent',
-      text:
-        'Assalamu alaikum 👋 I’m the VisaHOBe AI visa agent. Ask me about a destination, your documents, application status or embassy fee receipts.\n\nI answer from VisaHOBe’s verified 190-country dataset — no guesses, no fake promises.',
-      chips: QUICK_PROMPTS,
+      text: [
+        `Hello ${state.profile.fullName.split(' ')[0] || 'there'} — I am the VisaHOBe AI visa agent.`,
+        '',
+        'I can prepare a complete application with you: requirements, applicant and passport details, the document checklist, a preliminary document check, the form preview and an estimated fee.',
+        '',
+        'Tell me the country you want to visit, or ask me anything about visas.',
+      ].join('\n'),
+      at: now(),
     },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [suggestions, setSuggestions] = useState<string[]>(AGENT_QUICK_PROMPTS);
   const nextId = useRef(2);
-
-  const completedTotal = useMemo(
-    () =>
-      transactions
-        .filter((t) => t.status === 'Completed')
-        .reduce((sum, t) => sum + t.amount, 0),
-    [transactions]
-  );
-
-  const pendingCount = useMemo(
-    () => transactions.filter((t) => t.status === 'Pending').length,
-    [transactions]
-  );
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (typeof bottomRef.current?.scrollIntoView === 'function') {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
   }, [messages, isTyping]);
 
-  const buildAnswer = (question: string): string => {
-    const q = question.toLowerCase();
+  useEffect(
+    () => () => {
+      timers.current.forEach((id) => window.clearTimeout(id));
+    },
+    []
+  );
 
-    const country = findCountry(question);
-    if (country) return countryAnswer(country);
+  const send = (raw: string) => {
+    const text = raw.trim();
+    if (!text || isTyping) return;
 
-    if (/(application|status|track|pass|visa file|approve)/.test(q)) {
-      if (passes.length === 0) {
-        return 'You have no application files in this portal yet. Start one from Visa Services on visahobe.com and it will appear here with live milestones.';
-      }
-      const lines = passes.map(
-        (pass) =>
-          `• ${pass.title} — ${pass.issuer}${pass.expiryDate ? ` · valid until ${pass.expiryDate}` : ''}${
-            pass.badge ? ` · ${pass.badge}` : ''
-          }`
-      );
-      return [
-        `You have ${passes.length} application file${passes.length > 1 ? 's' : ''} stored in the portal:`,
-        ...lines,
-        'Open “My Applications” for barcodes, biometric slips and courier tracking.',
-      ].join('\n');
-    }
-
-    if (/(payment|fee|receipt|paid|card|transaction|refund)/.test(q)) {
-      return [
-        `Settled so far: ৳${completedTotal.toLocaleString('en-US')} across ${
-          transactions.filter((t) => t.status === 'Completed').length
-        } completed consular payments.`,
-        pendingCount > 0
-          ? `${pendingCount} payment${pendingCount > 1 ? 's are' : ' is'} still pending at the bank.`
-          : 'No payments are pending right now.',
-        'Every receipt is itemised — open “Payments” to add a card or review payment history.',
-      ].join('\n');
-    }
-
-    if (/(document|checklist|paper|bank statement|photo|insurance)/.test(q)) {
-      return [
-        'Standard document set for most missions:',
-        ...DOCUMENT_CHECKLIST.map((item) => `• ${item}`),
-        'Category-specific extras (PCC, trade certificate, sponsor NOC, invitation letter) are listed in the 29-point country report.',
-      ].join('\n');
-    }
-
-    if (/(appointment|biometric|interview|vfs|slot)/.test(q)) {
-      return [
-        'Appointment and biometric guidance:',
-        '• Book only through the mission’s official portal or authorised centre (VFS, TLScontact, BLS).',
-        '• Carry the printed appointment slip, passport, and the exact photo specification.',
-        '• Arrive 15 minutes early; biometrics are usually completed in under 10 minutes.',
-        'Your appointment passes live in “My Applications” so you can show the barcode at the gate.',
-      ].join('\n');
-    }
-
-    if (/(refus|reject|denied|appeal)/.test(q)) {
-      return [
-        'If an application was refused:',
-        '• Read the refusal letter carefully — it names the exact ground of refusal.',
-        '• Address that ground with evidence (funds trail, ties to Bangladesh, corrected itinerary).',
-        '• Never submit altered bank statements or false bookings — that triggers a long-term ban.',
-        'Our refusal review service maps each ground to the documents that answer it.',
-      ].join('\n');
-    }
-
-    return [
-      'I can help with destination requirements, document checklists, application status, appointments and fee receipts.',
-      'Try asking: “Do I need a visa for Turkey?”, “What is my application status?” or “How much have I paid?”',
-    ].join('\n');
-  };
-
-  const ask = (question: string) => {
-    const trimmed = question.trim();
-    if (!trimmed) return;
-    const clientMessage: Message = { id: nextId.current++, role: 'client', text: trimmed };
+    const clientMessage: Message = { id: nextId.current++, role: 'client', text, at: now() };
     setMessages((prev) => [...prev, clientMessage]);
     setInput('');
+
+    const result = runAgentTurn(session, text, {
+      defaultApplicant: {
+        fullName: state.profile.fullName,
+        dateOfBirth: state.profile.dateOfBirth,
+        nationality: state.profile.nationality,
+        email: state.profile.email,
+        phone: state.profile.phone,
+        passportNumber: state.profile.passportNumber,
+        passportExpiry: state.profile.passportExpiry,
+        passportIssueCountry: state.profile.passportIssueCountry,
+        gender: state.profile.gender,
+      },
+      applicationCount: metrics.totalApplications,
+      missingDocuments: metrics.missingDocuments,
+      pendingApprovals: metrics.pendingApprovals,
+    });
+
+    setSession(result.session);
     setIsTyping(true);
 
-    const answer = buildAnswer(trimmed);
-    window.setTimeout(() => {
-      setMessages((prev) => [...prev, { id: nextId.current++, role: 'agent', text: answer }]);
+    const typingTimer = window.setTimeout(() => {
       setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        ...result.replies.map((reply) => ({
+          id: nextId.current++,
+          role: 'agent' as const,
+          text: reply,
+          at: now(),
+        })),
+      ]);
+      setSuggestions(result.suggestions);
+
+      if (result.openSupport) onOpenSupport();
+
+      if (result.createdApplication) {
+        const application = onCreateApplication(result.createdApplication);
+        notify('Draft application created — upload the checklist documents');
+        onOpenApplication(application.id);
+      }
     }, 550);
+
+    timers.current.push(typingTimer);
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-[#1f1f1f] sm:text-3xl">AI Visa Agent</h1>
-            <span className="rounded-full bg-[#c2e7ff] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#001d35]">
-              Beta
-            </span>
-          </div>
-          <p className="max-w-xl text-sm leading-relaxed text-[#444746]">
-            Instant answers on entry rules, document checklists, appointments and fee receipts —
-            grounded in VisaHOBe’s verified country dataset.
-          </p>
-        </div>
+  const currentStep = session.step;
 
+  return (
+    <div className="max-w-5xl space-y-4 animate-in fade-in text-left duration-300">
+      <div className="space-y-1 pb-1">
+        <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl font-normal text-[#1f1f1f] sm:text-4xl">
+          AI Visa Agent
+        </h2>
+        <p className="max-w-2xl text-sm leading-relaxed text-[#444746]">
+          Your application assistant, grounded in the verified 190-country dataset and your own
+          portal records. It prepares the application — you review and approve before anything moves
+          forward.
+        </p>
       </div>
 
-      {/* Conversation */}
-      <div className="glass-flat glass-sheen flex flex-col overflow-hidden rounded-[28px]">
-        <div
-          ref={scrollRef}
-          role="log"
-          aria-live="polite"
-          aria-label="Conversation with the VisaHOBe AI visa agent"
-          className="max-h-[460px] min-h-[320px] flex-1 space-y-4 overflow-y-auto p-5 sm:p-6"
-        >
-          {messages.map((message) => {
-            const isAgent = message.role === 'agent';
-            return (
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Chat */}
+        <div className="glass-flat glass-sheen flex h-[560px] flex-col overflow-hidden rounded-[28px] shadow-xs lg:col-span-2">
+          <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e8f0fe] text-[#0b57d0]">
+                <span className="material-icons text-base">auto_awesome</span>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-[#1f1f1f]">VisaHOBe AI Agent</p>
+                <p className="text-[11px] text-[#5f6368]">
+                  {currentStep === 'idle'
+                    ? 'Ready · preview mode'
+                    : `Collecting details · step: ${currentStep}`}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenSupport}
+              className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#0b57d0] ring-1 ring-black/[0.08] transition-colors hover:bg-neutral-50 cursor-pointer"
+            >
+              Contact support
+            </button>
+          </div>
+
+          <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+            {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex items-start gap-3 ${isAgent ? '' : 'flex-row-reverse'}`}
+                className={`flex ${message.role === 'client' ? 'justify-end' : 'justify-start'}`}
               >
-                <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                    isAgent
-                      ? 'bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] text-white'
-                      : 'bg-[#e8f0fe] text-[#0b57d0]'
-                  }`}
-                >
-                  <span className="material-icons text-[18px] leading-none">
-                    {isAgent ? 'auto_awesome' : 'person'}
-                  </span>
-                </span>
-
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    isAgent
-                      ? 'bg-white/80 text-[#3c4043] shadow-2xs ring-1 ring-black/[0.04]'
-                      : 'bg-[#0b57d0] text-white'
+                  className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[12.5px] leading-relaxed ${
+                    message.role === 'client'
+                      ? 'bg-[#0b57d0] text-white'
+                      : 'bg-white text-[#1f1f1f] ring-1 ring-black/[0.06]'
                   }`}
                 >
-                  <p className="whitespace-pre-line">{message.text}</p>
-
-                  {message.chips && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {message.chips.map((chip) => (
-                        <button
-                          key={chip}
-                          type="button"
-                          onClick={() => ask(chip)}
-                          className="rounded-full border border-[#c2e7ff] bg-[#e8f0fe]/80 px-3 py-1 text-[11.5px] font-semibold text-[#0b57d0] transition-colors hover:bg-[#d7e6fd] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
-                        >
-                          {chip}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {message.text}
+                  <span
+                    className={`mt-1 block text-[10px] ${
+                      message.role === 'client' ? 'text-white/70' : 'text-[#9aa0a6]'
+                    }`}
+                  >
+                    {message.at}
+                  </span>
                 </div>
               </div>
-            );
-          })}
+            ))}
 
-          {isTyping && (
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] text-white">
-                <span className="material-icons text-[18px] leading-none">auto_awesome</span>
-              </span>
-              <span className="flex items-center gap-1 rounded-2xl bg-white/80 px-4 py-3 shadow-2xs ring-1 ring-black/[0.04]">
-                {[0, 1, 2].map((dot) => (
-                  <span
-                    key={dot}
-                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9aa0a6]"
-                    style={{ animationDelay: `${dot * 120}ms` }}
-                  />
-                ))}
-              </span>
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-1 rounded-2xl bg-white px-3.5 py-3 ring-1 ring-black/[0.06]">
+                  {[0, 1, 2].map((dot) => (
+                    <span
+                      key={dot}
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#9aa0a6]"
+                      style={{ animationDelay: `${dot * 120}ms` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {suggestions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 border-t border-black/[0.06] px-4 py-2">
+              {suggestions.slice(0, 4).map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => send(suggestion)}
+                  className="rounded-full bg-[#e8f0fe] px-3 py-1.5 text-[11px] font-medium text-[#0b57d0] transition-colors hover:bg-[#d2e3fc] cursor-pointer"
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
           )}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
+            className="flex items-center gap-2 border-t border-black/[0.06] px-3 py-3"
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about a country, documents, appointments or fees…"
+              className="min-w-0 flex-1 rounded-full border border-black/[0.08] bg-white/90 px-4 py-2.5 text-sm text-[#1f1f1f] placeholder:text-[#9aa0a6] focus:border-[#1a73e8] focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/25"
+              aria-label="Message the AI visa agent"
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isTyping}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0b57d0] text-white transition-colors hover:bg-[#0842a0] disabled:opacity-40 cursor-pointer"
+              aria-label="Send message"
+            >
+              <span className="material-icons text-lg">send</span>
+            </button>
+          </form>
         </div>
 
-        {/* Composer */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            ask(input);
-          }}
-          className="flex items-center gap-2 border-t border-black/[0.06] bg-white/60 p-3 sm:p-4"
-        >
-          <label className="sr-only" htmlFor="agent-input">
-            Ask the AI visa agent
-          </label>
-          <input
-            id="agent-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about a country, documents, appointments or fees…"
-            className="min-w-0 flex-1 rounded-full border border-black/[0.08] bg-white/90 px-4 py-2.5 text-sm text-[#1f1f1f] placeholder:text-[#9aa0a6] focus:border-[#1a73e8] focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/25"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim()}
-            aria-label="Send question"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0b57d0] text-white transition-colors hover:bg-[#0842a0] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
-          >
-            <span className="material-icons text-[20px] leading-none">send</span>
-          </button>
-        </form>
-      </div>
+        {/* Side rail */}
+        <div className="space-y-4">
+          <div className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <h3 className="font-['Google_Sans',Roboto,sans-serif] text-base font-medium text-[#1f1f1f]">
+              What I can prepare
+            </h3>
+            <ul className="space-y-1.5 text-xs text-[#444746]">
+              {[
+                'Visa requirement & country guidance',
+                'Applicant and passport details',
+                'Document checklist generation',
+                'Preliminary document validation',
+                'Application form preparation',
+                'Fee estimation & preview',
+                'Client approval package',
+                'Appointment and support help',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-1.5">
+                  <span className="material-icons text-[14px] text-emerald-600">check</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      <p className="text-[11px] leading-relaxed text-[#70757a]">
-        The agent summarises official requirements only. It never fabricates documents and its
-        answers are not legal advice — final decisions rest with the embassy or consulate.
-      </p>
+          <div className="glass-flat glass-sheen space-y-2 rounded-[28px] p-5 shadow-xs">
+            <h3 className="font-['Google_Sans',Roboto,sans-serif] text-base font-medium text-[#1f1f1f]">
+              Your file
+            </h3>
+            <p className="text-xs text-[#444746]">
+              {metrics.totalApplications} application{metrics.totalApplications === 1 ? '' : 's'} ·{' '}
+              {metrics.missingDocuments} missing document{metrics.missingDocuments === 1 ? '' : 's'} ·{' '}
+              {metrics.pendingApprovals} awaiting approval
+            </p>
+            <button
+              type="button"
+              onClick={onOpenSupport}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[11px] font-semibold text-[#0b57d0] ring-1 ring-black/[0.08] transition-colors hover:bg-neutral-50 cursor-pointer"
+            >
+              <span className="material-icons text-sm">support_agent</span>
+              Talk to human support
+            </button>
+          </div>
+
+          <p className="rounded-2xl bg-amber-50/70 p-3 text-[11px] leading-relaxed text-amber-900 ring-1 ring-amber-200">
+            Preview mode: the agent never submits an application, never guarantees an approval and
+            never contacts an embassy. All statuses are AI-generated or simulated.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

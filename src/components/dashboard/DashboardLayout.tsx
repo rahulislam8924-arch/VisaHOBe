@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useToast } from './PortalToast';
 import type { PortalProfile } from '../../lib/portalStore';
+import type { PortalNotification } from '../../lib/portalTypes';
+import { NotificationsBell } from './NotificationsPanel';
 
 export type DashboardTab =
   | 'home'
   | 'agent'
-  | 'passes'
-  | 'paymentmethods'
+  | 'applications'
+  | 'payments'
   | 'transactions'
   | 'settings';
 
@@ -15,6 +17,11 @@ interface DashboardLayoutProps {
   onSelectTab: (tab: DashboardTab) => void;
   onExitDashboard: () => void;
   profile: PortalProfile;
+  notifications: PortalNotification[];
+  onMarkAllNotificationsRead: () => void;
+  onMarkNotificationRead: (id: string) => void;
+  onOpenNotificationApplication: (applicationId: string) => void;
+  onOpenSupport: () => void;
   children: React.ReactNode;
 }
 
@@ -23,6 +30,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onSelectTab,
   onExitDashboard,
   profile,
+  notifications,
+  onMarkAllNotificationsRead,
+  onMarkNotificationRead,
+  onOpenNotificationApplication,
+  onOpenSupport,
   children,
 }) => {
   const { notify } = useToast();
@@ -59,8 +71,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const navItems: { id: DashboardTab; label: string; icon: string; path: string }[] = [
     { id: 'home', label: 'Dashboard', icon: 'dashboard', path: '/portal/dashboard' },
     { id: 'agent', label: 'AI Visa Agent', icon: 'auto_awesome', path: '/portal/ai-visa-agent' },
-    { id: 'passes', label: 'My Applications', icon: 'folder_shared', path: '/portal/applications' },
-    { id: 'paymentmethods', label: 'Payments', icon: 'payments', path: '/portal/payments' },
+    { id: 'applications', label: 'My Applications', icon: 'folder_shared', path: '/portal/applications' },
+    { id: 'payments', label: 'Payments', icon: 'payments', path: '/portal/payments' },
     { id: 'settings', label: 'My Profile', icon: 'person', path: '/portal/profile' },
   ];
 
@@ -143,8 +155,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
         </div>
 
-        {/* Right: Help, Apps, Profile Avatar */}
+        {/* Right: Notifications, Help, Profile avatar */}
         <div className="flex items-center gap-2 sm:gap-3" ref={headerMenusRef}>
+          <NotificationsBell
+            notifications={notifications}
+            onMarkAllRead={onMarkAllNotificationsRead}
+            onMarkRead={onMarkNotificationRead}
+            onOpenApplication={onOpenNotificationApplication}
+            onOpenSupport={onOpenSupport}
+          />
           {/* Help button */}
           <div className="relative">
             <button
@@ -158,21 +177,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
             {isHelpMenuOpen && (
               <div className="glass-panel absolute right-0 z-50 mt-2 w-64 rounded-2xl py-2 text-left">
-                <a
-                  href="mailto:support@visahobe.com?subject=VisaHOBe%20portal%20support"
-                  className="block px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
-                >
-                  VisaHOBe Help Center
-                </a>
                 <button
                   onClick={() => {
                     setIsHelpMenuOpen(false);
-                    const reference = `VH-${Date.now().toString().slice(-6)}`;
-                    notify(`Support ticket ${reference} created — our consular team replies within 24 hours.`);
+                    onSelectTab('agent');
                   }}
                   className="w-full text-left px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 cursor-pointer"
                 >
-                  Submit Support Ticket
+                  Ask the AI visa agent
+                </button>
+                <button
+                  onClick={() => {
+                    setIsHelpMenuOpen(false);
+                    onOpenSupport();
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                >
+                  Contact human support
                 </button>
               </div>
             )}
@@ -201,7 +222,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               type="button"
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1e8e3e] text-white font-medium text-sm flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer shadow-xs ml-1"
-              title={`Applicant account: ${profile.name} (${profile.email})`}
+              title={`Applicant account: ${profile.fullName} (${profile.email})`}
             >
               A
             </button>
@@ -213,12 +234,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               >
                 <div className="flex flex-col items-center pb-3 border-b border-neutral-100">
                   <div className="w-16 h-16 rounded-full bg-[#1e8e3e] text-white font-bold text-2xl flex items-center justify-center mb-2 shadow-sm">
-                    {(profile.name.trim().charAt(0) || 'A').toUpperCase()}
+                    {(profile.fullName.trim().charAt(0) || 'A').toUpperCase()}
                   </div>
-                  <p className="font-bold text-neutral-900 text-base">{profile.name}</p>
+                  <p className="font-bold text-neutral-900 text-base">{profile.fullName}</p>
                   <p className="text-xs text-neutral-500">{profile.email}</p>
                   <span className="mt-2 text-[11px] bg-emerald-50 text-emerald-700 font-medium px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    Verified Applicant Account
+                    {profile.verificationStatus === 'verified'
+                      ? 'Verified applicant account'
+                      : profile.verificationStatus === 'pending'
+                      ? 'Verification pending'
+                      : 'Unverified profile'}
                   </span>
                 </div>
 
@@ -296,29 +321,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             {/* Separator / Margin */}
             <div className="my-3 border-t border-[#c4c7c5]/30 mx-2" />
 
-            {/* Help & support */}
-            <a
-              href="mailto:support@visahobe.com?subject=VisaHOBe%20portal%20support"
-              className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-full text-sm font-medium text-[#444746] hover:bg-[#001d35]/5 transition-colors ${
-                !isSidebarOpen ? 'justify-center px-0' : ''
-              }`}
-              title="Help & support"
-            >
-              <span className="material-icons text-xl">help_outline</span>
-              {isSidebarOpen && <span>Consular support</span>}
-            </a>
-
-            {/* Feedback */}
+            {/* Account footer — log out lives at the bottom of the sidebar */}
             <button
               type="button"
-              onClick={() => notify('Thanks — your feedback was sent to the VisaHOBe service team.', 'info')}
-              className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-full text-sm font-medium text-[#444746] hover:bg-[#001d35]/5 transition-colors cursor-pointer ${
+              onClick={() => {
+                notify('Signed out of the preview session', 'info');
+                onExitDashboard();
+              }}
+              className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-full text-sm font-medium text-[#c5221f] hover:bg-[#fce8e6] transition-colors cursor-pointer ${
                 !isSidebarOpen ? 'justify-center px-0' : ''
               }`}
-              title="Feedback"
+              title="Log out"
             >
-              <span className="material-icons text-xl">feedback</span>
-              {isSidebarOpen && <span>Feedback</span>}
+              <span className="material-icons text-xl">logout</span>
+              {isSidebarOpen && <span>Log out</span>}
             </button>
           </nav>
         </aside>
@@ -380,7 +396,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   className="w-full py-2 text-blue-600 font-medium text-left flex items-center gap-2 cursor-pointer"
                 >
                   <span className="material-icons text-sm">arrow_back</span>
-                  <span>Exit to VisaHOBe public site</span>
+                  <span>Log out</span>
                 </button>
               </div>
             </div>

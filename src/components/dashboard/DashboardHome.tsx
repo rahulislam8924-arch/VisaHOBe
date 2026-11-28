@@ -1,456 +1,382 @@
-import React, { useState } from 'react';
-import { CardItem } from './AddCardModal';
-import { DashboardPassItem } from '../../data/dashboardMockData';
-import { TransactionData } from './TransactionReceiptModal';
-import type { PortalProfile } from '../../lib/portalStore';
-import {
-  formatUsd,
-  getApplicationStatus,
-  getPortalMetrics,
-  holderLabel,
-  personalizePasses,
-  STATUS_LABEL,
-} from '../../lib/portalMetrics';
-import {
-  PortalBrandMark,
-  WelcomeIllustration,
-  PaymentShoppersIllustration,
-  PassesIllustration,
-  AutofillIllustration,
-  SecurityIllustration,
-} from './DashboardIllustrations';
+import React from 'react';
+import type { PortalState } from '../../lib/portalStore';
+import { formatDate, formatDateTime } from '../../lib/portalTypes';
+import { formatUsd, getPortalMetrics } from '../../lib/portalMetrics';
+import type { DashboardTab } from './DashboardLayout';
+import { EmptyState, StatusPill } from './portalUi';
+import { WelcomeIllustration } from './DashboardIllustrations';
 
 interface DashboardHomeProps {
-  profile: PortalProfile;
-  cards: CardItem[];
-  passes: DashboardPassItem[];
-  transactions: TransactionData[];
-  onNavigateTab: (
-    tab: 'home' | 'agent' | 'paymentmethods' | 'passes' | 'transactions' | 'settings'
-  ) => void;
-  onOpenAddCard: () => void;
-  onSelectPass: (pass: DashboardPassItem) => void;
-  onSelectTransaction: (tx: TransactionData) => void;
-  isDemoData?: boolean;
-  onClearDemoRecords?: () => void;
+  state: PortalState;
+  onNavigateTab: (tab: DashboardTab) => void;
+  onOpenApplication: (id: string, tab?: 'overview' | 'documents' | 'timeline' | 'approval' | 'payment') => void;
+  onOpenSupport: () => void;
+  isDemoData: boolean;
+  onClearDemoRecords: () => void;
+  onDismissDemo: () => void;
 }
 
-const statusChipClass: Record<string, string> = {
-  approved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  scheduled: 'bg-amber-50 text-amber-700 ring-amber-200',
-  expired: 'bg-neutral-100 text-neutral-600 ring-neutral-200',
-};
+const StatTile: React.FC<{
+  label: string;
+  value: string;
+  hint?: string;
+  icon: string;
+  tone?: 'default' | 'warn' | 'good';
+  onClick?: () => void;
+}> = ({ label, value, hint, icon, tone = 'default', onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`glass-flat glass-sheen flex flex-col items-start rounded-2xl p-3.5 text-left shadow-xs transition-colors ${
+      onClick ? 'hover:bg-white/70 cursor-pointer' : 'cursor-default'
+    }`}
+  >
+    <span
+      className={`material-icons text-lg ${
+        tone === 'warn' ? 'text-amber-600' : tone === 'good' ? 'text-emerald-600' : 'text-[#0b57d0]'
+      }`}
+    >
+      {icon}
+    </span>
+    <span className="mt-1 text-xl font-semibold text-[#1f1f1f]">{value}</span>
+    <span className="text-[11px] font-medium text-[#5f6368]">{label}</span>
+    {hint && <span className="mt-0.5 text-[10px] text-[#9aa0a6]">{hint}</span>}
+  </button>
+);
 
 export const DashboardHome: React.FC<DashboardHomeProps> = ({
-  profile,
-  cards,
-  passes,
-  transactions,
+  state,
   onNavigateTab,
-  onOpenAddCard,
-  onSelectPass,
-  onSelectTransaction,
-  isDemoData = false,
+  onOpenApplication,
+  onOpenSupport,
+  isDemoData,
   onClearDemoRecords,
+  onDismissDemo,
 }) => {
-  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
-
-  // Everything below is derived from the client's own records
-  const metrics = getPortalMetrics({ passes, transactions, cards });
-  const applications = personalizePasses(passes, profile.name);
-  const firstName = profile.name.trim().split(/\s+/)[0] || 'there';
-  const recentTransactions = [...transactions].slice(0, 3);
-
-  const summaryParts = [
-    `${metrics.applications} ${metrics.applications === 1 ? 'application' : 'applications'}`,
-    `${formatUsd(metrics.totalPaid)} paid across ${metrics.receipts} ${
-      metrics.receipts === 1 ? 'receipt' : 'receipts'
-    }`,
-    `${metrics.savedCards} saved ${metrics.savedCards === 1 ? 'card' : 'cards'}`,
-  ];
+  const metrics = getPortalMetrics(state);
+  const firstName = state.profile.fullName.trim().split(/\s+/)[0] || 'there';
+  const applications = state.applications;
+  const attention = applications
+    .filter((app) =>
+      ['client_approval_required', 'documents_required', 'info_required', 'internal_review'].includes(
+        app.status
+      )
+    )
+    .slice(0, 4);
+  const recentActivity = state.activity.slice(0, 5);
+  const unread = state.notifications.filter((item) => !item.read).slice(0, 4);
 
   return (
-    <div className="space-y-6 text-left animate-in fade-in duration-300">
-      {/* 1. Welcome banner */}
-      {showWelcomeBanner && (
-        <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          {/* Close Banner Button */}
-          <button
-            type="button"
-            onClick={() => setShowWelcomeBanner(false)}
-            className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
-            aria-label="Dismiss welcome banner"
-          >
-            <span className="material-icons text-xl">close</span>
-          </button>
-
-          {/* Left Text */}
-          <div className="space-y-3 max-w-xl pr-6">
-            <h2 className="font-['Google_Sans',Roboto,sans-serif] text-2xl sm:text-[28px] font-normal text-[#1f1f1f] tracking-tight">
-              Welcome back, {firstName}
-            </h2>
-            <p className="text-sm sm:text-[15px] text-[#444746] leading-relaxed">
-              {summaryParts.join(' · ')}
-            </p>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => onNavigateTab('agent')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3.5 py-1.5 text-xs font-semibold text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-white cursor-pointer"
-              >
-                <span className="material-icons text-sm">auto_awesome</span>
-                Ask the AI visa agent
-              </button>
-              {metrics.expiringSoon > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 ring-1 ring-amber-200">
-                  <span className="material-icons text-sm">schedule</span>
-                  {metrics.expiringSoon} expiring within 6 months
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Right Visual: Soft blue circle with coffee, airplane, sparkles, wallet stacked cards */}
-          <div className="self-center md:self-auto">
-            <WelcomeIllustration />
+    <div className="space-y-5 animate-in fade-in text-left duration-300">
+      {/* Welcome */}
+      <div className="glass-flat glass-sheen relative flex flex-col items-start justify-between gap-5 overflow-hidden rounded-[28px] p-6 shadow-xs sm:p-7 md:flex-row md:items-center">
+        <div className="max-w-xl space-y-2">
+          <h2 className="font-['Google_Sans',Roboto,sans-serif] text-2xl font-normal tracking-tight text-[#1f1f1f] sm:text-[28px]">
+            Welcome back, {firstName}
+          </h2>
+          <p className="text-sm leading-relaxed text-[#444746]">
+            {metrics.totalApplications === 0
+              ? 'You have no applications yet. The AI visa agent can prepare your first one end to end.'
+              : `${metrics.totalApplications} application${
+                  metrics.totalApplications === 1 ? '' : 's'
+                } · ${metrics.active} active · ${metrics.missingDocuments} missing document${
+                  metrics.missingDocuments === 1 ? '' : 's'
+                } · ${formatUsd(metrics.outstanding)} pending payment.`}
+          </p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => onNavigateTab('agent')}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#0b57d0] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
+            >
+              <span className="material-icons text-sm">auto_awesome</span>
+              {metrics.totalApplications === 0 ? 'Start with the AI agent' : 'Continue with the AI agent'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('applications')}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-white cursor-pointer"
+            >
+              <span className="material-icons text-sm">folder_shared</span>
+              My applications
+            </button>
+            {metrics.pendingApprovals > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f0fe] px-3 py-1.5 text-[11px] font-medium text-[#0b57d0] ring-1 ring-[#c2e7ff]">
+                <span className="material-icons text-sm">fact_check</span>
+                {metrics.pendingApprovals} awaiting your approval
+              </span>
+            )}
           </div>
         </div>
-      )}
+        <div className="self-center md:self-auto">
+          <WelcomeIllustration />
+        </div>
+      </div>
 
-      {/* 1b. Demo-records notice — only while the seeded samples are untouched */}
+      {/* Demo banner */}
       {isDemoData && (
         <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-[#0b57d0]/20 bg-[#e8f0fe]/70 px-4 py-3 sm:flex-row sm:items-center">
           <p className="text-xs leading-relaxed text-[#001d35]">
             <span className="font-semibold">Demo records.</span> The applications, cards and receipts
-            below are samples so you can explore the portal. Clear them any time to work with only
-            your own data.
+            below are synthetic test data for preview mode.
           </p>
-          {onClearDemoRecords && (
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={onDismissDemo}
+              className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-[#0b57d0] ring-1 ring-[#0b57d0]/25 transition-colors hover:bg-[#f4f8ff] cursor-pointer"
+            >
+              Keep as demo
+            </button>
             <button
               type="button"
               onClick={onClearDemoRecords}
-              className="shrink-0 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-[#0b57d0] ring-1 ring-[#0b57d0]/25 transition-colors hover:bg-[#f4f8ff] cursor-pointer"
+              className="rounded-full bg-[#0b57d0] px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
             >
               Clear demo records
             </button>
-          )}
+          </div>
         </div>
       )}
 
-      {/* 2. Two-Column Layout (Matching Official Google Wallet / Google Pay Layout) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (Wider, ~7 cols on lg) */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Card 1: Add payment card for embassy & consular visa fees */}
-          <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  relative overflow-hidden flex flex-col justify-between min-h-[320px]">
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-              <div className="space-y-3 max-w-md">
-                <h3 className="font-['Google_Sans',Roboto,sans-serif] text-2xl sm:text-[26px] font-normal text-[#1f1f1f] leading-snug">
-                  {metrics.savedCards > 0
-                    ? `${metrics.savedCards} ${
-                        metrics.savedCards === 1 ? 'card' : 'cards'
-                      } saved for embassy & consular fees`
-                    : 'Add your payment card to pay embassy & consular visa fees'}
-                </h3>
-                <p className="text-sm sm:text-[14px] text-[#444746] leading-relaxed">
-                  {metrics.savedCards > 0
-                    ? 'Your saved cards are tokenized and reused for DS-160 MRV fees, Schengen visa charges and Visa Application Center appointments — no re-typing at checkout.'
-                    : 'Skip typing your payment info when completing official visa applications online, protect your card with bank-grade consular security, and use tap to pay at visa application centers with your Android device.'}
-                </p>
-              </div>
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+        <StatTile
+          label="Total applications"
+          value={String(metrics.totalApplications)}
+          icon="folder_shared"
+          onClick={() => onNavigateTab('applications')}
+        />
+        <StatTile
+          label="Active"
+          value={String(metrics.active)}
+          icon="hourglass_top"
+          onClick={() => onNavigateTab('applications')}
+        />
+        <StatTile
+          label="Pending"
+          value={String(metrics.pending)}
+          hint="awaiting provider"
+          icon="pending_actions"
+          onClick={() => onNavigateTab('applications')}
+        />
+        <StatTile
+          label="Completed"
+          value={String(metrics.completed)}
+          icon="task_alt"
+          tone="good"
+          onClick={() => onNavigateTab('applications')}
+        />
+        <StatTile
+          label="Missing documents"
+          value={String(metrics.missingDocuments)}
+          icon="folder_off"
+          tone={metrics.missingDocuments ? 'warn' : 'default'}
+          onClick={() => onNavigateTab('applications')}
+        />
+        <StatTile
+          label="Pending payments"
+          value={formatUsd(metrics.outstanding)}
+          icon="payments"
+          tone={metrics.outstanding > 0 ? 'warn' : 'default'}
+          onClick={() => onNavigateTab('payments')}
+        />
+      </div>
 
-              {/* Shoppers with smartphone illustration */}
-              <div className="self-center sm:self-start">
-                <PaymentShoppersIllustration />
-              </div>
-            </div>
-
-            {/* Bottom Actions Row */}
-            <div className="mt-8 pt-4 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={onOpenAddCard}
-                className="bg-[#0b57d0] hover:bg-[#0842a0] text-white text-sm font-medium px-6 py-2.5 rounded-full transition-all shadow-xs active:scale-[0.98] cursor-pointer"
-              >
-                Add payment method
-              </button>
-
-              <PortalBrandMark className="h-6" />
-            </div>
-
-            {/* Saved cards preview (or an honest empty state) */}
-            <div className="mt-6 pt-5 border-t border-neutral-100">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Saved consular cards ({metrics.savedCards})
-                </span>
-                <button
-                  onClick={() => onNavigateTab('paymentmethods')}
-                  className="text-xs font-semibold text-[#0b57d0] hover:underline cursor-pointer"
-                >
-                  View all payments →
-                </button>
-              </div>
-
-              {cards.length === 0 ? (
-                <div className="flex flex-col items-start gap-2 rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-xs text-[#444746]">
-                    No payment card yet — add one to settle embassy fees in a single tap.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onOpenAddCard}
-                    className="shrink-0 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-[#0b57d0] ring-1 ring-[#0b57d0]/25 transition-colors hover:bg-[#f4f8ff] cursor-pointer"
-                  >
-                    Add first card
-                  </button>
-                </div>
-              ) : (
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-                  {cards.map((card) => (
-                    <div
-                      key={card.id}
-                      onClick={() => onNavigateTab('paymentmethods')}
-                      className="shrink-0 p-3 bg-neutral-50 hover:bg-neutral-100 rounded-2xl border border-neutral-200/80 cursor-pointer flex items-center gap-3 transition-colors"
-                    >
-                      <div
-                        className={`w-10 h-6 rounded-md bg-gradient-to-br ${card.bgGradient} p-1 flex items-center justify-center text-white text-[8px] font-bold shadow-2xs`}
-                      >
-                        {card.network}
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-semibold text-neutral-800">
-                          •••• {card.lastFour}
-                          {card.isDefault && (
-                            <span className="ml-1.5 text-[9px] font-medium text-[#0b57d0]">
-                              default
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[10px] text-neutral-500">{card.nickname}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Card 2: Visas & Passes */}
-          <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  flex flex-col justify-between min-h-[260px]">
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-              <div className="space-y-2 max-w-sm">
-                <h3 className="font-['Google_Sans',Roboto,sans-serif] text-2xl font-normal text-[#1f1f1f]">
-                  My Applications
-                </h3>
-                <p className="text-sm text-[#444746] leading-relaxed">
-                  View approved e-Visas, consular appointment slips, travel authorizations, and more
-                </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[11px] text-[#444746]">
-                  <span className="inline-flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    {metrics.approved} approved
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                    {metrics.scheduled} scheduled
-                  </span>
-                  {metrics.expired > 0 && (
-                    <span className="inline-flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" />
-                      {metrics.expired} expired
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Passes ticket graphic */}
-              <div className="self-center sm:self-start">
-                <PassesIllustration holder={holderLabel(profile.name)} />
-              </div>
-            </div>
-
-            {/* Passes quick preview list */}
-            {applications.length === 0 ? (
-              <div className="mt-5 flex flex-col items-start gap-2 rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-[#444746]">
-                  No visa applications on file yet. Ask the AI agent which visa you need for your
-                  destination.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => onNavigateTab('agent')}
-                  className="shrink-0 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-[#0b57d0] ring-1 ring-[#0b57d0]/25 transition-colors hover:bg-[#f4f8ff] cursor-pointer"
-                >
-                  Check my visa need
-                </button>
-              </div>
-            ) : (
-              <div className="mt-4 pt-3 border-t border-neutral-100">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {applications.slice(0, 2).map((pass) => {
-                    const status = getApplicationStatus(pass);
-                    return (
-                      <div
-                        key={pass.id}
-                        onClick={() => onSelectPass(pass)}
-                        className="p-3 bg-neutral-50 hover:bg-neutral-100/90 rounded-2xl border border-neutral-200/80 cursor-pointer flex items-center justify-between gap-2 transition-colors"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="material-icons text-blue-600 text-lg">{pass.icon}</span>
-                          <div className="truncate">
-                            <p className="text-xs font-semibold text-neutral-800 truncate">
-                              {pass.title}
-                            </p>
-                            <p className="text-[10px] text-neutral-500 truncate">{pass.issuer}</p>
-                          </div>
-                        </div>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${
-                            statusChipClass[status]
-                          }`}
-                        >
-                          {STATUS_LABEL[status]}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Passes quick preview / View all button */}
-            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-neutral-500">
-                  {metrics.applications} active {metrics.applications === 1 ? 'record' : 'records'}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => onNavigateTab('passes')}
-                className="text-sm font-medium text-[#0b57d0] hover:underline cursor-pointer"
-              >
-                View all visas & passes
-              </button>
-            </div>
-          </div>
-
-          {/* Card 3: Recent Consular Transactions */}
-          <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-4">
-            <div className="flex items-start justify-between gap-3">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
+        {/* Left column */}
+        <div className="space-y-5 lg:col-span-7">
+          {/* Needs attention */}
+          <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
-                  Recent transactions
+                <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+                  Needs your attention
                 </h3>
-                <p className="text-xs text-[#444746]">
-                  {metrics.receipts > 0
-                    ? `${formatUsd(metrics.totalPaid)} paid across ${metrics.receipts} ${
-                        metrics.receipts === 1 ? 'receipt' : 'receipts'
-                      }`
-                    : 'Payments made for embassy fees, biometric capture, and consular processing'}
+                <p className="text-[11px] text-[#5f6368]">
+                  Approvals, missing documents and corrections
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => onNavigateTab('transactions')}
-                className="shrink-0 text-xs font-semibold text-[#0b57d0] hover:underline cursor-pointer"
+                onClick={() => onNavigateTab('applications')}
+                className="text-[11px] font-semibold text-[#0b57d0] hover:underline cursor-pointer"
               >
-                View all →
+                View all
               </button>
             </div>
 
-            {recentTransactions.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 text-xs text-[#444746]">
-                No consular payments yet. Receipts for embassy fees, biometrics and courier charges
-                will appear here.
-              </div>
+            {attention.length === 0 ? (
+              <EmptyState
+                icon="check_circle"
+                title="Nothing waiting on you"
+                body="New approvals and document requests will appear here as the agent prepares your files."
+              />
             ) : (
-              <div className="divide-y divide-neutral-100">
-                {recentTransactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    onClick={() => onSelectTransaction(tx)}
-                    className="py-3 flex items-center justify-between hover:bg-neutral-50 rounded-xl px-2 cursor-pointer transition-colors"
+              <div className="space-y-2">
+                {attention.map((app) => (
+                  <button
+                    key={app.id}
+                    type="button"
+                    onClick={() =>
+                      onOpenApplication(
+                        app.id,
+                        app.status === 'client_approval_required' ? 'approval' : 'documents'
+                      )
+                    }
+                    className="flex w-full items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white/70 p-3 text-left transition-colors hover:bg-white cursor-pointer"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-neutral-700 text-sm">
-                        {tx.merchant.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-neutral-900">{tx.merchant}</p>
-                        <p className="text-xs text-neutral-500">
-                          {tx.date} • {tx.cardName} •••• {tx.lastFour}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-neutral-900">
-                        -{formatUsd(Math.abs(tx.amount))}
+                    <div className="min-w-0">
+                      <p className="truncate text-[12.5px] font-semibold text-neutral-900">
+                        {app.destination} · {app.visaType}
                       </p>
-                      <span className="text-[10px] text-emerald-600 font-medium">{tx.status}</span>
+                      <p className="text-[10.5px] text-[#5f6368]">
+                        {app.id} · updated {formatDate(app.updatedAt)}
+                      </p>
                     </div>
-                  </div>
+                    <StatusPill status={app.status} />
+                  </button>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </section>
 
-        {/* Right Column (Narrower, ~5 cols on lg) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Card 1: Check out faster with autofill */}
-          <div className="glass-flat glass-sheen rounded-[28px] p-6 shadow-xs  flex flex-col justify-between space-y-4">
-            {/* Top Yellow Graphic */}
-            <AutofillIllustration />
-
-            <div className="space-y-2">
-              <h4 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
-                Autofill visa applications in Chrome
-              </h4>
-              <p className="text-xs sm:text-sm text-[#444746] leading-relaxed">
-                No need to keep re-typing passport and payment info across consular portals. Once
-                saved, autofill your details into DS-160, ESTA, and Schengen application forms in a
-                few clicks.
-              </p>
-            </div>
-
-            <div className="pt-2">
+          {/* Recent activity */}
+          <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+                Recent application activity
+              </h3>
               <button
                 type="button"
-                onClick={() => onNavigateTab('settings')}
-                className="text-sm font-medium text-[#0b57d0] hover:underline cursor-pointer"
+                onClick={() => onNavigateTab('applications')}
+                className="text-[11px] font-semibold text-[#0b57d0] hover:underline cursor-pointer"
               >
-                See how it works
+                Open timeline
               </button>
             </div>
-          </div>
 
-          {/* Card 2: Consular-Grade Security */}
-          <div className="glass-flat glass-sheen rounded-[28px] p-6 shadow-xs  flex flex-col justify-between space-y-4">
-            {/* Top Light Blue Security Graphic */}
-            <SecurityIllustration />
-
-            <div className="space-y-2">
-              <h4 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
-                Government-grade security for visa fees
-              </h4>
-              <p className="text-xs sm:text-sm text-[#444746] leading-relaxed">
-                Pay consular fees online or at authorized visa application center terminals. Your
-                sensitive passport and card details are protected with 256-bit tokenized security.
+            {recentActivity.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 text-xs text-[#5f6368]">
+                No activity recorded yet.
               </p>
-            </div>
+            ) : (
+              <ul className="space-y-2">
+                {recentActivity.map((entry) => (
+                  <li key={entry.id} className="flex items-start gap-2.5">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[#0b57d0]" />
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-medium text-[#1f1f1f]">{entry.action}</p>
+                      <p className="truncate text-[10.5px] text-[#5f6368]">
+                        {entry.detail} · {formatDateTime(entry.at)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
 
-            <div className="pt-2">
-              <a
-                href="#legal"
-                className="text-sm font-medium text-[#0b57d0] hover:underline inline-flex items-center gap-1 cursor-pointer"
-              >
-                <span>Learn more about security</span>
-                <span className="material-icons text-sm">open_in_new</span>
-              </a>
+        {/* Right column */}
+        <div className="space-y-5 lg:col-span-5">
+          {/* Upcoming appointments */}
+          <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+              Upcoming appointments
+            </h3>
+            {metrics.upcomingAppointments.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 text-xs text-[#5f6368]">
+                No appointments scheduled.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {metrics.upcomingAppointments.map((appointment) => (
+                  <button
+                    key={appointment.applicationId}
+                    type="button"
+                    onClick={() => onOpenApplication(appointment.applicationId, 'overview')}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-neutral-200 bg-white/70 p-3 text-left transition-colors hover:bg-white cursor-pointer"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#0b57d0]">
+                      <span className="material-icons text-base">event</span>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-semibold text-neutral-900">
+                        {formatDate(appointment.date)} · {appointment.time}
+                      </p>
+                      <p className="truncate text-[10.5px] text-[#5f6368]">
+                        {appointment.destination} · {appointment.location}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Notifications */}
+          <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+                Notifications
+              </h3>
+              <span className="rounded-full bg-[#e8f0fe] px-2 py-0.5 text-[10px] font-semibold text-[#0b57d0]">
+                {metrics.unreadNotifications} unread
+              </span>
             </div>
-          </div>
+            {unread.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-4 text-xs text-[#5f6368]">
+                You are all caught up.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {unread.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        item.applicationId && onOpenApplication(item.applicationId, 'overview')
+                      }
+                      className="w-full rounded-2xl border border-neutral-200 bg-white/70 p-2.5 text-left transition-colors hover:bg-white cursor-pointer"
+                    >
+                      <p className="text-[11.5px] font-semibold text-[#1f1f1f]">{item.title}</p>
+                      <p className="text-[10.5px] leading-snug text-[#5f6368]">{item.body}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* AI + support */}
+          <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs">
+            <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+              AI visa agent
+            </h3>
+            <p className="text-[11.5px] leading-relaxed text-[#444746]">
+              Ask about requirements, appointments or fees — or let the agent prepare a complete
+              application and document checklist.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onNavigateTab('agent')}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#0b57d0] px-3.5 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
+              >
+                <span className="material-icons text-sm">auto_awesome</span>
+                Open agent
+              </button>
+              <button
+                type="button"
+                onClick={onOpenSupport}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-[11px] font-semibold text-[#0b57d0] ring-1 ring-black/[0.08] transition-colors hover:bg-neutral-50 cursor-pointer"
+              >
+                <span className="material-icons text-sm">support_agent</span>
+                Support
+              </button>
+            </div>
+          </section>
         </div>
       </div>
     </div>

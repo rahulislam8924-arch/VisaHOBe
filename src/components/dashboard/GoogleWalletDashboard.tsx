@@ -1,18 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { DashboardLayout, DashboardTab } from './DashboardLayout';
 import { DashboardHome } from './DashboardHome';
-import { DashboardPaymentMethods } from './DashboardPaymentMethods';
-import { DashboardPasses } from './DashboardPasses';
+import { DashboardAgent } from './DashboardAgent';
+import { DashboardApplications } from './DashboardApplications';
+import { DashboardPayments } from './DashboardPayments';
 import { DashboardTransactions } from './DashboardTransactions';
 import { DashboardSettings } from './DashboardSettings';
-import { DashboardAgent } from './DashboardAgent';
-import { BarcodeModal } from './BarcodeModal';
-import { TransactionReceiptModal, TransactionData } from './TransactionReceiptModal';
 import { AddCardModal } from './AddCardModal';
+import { TransactionReceiptModal, TransactionData } from './TransactionReceiptModal';
+import { SupportPanel } from './SupportPanel';
+import { PortalErrorBoundary } from './PortalErrorBoundary';
 import { ToastProvider, useToast } from './PortalToast';
+import type { TabId } from './ApplicationDetail';
 import { usePortalState } from '../../lib/portalStore';
-import { personalizePasses } from '../../lib/portalMetrics';
-import type { DashboardPassItem } from '../../data/dashboardMockData';
 
 interface GoogleWalletDashboardProps {
   onExit: () => void;
@@ -24,131 +24,138 @@ const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab =
   const { state, actions } = usePortalState();
   const { notify } = useToast();
 
-  const { transactions, profile, preferences } = state;
-  // Seeded records follow whatever applicant name the client has saved
-  const passes = useMemo(
-    () => personalizePasses(state.passes, profile.name),
-    [state.passes, profile.name]
-  );
-  const cards = useMemo(
-    () =>
-      state.cards.map((card) =>
-        /^alexander morgan$/i.test(card.cardholderName.trim())
-          ? { ...card, cardholderName: profile.name.toUpperCase() }
-          : card
-      ),
-    [state.cards, profile.name]
-  );
-
-  // Modals state
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
-  const [selectedPass, setSelectedPass] = useState<DashboardPassItem | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionData | null>(null);
+  const [supportOpen, setSupportOpen] = useState(false);
+  const [supportApplicationId, setSupportApplicationId] = useState<string | undefined>(undefined);
+  const [openApplicationId, setOpenApplicationId] = useState<string | null>(null);
+  const [openApplicationTab, setOpenApplicationTab] = useState<TabId>('overview');
+
+  const openSupport = (applicationId?: string) => {
+    setSupportApplicationId(applicationId);
+    setSupportOpen(true);
+  };
+
+  const openApplication = (id: string, tab: TabId = 'overview') => {
+    setOpenApplicationId(id);
+    setOpenApplicationTab(tab);
+    setCurrentTab('applications');
+  };
 
   return (
     <>
       <DashboardLayout
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={(tab) => {
+          if (tab === 'applications') setOpenApplicationId(null);
+          setCurrentTab(tab);
+        }}
         onExitDashboard={onExit}
-        profile={profile}
+        profile={state.profile}
+        notifications={state.notifications}
+        onMarkAllNotificationsRead={actions.markAllNotificationsRead}
+        onMarkNotificationRead={actions.markNotificationRead}
+        onOpenNotificationApplication={(id) => openApplication(id)}
+        onOpenSupport={() => openSupport()}
       >
+        <PortalErrorBoundary>
         {currentTab === 'home' && (
           <DashboardHome
-            profile={profile}
-            cards={cards}
-            passes={passes}
-            transactions={transactions}
+            state={state}
             onNavigateTab={setCurrentTab}
-            onOpenAddCard={() => setIsAddCardOpen(true)}
-            onSelectPass={setSelectedPass}
-            onSelectTransaction={setSelectedTransaction}
+            onOpenApplication={openApplication}
+            onOpenSupport={() => openSupport()}
             isDemoData={state.recordsSource === 'demo'}
+            onDismissDemo={() => {
+              actions.dismissDemoRecords();
+              notify('Demo flag cleared — records kept', 'info');
+            }}
             onClearDemoRecords={() => {
               actions.clearPortalRecords();
-              notify('Demo records cleared — the portal now shows only your own data', 'info');
+              notify('Demo records cleared', 'info');
             }}
           />
         )}
 
         {currentTab === 'agent' && (
           <DashboardAgent
-            passes={passes}
-            transactions={transactions}
-            onNavigateTab={setCurrentTab}
+            state={state}
+            onCreateApplication={(input) => actions.createApplication(input)}
+            onOpenApplication={(id) => openApplication(id, 'documents')}
+            onOpenSupport={() => openSupport()}
           />
         )}
 
-        {currentTab === 'paymentmethods' && (
-          <DashboardPaymentMethods
-            cards={cards}
+        {currentTab === 'applications' && (
+          <DashboardApplications
+            state={state}
+            actions={actions}
+            onOpenSupport={(applicationId) => openSupport(applicationId)}
+            openApplicationId={openApplicationId}
+            openApplicationTab={openApplicationTab}
+            onOpenApplication={setOpenApplicationId}
+            onStartApplication={() => setCurrentTab('agent')}
+          />
+        )}
+
+        {currentTab === 'payments' && (
+          <DashboardPayments
+            state={state}
+            actions={actions}
             onOpenAddCard={() => setIsAddCardOpen(true)}
-            onSetDefault={(id) => {
-              actions.setDefaultCard(id);
-              notify('Default consular card updated');
-            }}
-            onRemoveCard={(id) => {
-              actions.removeCard(id);
-              notify('Payment card removed');
-            }}
-            onRenameCard={(id, nickname) => {
-              actions.renameCard(id, nickname);
-              notify('Card nickname saved');
-            }}
             onOpenTransactions={() => setCurrentTab('transactions')}
+            onOpenApplication={(id) => openApplication(id, 'payment')}
+            onOpenSupport={() => openSupport()}
           />
         )}
-
-        {currentTab === 'passes' && <DashboardPasses passes={passes} onSelectPass={setSelectedPass} />}
 
         {currentTab === 'transactions' && (
           <DashboardTransactions
-            transactions={transactions}
+            transactions={state.transactions}
             onSelectTransaction={setSelectedTransaction}
           />
         )}
 
         {currentTab === 'settings' && (
           <DashboardSettings
-            profile={profile}
-            preferences={preferences}
-            onUpdateProfile={actions.updateProfile}
-            onUpdatePreference={actions.updatePreference}
+            state={state}
+            actions={actions}
+            onOpenSupport={() => openSupport()}
             onResetPortalData={() => {
               actions.resetPortalData();
               notify('Demo records loaded');
             }}
             onClearPortalRecords={() => {
               actions.clearPortalRecords();
-              notify('All records cleared — the portal is now empty', 'info');
+              notify('All records cleared', 'info');
             }}
           />
         )}
+        </PortalErrorBoundary>
       </DashboardLayout>
 
-      {/* Barcode / QR Code Modal */}
-      <BarcodeModal
-        isOpen={Boolean(selectedPass)}
-        onClose={() => setSelectedPass(null)}
-        pass={selectedPass}
-      />
-
-      {/* Transaction Details Modal */}
       <TransactionReceiptModal
         isOpen={Boolean(selectedTransaction)}
         onClose={() => setSelectedTransaction(null)}
         transaction={selectedTransaction}
-        profile={profile}
+        profile={state.profile}
       />
 
-      {/* Add Payment Method Modal */}
       <AddCardModal
         isOpen={isAddCardOpen}
         onClose={() => setIsAddCardOpen(false)}
         onAddCard={(card) => {
           actions.addCard(card);
-          notify(`${card.network} •••• ${card.lastFour} added to your account`);
+          notify(`${card.network} •••• ${card.lastFour} added`);
         }}
+      />
+
+      <SupportPanel
+        open={supportOpen}
+        onClose={() => setSupportOpen(false)}
+        state={state}
+        actions={actions}
+        applicationId={supportApplicationId}
       />
     </>
   );

@@ -163,26 +163,14 @@ if (japanCard) {
   check('dialog CTA labels are clean', !/2[0-9]\. (Open Client Portal|Book Consultation)/.test(after));
 }
 
-// Portal + demo modal
+// Portal (client-side preview mode)
 window.location.hash = '#dashboard';
-await wait(250);
+await wait(350);
 check('portal view loads', doc.title === 'VisaHOBe Client Portal');
 
-check(
-  'dashboard greets the saved applicant',
-  text(doc.body).includes('Welcome back, Alexander'),
-  'greeting missing'
-);
-check(
-  'dashboard flags the sample records as demo data',
-  text(doc.body).includes('Demo records.') && text(doc.body).includes('Clear demo records'),
-  'demo notice missing'
-);
-check(
-  'dashboard totals are derived from records',
-  /\$\d/.test(text(doc.body)) && /paid across/.test(text(doc.body)),
-  'no derived totals'
-);
+const portalKey = 'visahobe.portal.v2';
+const readState = () => JSON.parse(window.localStorage.getItem(portalKey) || '{}');
+check('portal state is persisted locally', Boolean(window.localStorage.getItem(portalKey)));
 
 const sidebarLabels = ['Dashboard', 'AI Visa Agent', 'My Applications', 'Payments', 'My Profile'];
 const sidebarText = text(doc.body);
@@ -191,123 +179,316 @@ check(
   sidebarLabels.every((label) => sidebarText.includes(label)),
   sidebarLabels.filter((label) => !sidebarText.includes(label)).join(', ')
 );
+
+const asideText = text(doc.querySelector('aside'));
 check(
-  'sidebar groups payment history under Payments',
-  !/\bTransactions\b/.test(text(doc.querySelector('aside, nav')) || ''),
-  'transactions still in the sidebar'
+  'sidebar holds only the five main items plus log out',
+  !asideText.includes('Consular support') && !asideText.includes('Feedback') && asideText.includes('Log out'),
+  asideText.slice(0, 120)
 );
 
-click(findByText('AI Visa Agent'));
-await wait(200);
-check('AI visa agent view opens', text(doc.body).includes('verified 190-country dataset'));
-const agentAsk = findByText('Do I need a visa for the UAE?');
-if (agentAsk) {
-  click(agentAsk);
-  await wait(900);
-  check('agent answers a destination question', text(doc.body).includes('United Arab Emirates'));
-}
+check('dashboard greets the saved applicant', text(doc.body).includes('Welcome back, Alexander'));
+check(
+  'dashboard shows derived application totals',
+  text(doc.body).includes('Total applications') &&
+    text(doc.body).includes('Missing documents') &&
+    text(doc.body).includes('Pending payments')
+);
+check('dashboard lists recent activity and appointments', text(doc.body).includes('Recent application activity'));
+check('dashboard flags demo records', text(doc.body).includes('Demo records.'));
 
-click(findByText('Payments'));
-await wait(150);
-check('payments view opens from the sidebar', text(doc.body).includes('Payment history'));
-
-// --- Real, persisted portal behaviour (no alert() stubs) ---
-const portalKey = 'visahobe.portal.v1';
-check('portal state is persisted locally', Boolean(window.localStorage.getItem(portalKey)));
-
-const detailsToggle = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Details');
-if (detailsToggle) {
-  click(detailsToggle);
+// Notifications in the top bar
+const bell = doc.querySelector('[aria-label^="Notifications"]');
+check('top bar has a notifications bell', Boolean(bell));
+if (bell) {
+  click(bell);
   await wait(150);
-  check('card details expand inline instead of an alert', text(doc.body).includes('Network token'));
-  click(detailsToggle);
+  check('notification panel opens', text(doc.body).includes('Mark all read'));
+  const markAll = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Mark all read');
+  if (markAll) {
+    click(markAll);
+    await wait(200);
+    check(
+      'notifications can be marked as read',
+      (readState().notifications || []).every((n) => n.read)
+    );
+  }
+  click(bell);
   await wait(120);
 }
 
-const removeToggle = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Remove');
-if (removeToggle) {
-  click(removeToggle);
-  await wait(150);
-  check('card removal asks for confirmation in-app', text(doc.body).includes('Remove card'));
-  const cancelRemove = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Cancel');
-  if (cancelRemove) {
-    click(cancelRemove);
-    await wait(120);
+// ---- AI agent: full application intake ----
+click(findByText('AI Visa Agent'));
+await wait(250);
+check('AI visa agent view opens', text(doc.body).includes('AI Visa Agent'));
+
+const typeInto = (input, value) => {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+  setter.call(input, value);
+  input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  input.dispatchEvent(new window.Event('change', { bubbles: true }));
+};
+const typeTextArea = (area, value) => {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+  setter.call(area, value);
+  area.dispatchEvent(new window.Event('input', { bubbles: true }));
+};
+
+const agentInput = doc.querySelector('input[aria-label="Message the AI visa agent"]');
+const chat = async (value) => {
+  typeInto(agentInput, value);
+  await wait(80);
+  agentInput.closest('form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+  await wait(750);
+};
+
+const applicationsBefore = (readState().applications || []).length;
+
+if (agentInput) {
+  await chat('I need a US tourist visa');
+  check('agent answers with the visa type question', text(doc.body).includes('US') || text(doc.body).includes('United States'));
+  await chat('Standard processing');
+  await chat('1990-05-14');
+  await chat('Bangladesh');
+  await chat('P1234567');
+  await chat('2032-01-01');
+  await chat('riyad@example.com');
+  await chat('Tourism');
+  await chat('2026-05-01 to 2026-05-20');
+  check('agent produces the application preview', text(doc.body).includes('Create draft application'));
+  await chat('Create draft application');
+  await wait(500);
+  check(
+    'agent creates a draft application',
+    (readState().applications || []).length === applicationsBefore + 1,
+    `applications ${(readState().applications || []).length}`
+  );
+  check('new application opens on its document checklist', text(doc.body).includes('Run AI check & prepare'));
+  const closeDetail = doc.querySelector('[aria-label="Close"]');
+  if (closeDetail) {
+    click(closeDetail);
+    await wait(200);
   }
 }
 
-click(findByText('Payment history'));
-await wait(150);
-check('payment history offers a CSV export', text(doc.body).includes('Export CSV'));
-
-const firstTransaction = doc.querySelector('[class*="divide-y"] [class*="cursor-pointer"]');
-if (firstTransaction) {
-  click(firstTransaction);
-  await wait(200);
-  check('receipt downloads instead of alerting', text(doc.body).includes('Download receipt'));
-  const doneBtn = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Done');
-  if (doneBtn) click(doneBtn);
-  await wait(120);
-}
-
+// ---- My Applications ----
 click(findByText('My Applications'));
-await wait(150);
-const passCard = [...doc.querySelectorAll('div')].find(
-  (el) => text(el).includes('View visa code') && el.className.includes('cursor-pointer')
-);
-if (passCard) {
-  click(passCard);
-  await wait(220);
-  check('pass shows a copyable reference code', text(doc.body).includes('Copy reference code'));
-  const closePass = doc.querySelector('[aria-label="Close"]');
-  if (closePass) click(closePass);
-  await wait(150);
+await wait(250);
+check('applications view opens with status filters', text(doc.body).includes('All applications') && text(doc.body).includes('Cancelled'));
+
+const reviewButton = findByText('Review & approve');
+if (reviewButton) {
+  click(reviewButton);
+  await wait(350);
+
+  const approvalTab = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Approval'));
+  if (approvalTab && !text(doc.body).includes('Application preview')) {
+    click(approvalTab);
+    await wait(250);
+  }
+  check(
+    'approval tab shows the application preview',
+    text(doc.body).includes('Application preview'),
+    text(doc.body).slice(0, 120)
+  );
+
+  const approveButton = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Approve preview'));
+  const appPending = (readState().applications || []).find((app) => app.status === 'client_approval_required');
+  if (approveButton && appPending) {
+    click(approveButton);
+    await wait(300);
+    const updated = (readState().applications || []).find((app) => app.id === appPending.id);
+    check('client can approve the preview', updated?.approval?.status === 'approved', JSON.stringify(updated?.approval));
+    check('approval records the version and timestamp', Boolean(updated?.approval?.approvedAt) && updated?.approval?.version >= 1);
+  }
+
+  const correctionButton = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Request correction'));
+  if (correctionButton) {
+    click(correctionButton);
+    await wait(200);
+    const textarea = doc.querySelector('textarea[placeholder^="What should be corrected"]');
+    if (textarea) {
+      typeTextArea(textarea, 'Please correct the travel date to 2026-06-02');
+      await wait(80);
+      const sendRequest = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Send request'));
+      if (sendRequest) {
+        click(sendRequest);
+        await wait(300);
+        const anyCorrection = (readState().applications || []).some((app) => (app.corrections || []).length > 0);
+        check('client can request a correction', anyCorrection);
+      }
+    }
+  }
 }
 
+// Document upload is exercised through the file input
+const fileInput = doc.querySelector('input[type="file"]');
+if (fileInput) {
+  const file = new window.File(['x'.repeat(60000)], 'bank-statement.pdf', { type: 'application/pdf' });
+  Object.defineProperty(fileInput, 'files', { value: [file] });
+  fileInput.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await wait(900);
+  check(
+    'document upload is recorded',
+    (readState().applications || []).some((app) =>
+      (app.documents || []).some((doc2) => doc2.fileName === 'bank-statement.pdf')
+    )
+  );
+}
+
+const closeAfterUpload = doc.querySelector('[aria-label="Close"]');
+if (closeAfterUpload) {
+  click(closeAfterUpload);
+  await wait(200);
+}
+
+// Cancellation request
+const cancelInList = [...doc.querySelectorAll('button')].find((el) => text(el) === 'View details');
+if (cancelInList) {
+  click(cancelInList);
+  await wait(300);
+  const cancelButton = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Request cancellation');
+  if (cancelButton) {
+    click(cancelButton);
+    await wait(200);
+    const reason = doc.querySelector('textarea[placeholder^="Reason for cancellation"]');
+    if (reason) {
+      typeTextArea(reason, 'Plans changed');
+      await wait(80);
+      const confirmCancel = [...doc.querySelectorAll('button')]
+        .filter((el) => text(el) === 'Request cancellation')
+        .pop();
+      if (confirmCancel) {
+        click(confirmCancel);
+        await wait(300);
+        check(
+          'cancellation request is recorded',
+          (readState().applications || []).some((app) => app.status === 'cancelled')
+        );
+      }
+    }
+  }
+  const closeCancel = doc.querySelector('[aria-label="Close"]');
+  if (closeCancel) {
+    click(closeCancel);
+    await wait(200);
+  }
+}
+
+// ---- Payments ----
+click(findByText('Payments'));
+await wait(250);
+check('payments view opens', text(doc.body).includes('Invoices by application'));
+check('payment view explains the disabled gateway', text(doc.body).includes('no real charge'));
+
+const invoiceButton = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Invoice');
+if (invoiceButton) {
+  click(invoiceButton);
+  await wait(200);
+  check('invoice preview opens', text(doc.body).includes('Invoice preview'));
+  const payButton = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Pay (disabled)'));
+  if (payButton) {
+    click(payButton);
+    await wait(200);
+    check('payment is blocked in preview mode', text(doc.body).includes('disabled in preview mode'));
+  }
+  const closeInvoice = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Close');
+  if (closeInvoice) {
+    click(closeInvoice);
+    await wait(150);
+  }
+}
+
+const refundButton = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Request refund review'));
+if (refundButton) {
+  click(refundButton);
+  await wait(250);
+  check('refund review becomes a support ticket', (readState().support || []).length > 0);
+}
+
+// ---- Support ----
+const supportTextarea = doc.querySelector('textarea[placeholder^="Describe the issue"]');
+if (supportTextarea) {
+  typeTextArea(supportTextarea, 'My bank statement upload was rejected and I need advice.');
+  await wait(80);
+  const createRequest = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Create request'));
+  const beforeTickets = (readState().support || []).length;
+  if (createRequest) {
+    click(createRequest);
+    await wait(300);
+    check('support request is created from the portal', (readState().support || []).length > beforeTickets);
+    check('support shows a simulated acknowledgement', text(doc.body).includes('simulated acknowledgement'));
+  }
+  const closeSupport = [...doc.querySelectorAll('button')].find((el) => el.getAttribute('aria-label') === 'Close');
+  if (closeSupport) {
+    click(closeSupport);
+    await wait(200);
+  }
+}
+
+// ---- Payment history ----
+const historyButton = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Payment history'));
+click(findByText('Payments'));
+await wait(200);
+const openHistory = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Payment history' || text(el).includes('Payment history'));
+if (openHistory) {
+  click(openHistory);
+  await wait(250);
+  check('payment history offers a CSV export', text(doc.body).includes('Export CSV'));
+  const firstTransaction = doc.querySelector('[class*="divide-y"] [class*="cursor-pointer"]');
+  if (firstTransaction) {
+    click(firstTransaction);
+    await wait(250);
+    check('receipt downloads instead of alerting', text(doc.body).includes('Download receipt'));
+    const doneBtn = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Done');
+    if (doneBtn) click(doneBtn);
+    await wait(150);
+  }
+}
+check('payment history is reachable from payments', Boolean(historyButton));
+
+// ---- My Profile ----
 click(findByText('My Profile'));
-await wait(180);
-check('profile details are editable', text(doc.body).includes('Applicant details'));
-const statusSwitch = doc.querySelector('input[aria-label="Visa application status updates"]');
+await wait(300);
+check('profile shows personal and passport details', text(doc.body).includes('Personal information') && text(doc.body).includes('Passport details'));
+check('profile shows security and activity', text(doc.body).includes('Security') && text(doc.body).includes('Account activity'));
+
+const nameInput = doc.querySelector('input[aria-label="Full legal name"]');
+if (nameInput) {
+  typeInto(nameInput, 'Riyad Hossain');
+  await wait(120);
+  const saveProfile = [...doc.querySelectorAll('button')].find((el) => text(el).includes('Save profile'));
+  if (saveProfile) {
+    click(saveProfile);
+    await wait(300);
+    check('profile changes are saved', readState().profile?.fullName === 'Riyad Hossain', readState().profile?.fullName);
+  }
+}
+
+const statusSwitch = doc.querySelector('input[aria-label="Application status updates"]');
 if (statusSwitch) {
   click(statusSwitch);
-  await wait(200);
-  const saved = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
-  check(
-    'notification preference persists to storage',
-    saved.preferences?.statusAlerts === false,
-    JSON.stringify(saved.preferences)
-  );
-  check('saving a preference shows a toast', text(doc.body).includes('disabled'));
+  await wait(250);
+  check('notification preference persists', readState().preferences?.statusAlerts === false);
   click(statusSwitch);
-  await wait(150);
+  await wait(200);
 }
 
-const clearButton = [...doc.querySelectorAll('button')].find(
-  (el) => text(el) === 'Clear all records'
-);
+// ---- Data controls ----
+const clearButton = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Clear all records');
 if (clearButton) {
   click(clearButton);
-  await wait(150);
-  const confirmClear = [...doc.querySelectorAll('button')].find(
-    (el) => text(el) === 'Clear records'
-  );
+  await wait(200);
+  const confirmClear = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Clear records');
   if (confirmClear) {
     click(confirmClear);
-    await wait(250);
-    const emptied = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
-    check(
-      'client can clear the sample records',
-      emptied.passes?.length === 0 && emptied.cards?.length === 0,
-      JSON.stringify({ passes: emptied.passes?.length, cards: emptied.cards?.length })
-    );
-    const loadDemo = [...doc.querySelectorAll('button')].find(
-      (el) => text(el) === 'Load demo records'
-    );
+    await wait(350);
+    check('client can clear the sample records', (readState().applications || []).length === 0);
+    const loadDemo = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Load demo records');
     if (loadDemo) {
       click(loadDemo);
-      await wait(250);
-      const restored = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
-      check('demo records can be loaded back', restored.passes?.length > 0);
+      await wait(350);
+      check('demo records can be loaded back', (readState().applications || []).length > 0);
     }
   }
 }

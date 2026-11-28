@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import type { PortalActions, PortalProfile, PortalState } from '../../lib/portalStore';
+import { formatDateTime } from '../../lib/portalTypes';
 import { useToast } from './PortalToast';
-import type { PortalPreferences, PortalProfile } from '../../lib/portalStore';
+import { InfoRow, ghostButton, primaryButton, secondaryButton } from './portalUi';
 
 interface DashboardSettingsProps {
-  profile: PortalProfile;
-  preferences: PortalPreferences;
-  onUpdateProfile: (patch: Partial<PortalProfile>) => void;
-  onUpdatePreference: (key: keyof PortalPreferences, value: boolean) => void;
-  onResetPortalData?: () => void;
-  onClearPortalRecords?: () => void;
+  state: PortalState;
+  actions: PortalActions;
+  onOpenSupport: () => void;
+  onClearPortalRecords: () => void;
+  onResetPortalData: () => void;
 }
 
-const Switch: React.FC<{
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  label: string;
-}> = ({ checked, onChange, label }) => (
+const Switch: React.FC<{ checked: boolean; onChange: (value: boolean) => void; label: string }> = ({
+  checked,
+  onChange,
+  label,
+}) => (
   <label className="relative mt-1 inline-flex shrink-0 cursor-pointer items-center">
     <input
       type="checkbox"
@@ -34,14 +35,17 @@ const Field: React.FC<{
   onChange: (value: string) => void;
   type?: string;
   className?: string;
-}> = ({ label, value, onChange, type = 'text', className = '' }) => (
+  placeholder?: string;
+}> = ({ label, value, onChange, type = 'text', className = '', placeholder }) => (
   <label className={`block text-left ${className}`}>
     <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.06em] text-[#5f6368]">
       {label}
     </span>
     <input
       type={type}
+      aria-label={label}
       value={value}
+      placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
       className="w-full rounded-xl border border-[#c4c7c5]/70 bg-white/90 px-3 py-2 text-sm text-[#1f1f1f] transition-colors focus:border-[#0b57d0] focus:outline-none focus:ring-2 focus:ring-[#0b57d0]/20"
     />
@@ -49,385 +53,402 @@ const Field: React.FC<{
 );
 
 export const DashboardSettings: React.FC<DashboardSettingsProps> = ({
-  profile,
-  preferences,
-  onUpdateProfile,
-  onUpdatePreference,
-  onResetPortalData,
+  state,
+  actions,
+  onOpenSupport,
   onClearPortalRecords,
+  onResetPortalData,
 }) => {
   const { notify } = useToast();
+  const { profile, preferences } = state;
 
-  // Applicant details form mirrors the saved profile and only writes on save
-  const [details, setDetails] = useState(profile);
+  const [details, setDetails] = useState<PortalProfile>(profile);
+  const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
+
   useEffect(() => setDetails(profile), [profile]);
 
-  const detailsDirty =
-    details.name !== profile.name ||
-    details.email !== profile.email ||
-    details.phone !== profile.phone;
-
-  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
-  const [isEditingAddress, setIsEditingAddress] = useState(false);
-  const [address, setAddress] = useState(profile);
-  useEffect(() => setAddress(profile), [profile]);
+  const dirty = (Object.keys(details) as (keyof PortalProfile)[]).some(
+    (key) => details[key] !== profile[key]
+  );
 
   const saveDetails = () => {
-    if (!details.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) {
-      notify('Enter a name and a valid email address', 'info');
+    if (!details.fullName.trim()) {
+      notify('Full legal name is required', 'info');
       return;
     }
-    onUpdateProfile({
-      name: details.name.trim(),
-      email: details.email.trim(),
-      phone: details.phone.trim(),
-    });
-    notify('Applicant details saved to your portal');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) {
+      notify('Enter a valid email address', 'info');
+      return;
+    }
+    if (details.passportExpiry && Date.parse(details.passportExpiry) < Date.now()) {
+      notify('Passport expiry is in the past — renew before applying', 'info');
+    }
+    actions.updateProfile(details);
+    notify('Profile saved');
   };
 
-  const saveAddress = () => {
-    onUpdateProfile({
-      addressLine1: address.addressLine1.trim(),
-      city: address.city.trim(),
-      region: address.region.trim(),
-      postalCode: address.postalCode.trim(),
-      country: address.country.trim(),
-    });
-    setIsEditingAddress(false);
-    notify('Courier delivery address updated');
-  };
-
-  const toggle = (key: keyof PortalPreferences, label: string) => (value: boolean) => {
-    onUpdatePreference(key, value);
-    notify(`${label} ${value ? 'enabled' : 'disabled'}`);
-  };
+  const verificationTone =
+    profile.verificationStatus === 'verified'
+      ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+      : profile.verificationStatus === 'pending'
+      ? 'bg-amber-50 text-amber-800 ring-amber-200'
+      : 'bg-neutral-100 text-neutral-600 ring-neutral-200';
 
   return (
-    <div className="max-w-4xl animate-in space-y-6 text-left fade-in duration-300">
-      {/* Page Title & Subtitle */}
-      <div className="space-y-2 pb-2">
+    <div className="max-w-4xl space-y-5 animate-in fade-in text-left duration-300">
+      <div className="space-y-1 pb-1">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl font-normal text-[#1f1f1f] sm:text-4xl">
           My Profile
         </h2>
         <p className="max-w-2xl text-sm leading-relaxed text-[#444746]">
-          Manage your applicant details, consular email alerts, passport security and privacy
-          settings. Changes are saved to this device immediately.
+          Your personal, passport, contact and security information. Changes are saved to this device
+          and are used by the AI agent when preparing applications.
         </p>
+        <span
+          className={`mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-medium ring-1 ${verificationTone}`}
+        >
+          <span className="material-icons text-[13px]">
+            {profile.verificationStatus === 'verified' ? 'verified_user' : 'pending'}
+          </span>
+          Profile {profile.verificationStatus}
+        </span>
       </div>
 
-      {/* Card 0: Applicant details */}
-      <div className="glass-flat glass-sheen space-y-5 rounded-[28px] p-6 shadow-xs sm:p-8">
+      {/* Personal information */}
+      <section className="glass-flat glass-sheen space-y-4 rounded-[28px] p-5 shadow-xs sm:p-6">
         <div>
-          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
-            Applicant details
+          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+            Personal information
           </h3>
-          <p className="mt-0.5 text-xs text-[#444746] sm:text-sm">
-            Used on consular forms, appointment slips and fee receipts
-          </p>
+          <p className="text-[11px] text-[#5f6368]">Exactly as printed in your passport</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Full name" value={details.name} onChange={(v) => setDetails({ ...details, name: v })} />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field
-            label="Email address"
-            type="email"
-            value={details.email}
-            onChange={(v) => setDetails({ ...details, email: v })}
+            label="Full legal name"
+            value={details.fullName}
+            onChange={(value) => setDetails({ ...details, fullName: value })}
+            className="sm:col-span-2"
           />
+          <Field
+            label="Date of birth"
+            type="date"
+            value={details.dateOfBirth}
+            onChange={(value) => setDetails({ ...details, dateOfBirth: value })}
+          />
+          <Field
+            label="Nationality"
+            value={details.nationality}
+            onChange={(value) => setDetails({ ...details, nationality: value })}
+          />
+          <label className="block text-left">
+            <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.06em] text-[#5f6368]">
+              Gender (only where an application requires it)
+            </span>
+            <select
+              value={details.gender}
+              onChange={(e) => setDetails({ ...details, gender: e.target.value })}
+              className="w-full rounded-xl border border-[#c4c7c5]/70 bg-white/90 px-3 py-2 text-sm text-[#1f1f1f] focus:outline-none focus:ring-2 focus:ring-[#0b57d0]/20"
+            >
+              {['Not specified', 'Female', 'Male', 'Other'].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
           <Field
             label="Mobile number"
             type="tel"
             value={details.phone}
-            onChange={(v) => setDetails({ ...details, phone: v })}
+            onChange={(value) => setDetails({ ...details, phone: value })}
+          />
+          <Field
+            label="Email address"
+            type="email"
+            value={details.email}
+            onChange={(value) => setDetails({ ...details, email: value })}
             className="sm:col-span-2"
           />
         </div>
+      </section>
 
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] text-[#70757a]">
-            Stored locally on this device — no sign-in required.
-          </p>
+      {/* Passport */}
+      <section className="glass-flat glass-sheen space-y-4 rounded-[28px] p-5 shadow-xs sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+              Passport details
+            </h3>
+            <p className="text-[11px] text-[#5f6368]">
+              Masked outside your own application screens
+            </p>
+          </div>
+          <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10.5px] font-medium text-neutral-600">
+            Protected field
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Field
+            label="Passport number"
+            value={details.passportNumber}
+            onChange={(value) => setDetails({ ...details, passportNumber: value.toUpperCase() })}
+          />
+          <Field
+            label="Expiry date"
+            type="date"
+            value={details.passportExpiry}
+            onChange={(value) => setDetails({ ...details, passportExpiry: value })}
+          />
+          <Field
+            label="Issuing country"
+            value={details.passportIssueCountry}
+            onChange={(value) => setDetails({ ...details, passportIssueCountry: value })}
+          />
+        </div>
+      </section>
+
+      {/* Address */}
+      <section className="glass-flat glass-sheen space-y-4 rounded-[28px] p-5 shadow-xs sm:p-6">
+        <div>
+          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+            Address
+          </h3>
+          <p className="text-[11px] text-[#5f6368]">Used for courier passport delivery</p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field
+            label="Street address"
+            value={details.addressLine1}
+            onChange={(value) => setDetails({ ...details, addressLine1: value })}
+            className="sm:col-span-2"
+          />
+          <Field
+            label="City"
+            value={details.city}
+            onChange={(value) => setDetails({ ...details, city: value })}
+          />
+          <Field
+            label="State / region"
+            value={details.region}
+            onChange={(value) => setDetails({ ...details, region: value })}
+          />
+          <Field
+            label="Postal code"
+            value={details.postalCode}
+            onChange={(value) => setDetails({ ...details, postalCode: value })}
+          />
+          <Field
+            label="Country"
+            value={details.country}
+            onChange={(value) => setDetails({ ...details, country: value })}
+          />
+        </div>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-black/[0.06] bg-white/60 p-3">
+        <p className="text-[11px] text-[#5f6368]">
+          {dirty ? 'You have unsaved profile changes.' : 'All profile changes are saved.'}
+        </p>
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={saveDetails}
-            disabled={!detailsDirty}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0b57d0] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#0842a0] disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+            className={ghostButton}
+            disabled={!dirty}
+            onClick={() => {
+              setDetails(profile);
+              notify('Changes discarded', 'info');
+            }}
           >
-            <span className="material-icons text-base">save</span>
-            <span>Save details</span>
+            Discard
+          </button>
+          <button type="button" className={primaryButton} disabled={!dirty} onClick={saveDetails}>
+            <span className="material-icons text-sm">save</span>
+            Save profile
           </button>
         </div>
       </div>
 
-      {/* Card 1: Consular email & notification settings */}
-      <div className="glass-flat glass-sheen space-y-6 rounded-[28px] p-6 shadow-xs sm:p-8">
+      {/* Notifications */}
+      <section className="glass-flat glass-sheen space-y-4 rounded-[28px] p-5 shadow-xs sm:p-6">
         <div>
-          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
-            Email & consular notifications
+          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+            Notifications
           </h3>
-          <p className="mt-0.5 text-xs text-[#444746] sm:text-sm">
-            Manage the notifications you receive regarding your visa applications
+          <p className="text-[11px] text-[#5f6368]">
+            Delivery architecture for e-mail, SMS and WhatsApp is prepared but disabled in preview
+            mode
           </p>
         </div>
 
-        <div className="space-y-6 divide-y divide-neutral-100">
-          <div className="flex items-start justify-between gap-6 pt-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">Visa application status updates</p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Receive instant email alerts when your application progresses from received to
-                under review, biometrics verified, or approved
-              </p>
-            </div>
-            <Switch
-              label="Visa application status updates"
-              checked={preferences.statusAlerts}
-              onChange={toggle('statusAlerts', 'Application status alerts')}
-            />
-          </div>
-
-          <div className="flex items-start justify-between gap-6 pt-6">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">
-                Embassy appointment & biometric reminders
-              </p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Get notified 48 hours and 24 hours prior to your consular interview or visa
-                application center biometrics appointment
-              </p>
-            </div>
-            <Switch
-              label="Embassy appointment reminders"
-              checked={preferences.appointmentReminders}
-              onChange={toggle('appointmentReminders', 'Appointment reminders')}
-            />
-          </div>
-
-          <div className="flex items-start justify-between gap-6 pt-6">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">
-                Passport courier dispatch & delivery tracking
-              </p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Get live courier tracking updates when your stamped passport is dispatched from the
-                embassy to your mailing address
-              </p>
-            </div>
-            <Switch
-              label="Courier tracking alerts"
-              checked={preferences.courierTracking}
-              onChange={toggle('courierTracking', 'Courier tracking')}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Card 2: Privacy & Biometric Data */}
-      <div className="glass-flat glass-sheen space-y-6 rounded-[28px] p-6 shadow-xs sm:p-8">
-        <div>
-          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
-            Privacy & biometric security
-          </h3>
-          <p className="mt-0.5 text-xs text-[#444746] sm:text-sm">
-            Your personal information and biometric records are never shared publicly or sold.{' '}
-            <a href="#legal" className="text-[#0b57d0] hover:underline">
-              Learn how VisaHOBe keeps your consular data private
-            </a>
-          </p>
-        </div>
-
-        <div className="space-y-6 divide-y divide-neutral-100">
-          <div className="flex items-start justify-between gap-6 pt-2">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">
-                Consular application autofill synchronization
-              </p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Seamlessly populate verified passport numbers, previous travel visas, and sponsor
-                details across official DS-160 and Schengen online forms
-              </p>
-            </div>
-            <Switch
-              label="Consular application autofill"
-              checked={preferences.consularSync}
-              onChange={toggle('consularSync', 'Form autofill sync')}
-            />
-          </div>
-
-          <div className="flex items-start justify-between gap-6 pt-6">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">
-                Automated e-Gate smart clearance tokens
-              </p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Generate encrypted NFC tokens for rapid border clearance at compatible
-                international airport smart gates compliant with ICAO 9303 standards
-              </p>
-            </div>
-            <Switch
-              label="e-Gate clearance tokens"
-              checked={preferences.egateTokenization}
-              onChange={toggle('egateTokenization', 'e-Gate tokens')}
-            />
-          </div>
-
-          <div className="flex items-start justify-between gap-6 pt-6">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-[#1f1f1f]">
-                Gmail smart consular document import
-              </p>
-              <p className="text-xs leading-relaxed text-[#444746]">
-                Automatically import consular fee receipts, interview appointment letters, and
-                e-Visa issuance PDFs directly from your Gmail inbox
-              </p>
-            </div>
-            <Switch
-              label="Gmail document import"
-              checked={preferences.gmailSmartFeatures}
-              onChange={toggle('gmailSmartFeatures', 'Gmail document import')}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Card 3: Saved Traveler Addresses */}
-      <div className="glass-flat glass-sheen space-y-4 rounded-[28px] p-6 shadow-xs sm:p-8">
-        <div>
-          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-xl font-normal text-[#1f1f1f]">
-            Saved applicant travel addresses
-          </h3>
-          <p className="mt-0.5 text-xs text-[#444746] sm:text-sm">
-            Addresses used for courier passport delivery and consular DS-160 / Schengen forms
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-neutral-200 p-4">
-          {isEditingAddress ? (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field
-                  label="Street address"
-                  value={address.addressLine1}
-                  onChange={(v) => setAddress({ ...address, addressLine1: v })}
-                  className="sm:col-span-2"
-                />
-                <Field label="City" value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
-                <Field label="State / Region" value={address.region} onChange={(v) => setAddress({ ...address, region: v })} />
-                <Field
-                  label="Postal code"
-                  value={address.postalCode}
-                  onChange={(v) => setAddress({ ...address, postalCode: v })}
-                />
-                <Field label="Country" value={address.country} onChange={(v) => setAddress({ ...address, country: v })} />
-              </div>
-
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAddress(profile);
-                    setIsEditingAddress(false);
-                  }}
-                  className="rounded-full px-4 py-2 text-xs font-medium text-[#444746] transition-colors hover:bg-neutral-100 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={saveAddress}
-                  className="rounded-full bg-[#0b57d0] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
-                >
-                  Save address
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-neutral-800">{profile.name}</p>
-                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
-                    Primary Residence
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-500">{profile.addressLine1}</p>
-                <p className="text-xs text-neutral-500">
-                  {profile.city}, {profile.region} {profile.postalCode}, {profile.country}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setAddress(profile);
-                  setIsEditingAddress(true);
+        <div className="space-y-3">
+          {[
+            { key: 'statusAlerts' as const, label: 'Application status updates' },
+            { key: 'appointmentReminders' as const, label: 'Appointment & biometric reminders' },
+            { key: 'courierTracking' as const, label: 'Passport courier tracking' },
+            { key: 'channelEmail' as const, label: 'E-mail channel' },
+            { key: 'channelSms' as const, label: 'SMS channel (prepared, off)' },
+            { key: 'channelWhatsapp' as const, label: 'WhatsApp channel (prepared, off)' },
+          ].map((item) => (
+            <div key={item.key} className="flex items-center justify-between gap-4">
+              <p className="text-xs font-medium text-[#1f1f1f]">{item.label}</p>
+              <Switch
+                label={item.label}
+                checked={preferences[item.key]}
+                onChange={(value) => {
+                  actions.updatePreference(item.key, value);
+                  notify(`${item.label} ${value ? 'enabled' : 'disabled'}`);
                 }}
-                className="shrink-0 text-xs font-medium text-[#0b57d0] hover:underline cursor-pointer"
-              >
-                Edit
-              </button>
+              />
             </div>
-          )}
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* Card 4: Local data */}
-      <div className="space-y-3 rounded-2xl border border-black/[0.06] bg-white/60 p-4">
+      {/* Security */}
+      <section className="glass-flat glass-sheen space-y-4 rounded-[28px] p-5 shadow-xs sm:p-6">
+        <div>
+          <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+            Security
+          </h3>
+          <p className="text-[11px] text-[#5f6368]">
+            Password management is wallet/identity-provider based. In preview mode no credential is
+            changed.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Field
+            label="Current password"
+            type="password"
+            value={passwordForm.current}
+            onChange={(value) => setPasswordForm({ ...passwordForm, current: value })}
+            placeholder="••••••••"
+          />
+          <Field
+            label="New password"
+            type="password"
+            value={passwordForm.next}
+            onChange={(value) => setPasswordForm({ ...passwordForm, next: value })}
+            placeholder="At least 8 characters"
+          />
+          <Field
+            label="Confirm new password"
+            type="password"
+            value={passwordForm.confirm}
+            onChange={(value) => setPasswordForm({ ...passwordForm, confirm: value })}
+            placeholder="Repeat"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className={secondaryButton}
+            onClick={() => {
+              if (passwordForm.next.length < 8) {
+                notify('New password must be at least 8 characters', 'info');
+                return;
+              }
+              if (passwordForm.next !== passwordForm.confirm) {
+                notify('Passwords do not match', 'info');
+                return;
+              }
+              actions.changePasswordPreview();
+              setPasswordForm({ current: '', next: '', confirm: '' });
+              notify('Password change requested — disabled in preview mode', 'info');
+            }}
+          >
+            Change password
+          </button>
+          <button type="button" className={ghostButton} onClick={onOpenSupport}>
+            Report a security issue
+          </button>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white/70 p-3">
+          <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[#5f6368]">
+            Session
+          </h4>
+          <InfoRow label="Client ID" value={state.profile.clientId} mono />
+          <InfoRow label="Device" value={state.session.device} />
+          <InfoRow label="Signed in" value={formatDateTime(state.session.startedAt)} />
+          <InfoRow label="Last activity" value={formatDateTime(state.session.lastActiveAt)} />
+          <InfoRow label="Role" value="Client (own records only)" />
+        </div>
+      </section>
+
+      {/* Activity log */}
+      <section className="glass-flat glass-sheen space-y-3 rounded-[28px] p-5 shadow-xs sm:p-6">
+        <h3 className="font-['Google_Sans',Roboto,sans-serif] text-lg font-medium text-[#1f1f1f]">
+          Account activity
+        </h3>
+        {state.activity.length === 0 ? (
+          <p className="text-xs text-[#5f6368]">No activity recorded yet.</p>
+        ) : (
+          <ul className="max-h-52 space-y-2 overflow-y-auto pr-1">
+            {state.activity.slice(0, 20).map((entry) => (
+              <li key={entry.id} className="flex items-start justify-between gap-3 text-[11.5px]">
+                <span className="min-w-0">
+                  <span className="font-medium text-[#1f1f1f]">{entry.action}</span>
+                  <span className="block truncate text-[10.5px] text-[#5f6368]">{entry.detail}</span>
+                </span>
+                <span className="shrink-0 text-[10px] text-[#9aa0a6]">
+                  {formatDateTime(entry.at)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Data controls */}
+      <section className="space-y-3 rounded-2xl border border-black/[0.06] bg-white/60 p-4">
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <p className="text-[11.5px] leading-relaxed text-[#70757a]">
-            Your cards, applications, receipts and preferences live in this browser. Demo records
-            are sample applications you can remove whenever you want an account with only your own
-            data.
+            Portal data lives in this browser only. Demo records are synthetic test data; clearing
+            them keeps your profile and preferences.
           </p>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {onResetPortalData && (
-              <button
-                type="button"
-                onClick={onResetPortalData}
-                className="rounded-full border border-[#0b57d0]/30 px-4 py-2 text-xs font-semibold text-[#0b57d0] transition-colors hover:bg-[#e8f0fe] cursor-pointer"
-              >
-                Load demo records
-              </button>
-            )}
-            {onClearPortalRecords && (
-              <button
-                type="button"
-                onClick={() => setIsConfirmingClear(true)}
-                className="rounded-full border border-[#c5221f]/30 px-4 py-2 text-xs font-semibold text-[#c5221f] transition-colors hover:bg-[#fce8e6] cursor-pointer"
-              >
-                Clear all records
-              </button>
-            )}
+            <button type="button" className={secondaryButton} onClick={onResetPortalData}>
+              Load demo records
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-[#c5221f]/30 px-4 py-2 text-xs font-semibold text-[#c5221f] transition-colors hover:bg-[#fce8e6] cursor-pointer"
+              onClick={() => setIsConfirmingClear(true)}
+            >
+              Clear all records
+            </button>
           </div>
         </div>
 
-        {isConfirmingClear && onClearPortalRecords && (
+        {isConfirmingClear && (
           <div className="flex flex-col items-start justify-between gap-2 rounded-xl border border-[#c5221f]/25 bg-[#fce8e6]/60 p-3 sm:flex-row sm:items-center">
             <p className="text-[11.5px] text-[#8c1d18]">
-              This removes every saved card, application and receipt from this browser. Your profile
-              and preferences stay.
+              This removes every application, document record, receipt and notification from this
+              browser. Profile and preferences stay.
             </p>
             <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsConfirmingClear(false)}
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-[#444746] hover:bg-white cursor-pointer"
-              >
+              <button type="button" className={ghostButton} onClick={() => setIsConfirmingClear(false)}>
                 Cancel
               </button>
               <button
                 type="button"
+                className="rounded-full bg-[#c5221f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#a51d1a] cursor-pointer"
                 onClick={() => {
                   onClearPortalRecords();
                   setIsConfirmingClear(false);
                 }}
-                className="rounded-full bg-[#c5221f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#a51d1a] cursor-pointer"
               >
                 Clear records
               </button>
             </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };
