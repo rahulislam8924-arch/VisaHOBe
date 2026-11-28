@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TransactionData } from './TransactionReceiptModal';
 import { useToast } from './PortalToast';
+import { formatUsd } from '../../lib/portalMetrics';
 
 interface DashboardTransactionsProps {
   transactions: TransactionData[];
@@ -29,6 +30,13 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
 
     return matchesSearch && matchesType;
   });
+
+  const totalPaid = transactions
+    .filter((tx) => tx.status !== 'Declined')
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  const filteredTotal = filtered
+    .filter((tx) => tx.status !== 'Declined')
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
   /** Real statement export of whatever the filters currently show */
   const exportCsv = () => {
@@ -71,9 +79,17 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
           Payment history
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
-          Official embassy visa application fees, biometric appointments, and passport courier
-          charges settled through the VisaHOBe Portal.
+          {transactions.length === 0
+            ? 'No statements yet — official embassy visa fees, biometric appointments and passport courier charges appear here once settled.'
+            : `${formatUsd(totalPaid)} across ${transactions.length} ${
+                transactions.length === 1 ? 'receipt' : 'receipts'
+              } — embassy visa fees, biometric appointments and passport courier charges.`}
         </p>
+        {transactions.length > 0 && (searchQuery || selectedType !== 'all') && (
+          <p className="text-xs font-medium text-[#0b57d0]">
+            Showing {filtered.length} of {transactions.length} · {formatUsd(filteredTotal)}
+          </p>
+        )}
       </div>
 
       {/* Search & Filter Toolbar */}

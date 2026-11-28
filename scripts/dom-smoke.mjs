@@ -168,6 +168,22 @@ window.location.hash = '#dashboard';
 await wait(250);
 check('portal view loads', doc.title === 'VisaHOBe Client Portal');
 
+check(
+  'dashboard greets the saved applicant',
+  text(doc.body).includes('Welcome back, Alexander'),
+  'greeting missing'
+);
+check(
+  'dashboard flags the sample records as demo data',
+  text(doc.body).includes('Demo records.') && text(doc.body).includes('Clear demo records'),
+  'demo notice missing'
+);
+check(
+  'dashboard totals are derived from records',
+  /\$\d/.test(text(doc.body)) && /paid across/.test(text(doc.body)),
+  'no derived totals'
+);
+
 const sidebarLabels = ['Dashboard', 'AI Visa Agent', 'My Applications', 'Payments', 'My Profile'];
 const sidebarText = text(doc.body);
 check(
@@ -264,6 +280,36 @@ if (statusSwitch) {
   check('saving a preference shows a toast', text(doc.body).includes('disabled'));
   click(statusSwitch);
   await wait(150);
+}
+
+const clearButton = [...doc.querySelectorAll('button')].find(
+  (el) => text(el) === 'Clear all records'
+);
+if (clearButton) {
+  click(clearButton);
+  await wait(150);
+  const confirmClear = [...doc.querySelectorAll('button')].find(
+    (el) => text(el) === 'Clear records'
+  );
+  if (confirmClear) {
+    click(confirmClear);
+    await wait(250);
+    const emptied = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
+    check(
+      'client can clear the sample records',
+      emptied.passes?.length === 0 && emptied.cards?.length === 0,
+      JSON.stringify({ passes: emptied.passes?.length, cards: emptied.cards?.length })
+    );
+    const loadDemo = [...doc.querySelectorAll('button')].find(
+      (el) => text(el) === 'Load demo records'
+    );
+    if (loadDemo) {
+      click(loadDemo);
+      await wait(250);
+      const restored = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
+      check('demo records can be loaded back', restored.passes?.length > 0);
+    }
+  }
 }
 
 window.location.hash = '';

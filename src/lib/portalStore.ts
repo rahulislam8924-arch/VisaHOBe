@@ -37,8 +37,12 @@ export interface PortalPreferences {
   gmailSmartFeatures: boolean;
 }
 
+export type RecordsSource = 'demo' | 'client';
+
 export interface PortalState {
   version: 1;
+  /** 'demo' while the seeded sample records are still untouched */
+  recordsSource: RecordsSource;
   cards: CardItem[];
   passes: DashboardPassItem[];
   transactions: TransactionData[];
@@ -73,6 +77,7 @@ const maskSeedCards = (cards: CardItem[]): CardItem[] =>
 
 const defaultState = (): PortalState => ({
   version: 1,
+  recordsSource: 'demo',
   cards: maskSeedCards(INITIAL_CARDS),
   passes: INITIAL_PASSES,
   transactions: INITIAL_TRANSACTIONS,
@@ -92,6 +97,7 @@ export const loadPortalState = (): PortalState => {
     const parsed = JSON.parse(raw) as Partial<PortalState>;
     return {
       version: 1,
+      recordsSource: parsed.recordsSource === 'client' ? 'client' : 'demo',
       cards: Array.isArray(parsed.cards) ? maskSeedCards(parsed.cards) : fallback.cards,
       passes: Array.isArray(parsed.passes) && parsed.passes.length ? parsed.passes : fallback.passes,
       transactions: Array.isArray(parsed.transactions) && parsed.transactions.length
@@ -123,6 +129,8 @@ export interface PortalActions {
   updateProfile: (patch: Partial<PortalProfile>) => void;
   updatePreference: (key: keyof PortalPreferences, value: boolean) => void;
   resetPortalData: () => void;
+  clearPortalRecords: () => void;
+  dismissDemoRecords: () => void;
 }
 
 export const usePortalState = () => {
@@ -152,6 +160,7 @@ export const usePortalState = () => {
     addCard: (card) =>
       update((prev) => ({
         ...prev,
+        recordsSource: 'client',
         cards: card.isDefault
           ? [card, ...prev.cards.map((c) => ({ ...c, isDefault: false }))]
           : [...prev.cards, card],
@@ -177,6 +186,9 @@ export const usePortalState = () => {
         ),
       })),
 
+    dismissDemoRecords: () =>
+      update((prev) => ({ ...prev, recordsSource: 'client' })),
+
     updateProfile: (patch) =>
       update((prev) => ({ ...prev, profile: { ...prev.profile, ...patch } })),
 
@@ -187,6 +199,16 @@ export const usePortalState = () => {
       })),
 
     resetPortalData: () => setState(defaultState()),
+
+    // Start from an empty account: keeps the profile and saved preferences
+    clearPortalRecords: () =>
+      update((prev) => ({
+        ...prev,
+        recordsSource: 'client',
+        cards: [],
+        passes: [],
+        transactions: [],
+      })),
   };
 
   return { state, actions };

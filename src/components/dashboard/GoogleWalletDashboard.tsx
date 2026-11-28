@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DashboardLayout, DashboardTab } from './DashboardLayout';
 import { DashboardHome } from './DashboardHome';
 import { DashboardPaymentMethods } from './DashboardPaymentMethods';
@@ -11,6 +11,7 @@ import { TransactionReceiptModal, TransactionData } from './TransactionReceiptMo
 import { AddCardModal } from './AddCardModal';
 import { ToastProvider, useToast } from './PortalToast';
 import { usePortalState } from '../../lib/portalStore';
+import { personalizePasses } from '../../lib/portalMetrics';
 import type { DashboardPassItem } from '../../data/dashboardMockData';
 
 interface GoogleWalletDashboardProps {
@@ -23,7 +24,21 @@ const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab =
   const { state, actions } = usePortalState();
   const { notify } = useToast();
 
-  const { cards, passes, transactions, profile, preferences } = state;
+  const { transactions, profile, preferences } = state;
+  // Seeded records follow whatever applicant name the client has saved
+  const passes = useMemo(
+    () => personalizePasses(state.passes, profile.name),
+    [state.passes, profile.name]
+  );
+  const cards = useMemo(
+    () =>
+      state.cards.map((card) =>
+        /^alexander morgan$/i.test(card.cardholderName.trim())
+          ? { ...card, cardholderName: profile.name.toUpperCase() }
+          : card
+      ),
+    [state.cards, profile.name]
+  );
 
   // Modals state
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
@@ -40,6 +55,7 @@ const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab =
       >
         {currentTab === 'home' && (
           <DashboardHome
+            profile={profile}
             cards={cards}
             passes={passes}
             transactions={transactions}
@@ -47,6 +63,11 @@ const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab =
             onOpenAddCard={() => setIsAddCardOpen(true)}
             onSelectPass={setSelectedPass}
             onSelectTransaction={setSelectedTransaction}
+            isDemoData={state.recordsSource === 'demo'}
+            onClearDemoRecords={() => {
+              actions.clearPortalRecords();
+              notify('Demo records cleared — the portal now shows only your own data', 'info');
+            }}
           />
         )}
 
@@ -95,7 +116,11 @@ const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab =
             onUpdatePreference={actions.updatePreference}
             onResetPortalData={() => {
               actions.resetPortalData();
-              notify('Portal data reset to the sample file');
+              notify('Demo records loaded');
+            }}
+            onClearPortalRecords={() => {
+              actions.clearPortalRecords();
+              notify('All records cleared — the portal is now empty', 'info');
             }}
           />
         )}

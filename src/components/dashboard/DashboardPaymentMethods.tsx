@@ -75,6 +75,24 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
 
       {/* Cards List in Material 3 container */}
       <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
+        {cards.length === 0 && (
+          <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-neutral-800">No payment card saved yet</p>
+              <p className="mt-0.5 text-xs text-[#444746]">
+                Add a card to settle DS-160 MRV fees, Schengen charges and VAC appointments.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenAddCard}
+              className="shrink-0 rounded-full bg-[#0b57d0] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
+            >
+              Add your first card
+            </button>
+          </div>
+        )}
+
         <div className="space-y-4 divide-y divide-neutral-100">
           {cards.map((card, idx) => {
             const isEditing = editingCardId === card.id;

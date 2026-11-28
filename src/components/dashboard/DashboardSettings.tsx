@@ -8,6 +8,7 @@ interface DashboardSettingsProps {
   onUpdateProfile: (patch: Partial<PortalProfile>) => void;
   onUpdatePreference: (key: keyof PortalPreferences, value: boolean) => void;
   onResetPortalData?: () => void;
+  onClearPortalRecords?: () => void;
 }
 
 const Switch: React.FC<{
@@ -53,6 +54,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({
   onUpdateProfile,
   onUpdatePreference,
   onResetPortalData,
+  onClearPortalRecords,
 }) => {
   const { notify } = useToast();
 
@@ -65,6 +67,7 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({
     details.email !== profile.email ||
     details.phone !== profile.phone;
 
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [address, setAddress] = useState(profile);
   useEffect(() => setAddress(profile), [profile]);
@@ -368,19 +371,61 @@ export const DashboardSettings: React.FC<DashboardSettingsProps> = ({
       </div>
 
       {/* Card 4: Local data */}
-      <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-black/[0.06] bg-white/60 p-4 sm:flex-row sm:items-center">
-        <p className="text-[11.5px] leading-relaxed text-[#70757a]">
-          Portal data (cards, applications, receipts and preferences) is stored in this browser.
-          Resetting restores the sample file.
-        </p>
-        {onResetPortalData && (
-          <button
-            type="button"
-            onClick={onResetPortalData}
-            className="shrink-0 rounded-full border border-[#c5221f]/30 px-4 py-2 text-xs font-semibold text-[#c5221f] transition-colors hover:bg-[#fce8e6] cursor-pointer"
-          >
-            Reset portal data
-          </button>
+      <div className="space-y-3 rounded-2xl border border-black/[0.06] bg-white/60 p-4">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+          <p className="text-[11.5px] leading-relaxed text-[#70757a]">
+            Your cards, applications, receipts and preferences live in this browser. Demo records
+            are sample applications you can remove whenever you want an account with only your own
+            data.
+          </p>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {onResetPortalData && (
+              <button
+                type="button"
+                onClick={onResetPortalData}
+                className="rounded-full border border-[#0b57d0]/30 px-4 py-2 text-xs font-semibold text-[#0b57d0] transition-colors hover:bg-[#e8f0fe] cursor-pointer"
+              >
+                Load demo records
+              </button>
+            )}
+            {onClearPortalRecords && (
+              <button
+                type="button"
+                onClick={() => setIsConfirmingClear(true)}
+                className="rounded-full border border-[#c5221f]/30 px-4 py-2 text-xs font-semibold text-[#c5221f] transition-colors hover:bg-[#fce8e6] cursor-pointer"
+              >
+                Clear all records
+              </button>
+            )}
+          </div>
+        </div>
+
+        {isConfirmingClear && onClearPortalRecords && (
+          <div className="flex flex-col items-start justify-between gap-2 rounded-xl border border-[#c5221f]/25 bg-[#fce8e6]/60 p-3 sm:flex-row sm:items-center">
+            <p className="text-[11.5px] text-[#8c1d18]">
+              This removes every saved card, application and receipt from this browser. Your profile
+              and preferences stay.
+            </p>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsConfirmingClear(false)}
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-[#444746] hover:bg-white cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onClearPortalRecords();
+                  setIsConfirmingClear(false);
+                }}
+                className="rounded-full bg-[#c5221f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#a51d1a] cursor-pointer"
+              >
+                Clear records
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
