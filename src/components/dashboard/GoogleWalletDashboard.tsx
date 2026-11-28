@@ -8,64 +8,27 @@ import { DashboardSettings } from './DashboardSettings';
 import { DashboardAgent } from './DashboardAgent';
 import { BarcodeModal } from './BarcodeModal';
 import { TransactionReceiptModal, TransactionData } from './TransactionReceiptModal';
-import { AddCardModal, CardItem } from './AddCardModal';
-import {
-  INITIAL_CARDS,
-  INITIAL_PASSES,
-  INITIAL_TRANSACTIONS,
-  DashboardPassItem,
-} from '../../data/dashboardMockData';
+import { AddCardModal } from './AddCardModal';
+import { ToastProvider, useToast } from './PortalToast';
+import { usePortalState } from '../../lib/portalStore';
+import type { DashboardPassItem } from '../../data/dashboardMockData';
 
 interface GoogleWalletDashboardProps {
   onExit: () => void;
   initialTab?: DashboardTab;
 }
 
-export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
-  onExit,
-  initialTab = 'home',
-}) => {
+const PortalBody: React.FC<GoogleWalletDashboardProps> = ({ onExit, initialTab = 'home' }) => {
   const [currentTab, setCurrentTab] = useState<DashboardTab>(initialTab);
+  const { state, actions } = usePortalState();
+  const { notify } = useToast();
 
-  // Live state
-  const [cards, setCards] = useState<CardItem[]>(INITIAL_CARDS);
-  const [passes] = useState<DashboardPassItem[]>(INITIAL_PASSES);
-  const [transactions] = useState<TransactionData[]>(INITIAL_TRANSACTIONS);
+  const { cards, passes, transactions, profile, preferences } = state;
 
   // Modals state
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
   const [selectedPass, setSelectedPass] = useState<DashboardPassItem | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionData | null>(null);
-
-  const handleAddCard = (newCard: CardItem) => {
-    if (newCard.isDefault) {
-      setCards((prev) => [
-        newCard,
-        ...prev.map((c) => ({ ...c, isDefault: false })),
-      ]);
-    } else {
-      setCards((prev) => [...prev, newCard]);
-    }
-  };
-
-  const handleSetDefault = (id: string) => {
-    setCards((prev) =>
-      prev.map((c) => ({
-        ...c,
-        isDefault: c.id === id,
-      }))
-    );
-  };
-
-  const handleRemoveCard = (id: string) => {
-    setCards((prev) => prev.filter((c) => c.id !== id));
-  };
-
-  const handleRenameCard = (id: string, nickname: string) => {
-    setCards((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, nickname: nickname.trim() || c.nickname } : c))
-    );
-  };
 
   return (
     <>
@@ -73,6 +36,7 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         onExitDashboard={onExit}
+        profile={profile}
       >
         {currentTab === 'home' && (
           <DashboardHome
@@ -98,19 +62,23 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
           <DashboardPaymentMethods
             cards={cards}
             onOpenAddCard={() => setIsAddCardOpen(true)}
-            onSetDefault={handleSetDefault}
-            onRemoveCard={handleRemoveCard}
-            onRenameCard={handleRenameCard}
+            onSetDefault={(id) => {
+              actions.setDefaultCard(id);
+              notify('Default consular card updated');
+            }}
+            onRemoveCard={(id) => {
+              actions.removeCard(id);
+              notify('Payment card removed');
+            }}
+            onRenameCard={(id, nickname) => {
+              actions.renameCard(id, nickname);
+              notify('Card nickname saved');
+            }}
             onOpenTransactions={() => setCurrentTab('transactions')}
           />
         )}
 
-        {currentTab === 'passes' && (
-          <DashboardPasses
-            passes={passes}
-            onSelectPass={setSelectedPass}
-          />
-        )}
+        {currentTab === 'passes' && <DashboardPasses passes={passes} onSelectPass={setSelectedPass} />}
 
         {currentTab === 'transactions' && (
           <DashboardTransactions
@@ -119,7 +87,18 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
           />
         )}
 
-        {currentTab === 'settings' && <DashboardSettings />}
+        {currentTab === 'settings' && (
+          <DashboardSettings
+            profile={profile}
+            preferences={preferences}
+            onUpdateProfile={actions.updateProfile}
+            onUpdatePreference={actions.updatePreference}
+            onResetPortalData={() => {
+              actions.resetPortalData();
+              notify('Portal data reset to the sample file');
+            }}
+          />
+        )}
       </DashboardLayout>
 
       {/* Barcode / QR Code Modal */}
@@ -134,14 +113,24 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
         isOpen={Boolean(selectedTransaction)}
         onClose={() => setSelectedTransaction(null)}
         transaction={selectedTransaction}
+        profile={profile}
       />
 
       {/* Add Payment Method Modal */}
       <AddCardModal
         isOpen={isAddCardOpen}
         onClose={() => setIsAddCardOpen(false)}
-        onAddCard={handleAddCard}
+        onAddCard={(card) => {
+          actions.addCard(card);
+          notify(`${card.network} •••• ${card.lastFour} added to your account`);
+        }}
       />
     </>
   );
 };
+
+export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = (props) => (
+  <ToastProvider>
+    <PortalBody {...props} />
+  </ToastProvider>
+);

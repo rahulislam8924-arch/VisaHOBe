@@ -14,6 +14,23 @@ export interface CardItem {
   bgGradient: string;
 }
 
+/** Luhn checksum — the same validation a real acquirer runs before tokenizing */
+const passesLuhnCheck = (digits: string) => {
+  let sum = 0;
+  let double = false;
+  for (let i = digits.length - 1; i >= 0; i -= 1) {
+    let value = Number(digits[i]);
+    if (Number.isNaN(value)) return false;
+    if (double) {
+      value *= 2;
+      if (value > 9) value -= 9;
+    }
+    sum += value;
+    double = !double;
+  }
+  return sum % 10 === 0;
+};
+
 interface AddCardModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -71,6 +88,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       setError('Please enter a valid card number');
       return;
     }
+    if (!passesLuhnCheck(cleanNumber)) {
+      setError('That card number failed the security checksum — please re-check the digits');
+      return;
+    }
     if (!expDate.includes('/') || expDate.length < 5) {
       setError('Please enter a valid expiration date (MM/YY)');
       return;
@@ -110,7 +131,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     const newCard: CardItem = {
       id: `card-${Date.now()}`,
       cardholderName: name.trim(),
-      cardNumber: cleanNumber,
+      // Only the last four digits are kept — full PANs are never persisted
+      cardNumber: `•••• ${lastFour}`,
       network,
       lastFour,
       expMonth: month,

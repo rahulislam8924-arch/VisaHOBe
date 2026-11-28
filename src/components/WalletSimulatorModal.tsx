@@ -15,6 +15,25 @@ export const WalletSimulatorModal: React.FC<WalletSimulatorModalProps> = ({ isOp
   const [activeCategory, setActiveCategory] = useState<
     'all' | WalletCard['type']
   >('all');
+  const [isLinkPanelOpen, setIsLinkPanelOpen] = useState(false);
+  const [linkReference, setLinkReference] = useState('');
+  const [linkMessage, setLinkMessage] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const linkDocument = () => {
+    const reference = linkReference.trim().toUpperCase();
+    if (!/^[A-Z0-9-]{6,20}$/.test(reference)) {
+      setLinkMessage({
+        ok: false,
+        text: 'Enter the reference from your consular confirmation (6–20 letters, digits or dashes).',
+      });
+      return;
+    }
+    setLinkMessage({
+      ok: true,
+      text: `Reference ${reference} queued — the document appears in your wallet once the embassy confirms.`,
+    });
+    setLinkReference('');
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -169,14 +188,59 @@ export const WalletSimulatorModal: React.FC<WalletSimulatorModalProps> = ({ isOp
 
             <button
               type="button"
-              onClick={() => alert('New visas and travel documents can be linked via application reference number or consular confirmation.')}
+              onClick={() => {
+                setIsLinkPanelOpen((open) => !open);
+                setLinkMessage(null);
+              }}
+              aria-expanded={isLinkPanelOpen}
               className="bg-white hover:bg-neutral-100 text-neutral-800 border border-black/10 font-medium py-3 px-4 rounded-2xl transition-all flex items-center gap-1.5 cursor-pointer"
               title="Add Document"
             >
-              <span className="material-icons text-lg">add</span>
+              <span className="material-icons text-lg">{isLinkPanelOpen ? 'remove' : 'add'}</span>
               <span className="hidden sm:inline">Add</span>
             </button>
           </div>
+
+          {isLinkPanelOpen && (
+            <div className="rounded-2xl border border-black/10 bg-white/80 p-3.5 text-left space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#5f6368]">
+                Link a visa or travel document
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={linkReference}
+                  onChange={(e) => {
+                    setLinkReference(e.target.value);
+                    setLinkMessage(null);
+                  }}
+                  placeholder="Application reference, e.g. VH-402118"
+                  className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/40"
+                  aria-label="Application reference"
+                />
+                <button
+                  type="button"
+                  onClick={linkDocument}
+                  className="rounded-xl bg-[#1a73e8] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1557b0] cursor-pointer"
+                >
+                  Link
+                </button>
+              </div>
+              {linkMessage && (
+                <p
+                  className={`text-[11.5px] leading-snug ${
+                    linkMessage.ok ? 'text-emerald-700' : 'text-[#c5221f]'
+                  }`}
+                >
+                  {linkMessage.text}
+                </p>
+              )}
+              <p className="text-[11px] text-[#70757a]">
+                New visas and documents can be linked with the reference number from your consular
+                confirmation.
+              </p>
+            </div>
+          )}
 
           {/* Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">

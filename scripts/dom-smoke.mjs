@@ -195,6 +195,77 @@ click(findByText('Payments'));
 await wait(150);
 check('payments view opens from the sidebar', text(doc.body).includes('Payment history'));
 
+// --- Real, persisted portal behaviour (no alert() stubs) ---
+const portalKey = 'visahobe.portal.v1';
+check('portal state is persisted locally', Boolean(window.localStorage.getItem(portalKey)));
+
+const detailsToggle = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Details');
+if (detailsToggle) {
+  click(detailsToggle);
+  await wait(150);
+  check('card details expand inline instead of an alert', text(doc.body).includes('Network token'));
+  click(detailsToggle);
+  await wait(120);
+}
+
+const removeToggle = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Remove');
+if (removeToggle) {
+  click(removeToggle);
+  await wait(150);
+  check('card removal asks for confirmation in-app', text(doc.body).includes('Remove card'));
+  const cancelRemove = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Cancel');
+  if (cancelRemove) {
+    click(cancelRemove);
+    await wait(120);
+  }
+}
+
+click(findByText('Payment history'));
+await wait(150);
+check('payment history offers a CSV export', text(doc.body).includes('Export CSV'));
+
+const firstTransaction = doc.querySelector('[class*="divide-y"] [class*="cursor-pointer"]');
+if (firstTransaction) {
+  click(firstTransaction);
+  await wait(200);
+  check('receipt downloads instead of alerting', text(doc.body).includes('Download receipt'));
+  const doneBtn = [...doc.querySelectorAll('button')].find((el) => text(el) === 'Done');
+  if (doneBtn) click(doneBtn);
+  await wait(120);
+}
+
+click(findByText('My Applications'));
+await wait(150);
+const passCard = [...doc.querySelectorAll('div')].find(
+  (el) => text(el).includes('View visa code') && el.className.includes('cursor-pointer')
+);
+if (passCard) {
+  click(passCard);
+  await wait(220);
+  check('pass shows a copyable reference code', text(doc.body).includes('Copy reference code'));
+  const closePass = doc.querySelector('[aria-label="Close"]');
+  if (closePass) click(closePass);
+  await wait(150);
+}
+
+click(findByText('My Profile'));
+await wait(180);
+check('profile details are editable', text(doc.body).includes('Applicant details'));
+const statusSwitch = doc.querySelector('input[aria-label="Visa application status updates"]');
+if (statusSwitch) {
+  click(statusSwitch);
+  await wait(200);
+  const saved = JSON.parse(window.localStorage.getItem(portalKey) || '{}');
+  check(
+    'notification preference persists to storage',
+    saved.preferences?.statusAlerts === false,
+    JSON.stringify(saved.preferences)
+  );
+  check('saving a preference shows a toast', text(doc.body).includes('disabled'));
+  click(statusSwitch);
+  await wait(150);
+}
+
 window.location.hash = '';
 await wait(250);
 const demoButton = findByText('Preview a live digital visa pass demo');

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CardItem } from './AddCardModal';
+import { useToast } from './PortalToast';
 
 interface DashboardPaymentMethodsProps {
   cards: CardItem[];
@@ -19,8 +20,11 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
   onRenameCard,
   onOpenTransactions,
 }) => {
+  const { notify } = useToast();
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editedNickname, setEditedNickname] = useState('');
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const handleStartEdit = (card: CardItem) => {
     setEditingCardId(card.id);
@@ -77,7 +81,7 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
             return (
               <div
                 key={card.id}
-                className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+                className={`relative flex flex-wrap flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
                   idx > 0 ? 'pt-6' : ''
                 }`}
               >
@@ -161,30 +165,95 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
                   <button
                     type="button"
                     onClick={() =>
-                      alert(
-                        `Cardholder: ${card.cardholderName}\nNumber: •••• ${card.lastFour}\nExp: ${card.expMonth}/${card.expYear}\nSecurity: Verified for consular payment processing.`
-                      )
+                      setExpandedCardId(expandedCardId === card.id ? null : card.id)
                     }
+                    aria-expanded={expandedCardId === card.id}
                     className="px-4 py-2 text-xs font-medium text-[#444746] hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
                   >
-                    Details
+                    {expandedCardId === card.id ? 'Hide details' : 'Details'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (
-                        confirm(
-                          `Remove ${card.nickname}? This card will no longer be available for visa fee settlement.`
-                        )
-                      ) {
-                        onRemoveCard(card.id);
-                      }
-                    }}
+                    onClick={() => setPendingRemoveId(card.id)}
                     className="px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
                   >
                     Remove
                   </button>
                 </div>
+
+                {expandedCardId === card.id && (
+                  <div className="mt-3 w-full pt-3 border-t border-neutral-100 md:mt-1 md:w-80 md:rounded-2xl md:border md:border-black/[0.06] md:bg-white md:p-4 md:shadow-lg">
+                    <dl className="space-y-1.5 text-xs">
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Cardholder</dt>
+                        <dd className="font-medium text-neutral-800 text-right">
+                          {card.cardholderName}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Card number</dt>
+                        <dd className="font-mono text-neutral-800">
+                          {card.network} •••• {card.lastFour}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Expires</dt>
+                        <dd className="font-mono text-neutral-800">
+                          {card.expMonth}/{card.expYear}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Network token</dt>
+                        <dd className="font-medium text-emerald-600 flex items-center gap-1">
+                          <span className="material-icons text-xs">verified_user</span>
+                          Active
+                        </dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const text = `${card.network} •••• ${card.lastFour}`;
+                        if (navigator.clipboard?.writeText) {
+                          navigator.clipboard.writeText(text).catch(() => {});
+                        }
+                        notify('Card reference copied');
+                      }}
+                      className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-[#0b57d0] hover:underline cursor-pointer"
+                    >
+                      <span className="material-icons text-xs">content_copy</span>
+                      Copy card reference
+                    </button>
+                  </div>
+                )}
+
+                {pendingRemoveId === card.id && (
+                  <div className="mt-3 flex flex-col items-start justify-between gap-2 rounded-2xl border border-red-200 bg-red-50/70 p-3 sm:flex-row sm:items-center">
+                    <p className="text-xs text-red-800">
+                      Remove {card.nickname}? It will no longer settle embassy fees.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPendingRemoveId(null)}
+                        className="rounded-full px-3 py-1.5 text-xs font-medium text-[#444746] hover:bg-white cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onRemoveCard(card.id);
+                          setPendingRemoveId(null);
+                          setExpandedCardId(null);
+                        }}
+                        className="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 cursor-pointer"
+                      >
+                        Remove card
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

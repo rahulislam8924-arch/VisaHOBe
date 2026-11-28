@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useToast } from './PortalToast';
+import type { PortalProfile } from '../../lib/portalStore';
 
 export type DashboardTab =
   | 'home'
@@ -12,6 +14,7 @@ interface DashboardLayoutProps {
   currentTab: DashboardTab;
   onSelectTab: (tab: DashboardTab) => void;
   onExitDashboard: () => void;
+  profile: PortalProfile;
   children: React.ReactNode;
 }
 
@@ -19,8 +22,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   currentTab,
   onSelectTab,
   onExitDashboard,
+  profile,
   children,
 }) => {
+  const { notify } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -162,7 +167,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 <button
                   onClick={() => {
                     setIsHelpMenuOpen(false);
-                    alert('VisaHOBe support inquiry submitted. Our consular team will respond within 24 hours.');
+                    const reference = `VH-${Date.now().toString().slice(-6)}`;
+                    notify(`Support ticket ${reference} created — our consular team replies within 24 hours.`);
                   }}
                   className="w-full text-left px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 cursor-pointer"
                 >
@@ -173,14 +179,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
 
           {/* Consular tools 9-dots button */}
-          <button
-            type="button"
-            onClick={() => alert('VisaHOBe Services: E-Visas, Embassy MRV Fees, Document Attestation, Passport Tracking')}
-            className="p-2.5 text-[#444746] hover:text-[#1f1f1f] hover:bg-[#001d35]/5 rounded-full transition-colors cursor-pointer"
-            title="VisaHOBe services"
-          >
-            <span className="material-icons text-xl">apps</span>
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setIsProfileMenuOpen(false);
+                setIsHelpMenuOpen((open) => !open);
+              }}
+              className="p-2.5 text-[#444746] hover:text-[#1f1f1f] hover:bg-[#001d35]/5 rounded-full transition-colors cursor-pointer"
+              title="VisaHOBe services"
+              aria-label="VisaHOBe services"
+              aria-expanded={isHelpMenuOpen}
+            >
+              <span className="material-icons text-xl">apps</span>
+            </button>
+          </div>
 
           {/* Green User Profile Avatar */}
           <div className="relative">
@@ -188,7 +201,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               type="button"
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1e8e3e] text-white font-medium text-sm flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer shadow-xs ml-1"
-              title="Applicant Account: Alexander Morgan (alex.morgan@visahobe.com)"
+              title={`Applicant account: ${profile.name} (${profile.email})`}
             >
               A
             </button>
@@ -200,10 +213,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               >
                 <div className="flex flex-col items-center pb-3 border-b border-neutral-100">
                   <div className="w-16 h-16 rounded-full bg-[#1e8e3e] text-white font-bold text-2xl flex items-center justify-center mb-2 shadow-sm">
-                    A
+                    {(profile.name.trim().charAt(0) || 'A').toUpperCase()}
                   </div>
-                  <p className="font-bold text-neutral-900 text-base">Alexander Morgan</p>
-                  <p className="text-xs text-neutral-500">alex.morgan@visahobe.com</p>
+                  <p className="font-bold text-neutral-900 text-base">{profile.name}</p>
+                  <p className="text-xs text-neutral-500">{profile.email}</p>
                   <span className="mt-2 text-[11px] bg-emerald-50 text-emerald-700 font-medium px-2.5 py-0.5 rounded-full border border-emerald-200">
                     Verified Applicant Account
                   </span>
@@ -298,7 +311,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             {/* Feedback */}
             <button
               type="button"
-              onClick={() => alert('Send feedback to VisaHOBe customer service team')}
+              onClick={() => notify('Thanks — your feedback was sent to the VisaHOBe service team.', 'info')}
               className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-full text-sm font-medium text-[#444746] hover:bg-[#001d35]/5 transition-colors cursor-pointer ${
                 !isSidebarOpen ? 'justify-center px-0' : ''
               }`}

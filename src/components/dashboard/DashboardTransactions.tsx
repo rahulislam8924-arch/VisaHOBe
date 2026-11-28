@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TransactionData } from './TransactionReceiptModal';
+import { useToast } from './PortalToast';
 
 interface DashboardTransactionsProps {
   transactions: TransactionData[];
@@ -10,6 +11,7 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
   transactions,
   onSelectTransaction,
 }) => {
+  const { notify } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
 
@@ -27,6 +29,39 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
 
     return matchesSearch && matchesType;
   });
+
+  /** Real statement export of whatever the filters currently show */
+  const exportCsv = () => {
+    if (!filtered.length) {
+      notify('Nothing to export for the current filters', 'info');
+      return;
+    }
+    const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const rows = [
+      ['Receipt', 'Merchant', 'Category', 'Date', 'Time', 'Card', 'Status', 'Amount (USD)'],
+      ...filtered.map((tx) => [
+        tx.id.toUpperCase(),
+        tx.merchant,
+        tx.category,
+        tx.date,
+        tx.time,
+        `${tx.cardName} •••• ${tx.lastFour}`,
+        tx.status,
+        Math.abs(tx.amount).toFixed(2),
+      ]),
+    ];
+    const csv = rows.map((row) => row.map(escape).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'VisaHOBe-payment-history.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notify(`${filtered.length} transactions exported`);
+  };
 
   return (
     <div className="space-y-6 text-left max-w-4xl animate-in fade-in duration-300">
@@ -87,6 +122,15 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-neutral-50 cursor-pointer"
+        >
+          <span className="material-icons text-base">file_download</span>
+          <span>Export CSV</span>
+        </button>
       </div>
 
       {/* Transactions List */}
