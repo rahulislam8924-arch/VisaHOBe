@@ -11,7 +11,7 @@ export const FAQSection: React.FC = () => {
   };
 
   return (
-    <section id="faqs" className="py-16 sm:py-24 bg-[#f2f0ec] border-t border-black/5 scroll-mt-[140px]">
+    <section id="faqs" className="scroll-mt-[140px] border-t border-black/5 py-16 sm:py-24">
       <div className="max-w-[880px] mx-auto px-4 sm:px-6">
         <div className="text-center mb-12 sm:mb-16">
           <p className="text-sm font-semibold tracking-wider text-[#5f6368] uppercase mb-2">
@@ -28,7 +28,7 @@ export const FAQSection: React.FC = () => {
             return (
               <div
                 key={faq.id}
-                className="bg-white/80 rounded-2xl border border-black/5 overflow-hidden transition-all duration-200 shadow-2xs hover:shadow-xs"
+                className="glass-flat glass-sheen overflow-hidden rounded-2xl transition-all duration-200 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_20px_42px_-28px_rgba(32,33,36,0.4)]"
               >
                 <button
                   type="button"

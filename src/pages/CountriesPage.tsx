@@ -4,6 +4,7 @@ import {
   ComprehensiveCountryData,
   generate29PointCountryReport,
 } from '../data/allCountriesData';
+import { Button, CountryFlag, FilterChip, SearchInput } from '../components/ui';
 
 interface CountriesPageProps {
   /** Country name to open straight away (used by the home page destination picker) */
@@ -90,7 +91,7 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
   const showFaqs = reportTab === 'all' || reportTab === 'faqs';
 
   return (
-    <div className="py-10 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-left space-y-10 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-7xl animate-in space-y-10 px-4 py-10 text-left fade-in duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -108,70 +109,86 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
         </p>
       </div>
 
-      {/* Control Bar: Search & Quick Type Filters */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-black/5 shadow-xs space-y-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search Box */}
-          <div className="relative w-full md:w-96">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by country, capital, or visa type..."
-              className="w-full bg-[#f8fafd] pl-11 pr-4 py-3 rounded-full border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a73e8] shadow-inner"
-            />
-            <div className="absolute left-4 top-3.5 text-neutral-400">
-              <span className="material-icons text-lg">search</span>
-            </div>
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-4 top-3 text-neutral-400 hover:text-black cursor-pointer"
-              >
-                <span className="material-icons text-base">close</span>
-              </button>
-            )}
+      {/* Dataset snapshot */}
+      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {[
+          { icon: 'public', value: `${ALL_COUNTRIES.length}`, label: 'Countries covered' },
+          {
+            icon: 'newspaper',
+            value: `${new Set(ALL_COUNTRIES.map((c) => c.continent)).size}`,
+            label: 'Continents',
+          },
+          {
+            icon: 'bolt',
+            value: `${ALL_COUNTRIES.filter((c) => c.eVisaAvailable).length}`,
+            label: 'E-visa routes',
+          },
+          {
+            icon: 'flight_land',
+            value: `${ALL_COUNTRIES.filter((c) => c.visaOnArrival).length}`,
+            label: 'Visa on arrival',
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="glass-thin flex items-center gap-2.5 rounded-2xl px-3 py-2.5"
+          >
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+              <span className="material-icons text-[16px] leading-none">{stat.icon}</span>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[15px] font-bold leading-none text-[#202124]">
+                {stat.value}
+              </span>
+              <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-[0.06em] text-[#80868b]">
+                {stat.label}
+              </span>
+            </span>
           </div>
+        ))}
+      </div>
 
-          {/* Quick Visa Type Badges */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full md:w-auto">
-            {[
-              { id: 'all', label: 'All Entry Regimes' },
-              { id: 'eVisa', label: 'E-Visa Available' },
-              { id: 'voa', label: 'Visa on Arrival' },
-              { id: 'sticker', label: 'Consular Sticker Visa' },
-            ].map((f) => (
-              <button
+      {/* Control Bar: Search & Quick Type Filters */}
+      <div className="glass-flat glass-sheen rounded-3xl p-4 sm:p-6 space-y-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Search */}
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search by country, capital, or visa type…"
+            label="Country search"
+            className="md:w-96"
+          />
+
+          {/* Quick visa type filters */}
+          <div className="flex w-full items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 md:w-auto">
+            {([
+              { id: 'all', label: 'All entry regimes' },
+              { id: 'eVisa', label: 'E-Visa available' },
+              { id: 'voa', label: 'Visa on arrival' },
+              { id: 'sticker', label: 'Consular sticker' },
+            ] as const).map((f) => (
+              <FilterChip
                 key={f.id}
-                type="button"
-                onClick={() => setFilterType(f.id as any)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                  filterType === f.id
-                    ? 'bg-[#1a73e8] text-white shadow-2xs'
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                }`}
+                active={filterType === f.id}
+                onClick={() => setFilterType(f.id)}
               >
                 {f.label}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>
 
-        {/* Continents Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-neutral-100">
+        {/* Continent filters */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-t border-black/[0.06] pt-3">
           {continents.map((cont) => (
-            <button
+            <FilterChip
               key={cont.id}
-              type="button"
+              active={selectedContinent === cont.id}
               onClick={() => setSelectedContinent(cont.id)}
-              className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-                selectedContinent === cont.id
-                  ? 'bg-[#001d35] text-white font-bold shadow-xs'
-                  : 'text-[#444746] hover:bg-neutral-100'
-              }`}
             >
               {cont.label}
-            </button>
+            </FilterChip>
           ))}
         </div>
       </div>
@@ -183,84 +200,81 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
       </div>
 
       {/* Countries Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:gap-5">
         {filteredCountries.map((c) => (
-          <div
+          <button
             key={c.id}
+            type="button"
             onClick={() => {
               setReportTab('all');
               setActiveCountry(c);
             }}
-            className="bg-white rounded-3xl p-5 border border-black/5 shadow-xs hover:shadow-md hover:border-blue-400/60 transition-all cursor-pointer flex flex-col justify-between group"
+            className="glass-flat glass-sheen group flex h-full cursor-pointer flex-col rounded-2xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+            aria-label={`Open the 29-point ${c.name} visa report`}
           >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-3xl">{c.flag}</span>
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 uppercase">
-                  {c.continent}
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-bold text-[#202124] group-hover:text-[#1a73e8] transition-colors leading-snug">
-                  {c.name}
-                </h3>
-                <p className="text-xs text-neutral-500">Capital: {c.capital}</p>
-              </div>
-
-              {/* Status Pills */}
-              <div className="space-y-1.5 pt-1 text-xs">
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Entry Regime:</span>
-                  <span className="font-semibold text-neutral-800 text-[11px] text-right truncate max-w-[130px]">
-                    {c.visaTypeSummary}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Submission:</span>
-                  <span className="font-medium text-[11px] text-neutral-700 truncate max-w-[130px]">
-                    {c.submissionLocation}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-neutral-600">
-                  <span className="text-[11px] text-neutral-400">Processing:</span>
-                  <span className="font-medium text-[11px] text-neutral-700">
-                    {c.processingTime}
-                  </span>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <CountryFlag flag={c.flag} name={c.name} size="lg" />
+                <div className="min-w-0">
+                  <h3 className="truncate text-[14.5px] font-bold leading-tight text-[#202124] transition-colors group-hover:text-[#0b57d0]">
+                    {c.name}
+                  </h3>
+                  <p className="mt-0.5 truncate text-[11px] text-[#80868b]">{c.capital}</p>
                 </div>
               </div>
+
+              <span className="shrink-0 rounded-full bg-[#f1f4f9] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em] text-[#5f6368]">
+                {c.continent}
+              </span>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs font-semibold text-blue-600">
-              <span className="group-hover:underline">29-Point Guide</span>
-              <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">
+            <dl className="mt-3 space-y-1.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Entry</dt>
+                <dd className="max-w-[9.5rem] truncate text-right text-[11px] font-semibold text-[#3c4043]">
+                  {c.visaTypeSummary}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Apply at</dt>
+                <dd className="max-w-[9.5rem] truncate text-right text-[11px] font-medium text-[#5f6368]">
+                  {c.submissionLocation}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-[10.5px] uppercase tracking-[0.04em] text-[#9aa0a6]">Takes</dt>
+                <dd className="text-right text-[11px] font-medium text-[#5f6368]">{c.processingTime}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-3 flex items-center justify-between border-t border-black/[0.05] pt-2.5 text-[11px] font-semibold text-[#0b57d0]">
+              <span>29-point guide</span>
+              <span className="material-icons text-[15px] leading-none transition-transform duration-200 group-hover:translate-x-0.5">
                 arrow_forward
               </span>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
       {/* 29-Point Complete Official Country Modal */}
       {activeCountry && activeReport && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 backdrop-blur-md animate-in fade-in sm:items-center sm:p-5"
           onClick={() => setActiveCountry(null)}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="bg-white rounded-[32px] max-w-4xl w-full max-h-[92vh] overflow-hidden shadow-2xl relative border border-black/10 flex flex-col text-left"
+            className="glass-panel relative flex h-[100dvh] w-full max-w-4xl animate-in slide-in-from-bottom-4 flex-col overflow-hidden rounded-t-[24px] text-left sm:h-auto sm:max-h-[92vh] sm:rounded-[32px] sm:slide-in-from-bottom-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header Bar with Thematic Visual */}
             <div className="relative overflow-hidden bg-gradient-to-r from-[#001d35] via-[#0b57d0] to-[#1a73e8] text-white p-6 sm:p-7">
               <div className="relative z-10 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-4xl shadow-inner border border-white/20 shrink-0">
-                    {activeCountry.flag}
+                  <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/10 shadow-inner backdrop-blur-md">
+                    <CountryFlag flag={activeCountry.flag} name={activeCountry.name} size="lg" className="!h-11 !w-[60px] !rounded-md ring-white/40" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5 flex-wrap">
@@ -301,31 +315,43 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               </div>
             </div>
 
-            {/* Sub-Tabs Inside Modal */}
-            <div className="px-6 py-2.5 bg-white border-b border-neutral-200 flex items-center gap-2 overflow-x-auto no-scrollbar">
-              {[
-                { id: 'all', label: 'Full 29-Point Report' },
-                { id: 'checklist', label: 'Document Checklist' },
-                { id: 'process', label: 'Application Steps & Fees' },
-                { id: 'faqs', label: 'Refusals & FAQs' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setReportTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                    reportTab === tab.id
-                      ? 'bg-[#1a73e8] text-white shadow-2xs'
-                      : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Report tabs */}
+            <div className="border-b border-black/[0.06] bg-white/95 px-4 py-2.5 backdrop-blur sm:px-6">
+              <div
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+                role="tablist"
+                aria-label="Report sections"
+              >
+                {[
+                  { id: 'all', label: 'Full 29-point report', icon: 'description' },
+                  { id: 'checklist', label: 'Document Checklist', icon: 'checklist' },
+                  { id: 'process', label: 'Steps & fees', icon: 'timeline' },
+                  { id: 'faqs', label: 'Refusals & FAQs', icon: 'help_outline' },
+                ].map((tab) => {
+                  const isActive = reportTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setReportTab(tab.id as typeof reportTab)}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-semibold whitespace-nowrap transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60 ${
+                        isActive
+                          ? 'bg-[#0b57d0] text-white shadow-xs'
+                          : 'text-[#5f6368] hover:bg-black/[0.05] hover:text-[#202124]'
+                      }`}
+                    >
+                      <span className="material-icons text-[15px] leading-none">{tab.icon}</span>
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Scrollable Modal Body: Full 29-Point Structure */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 text-sm text-[#3c4043] leading-relaxed">
+            <div className="flex-1 space-y-8 overflow-y-auto p-5 text-sm leading-relaxed text-[#3c4043] sm:p-8">
               {showProcess && (
                 <>
                   {/* Point 1: Country Overview */}
@@ -612,37 +638,40 @@ export const CountriesPage: React.FC<CountriesPageProps> = ({
               )}
             </div>
 
-            {/* Modal Sticky Footer Action Bar (Points 26 & 27: CTAs) */}
-            <div className="p-4 sm:p-5 bg-[#f8fafd] border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs text-neutral-500">
+            {/* Modal sticky action bar */}
+            <div className="flex flex-col gap-3 border-t border-neutral-200 bg-[#f8fafd] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <span className="material-icons text-sm leading-none text-emerald-600">verified</span>
                 <span>{activeReport.latestUpdateDate}</span>
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                {/* Open the client portal */}
-                <button
-                  type="button"
+              <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+                <Button
+                  variant="secondary"
+                  size="md"
                   onClick={() => {
                     setActiveCountry(null);
                     onOpenPortal();
                   }}
-                  className="flex-1 sm:flex-none px-5 py-2.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-medium text-xs cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto"
+                  aria-label="Open the client portal"
                 >
                   Open Client Portal
-                </button>
+                </Button>
 
-                {/* Book a consultation for this country */}
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="md"
+                  leadingIcon="calendar_month"
                   onClick={() => {
                     const countryName = activeCountry.name;
                     setActiveCountry(null);
                     onBookConsultation(countryName);
                   }}
-                  className="flex-1 sm:flex-none px-6 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs cursor-pointer shadow-sm"
+                  className="w-full sm:w-auto"
                 >
-                  Book Consultation for {activeCountry.name}
-                </button>
+                  Book for {activeCountry.name}
+                </Button>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { iconButtonClass, cn } from '../ui';
 
 export interface CardItem {
   id: string;
@@ -12,6 +13,23 @@ export interface CardItem {
   isDefault: boolean;
   bgGradient: string;
 }
+
+/** Luhn checksum — the same validation a real acquirer runs before tokenizing */
+const passesLuhnCheck = (digits: string) => {
+  let sum = 0;
+  let double = false;
+  for (let i = digits.length - 1; i >= 0; i -= 1) {
+    let value = Number(digits[i]);
+    if (Number.isNaN(value)) return false;
+    if (double) {
+      value *= 2;
+      if (value > 9) value -= 9;
+    }
+    sum += value;
+    double = !double;
+  }
+  return sum % 10 === 0;
+};
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -70,6 +88,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       setError('Please enter a valid card number');
       return;
     }
+    if (!passesLuhnCheck(cleanNumber)) {
+      setError('That card number failed the security checksum — please re-check the digits');
+      return;
+    }
     if (!expDate.includes('/') || expDate.length < 5) {
       setError('Please enter a valid expiration date (MM/YY)');
       return;
@@ -109,7 +131,8 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
     const newCard: CardItem = {
       id: `card-${Date.now()}`,
       cardholderName: name.trim(),
-      cardNumber: cleanNumber,
+      // Only the last four digits are kept — full PANs are never persisted
+      cardNumber: `•••• ${lastFour}`,
       network,
       lastFour,
       expMonth: month,
@@ -136,13 +159,13 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative border border-black/10 flex flex-col text-left max-h-[90vh] overflow-y-auto"
+        className="glass-panel relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-y-auto rounded-[28px] p-6 text-left sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+          className={cn(iconButtonClass(), 'absolute right-3 top-3')}
           aria-label="Close"
         >
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -182,9 +205,9 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({
                 className="w-full px-4 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm tracking-wider"
                 required
               />
-              <div className="absolute right-3 top-2.5 flex items-center gap-1.5 text-xs text-neutral-400">
-                <span className="material-icons text-base">lock</span>
-              </div>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <span className="material-icons text-base leading-none">lock</span>
+              </span>
             </div>
           </div>
 

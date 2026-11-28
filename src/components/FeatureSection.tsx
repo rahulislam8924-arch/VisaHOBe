@@ -1,19 +1,21 @@
 import React from 'react';
 import { FeatureSectionData } from '../types';
 import { LottiePlayer } from './LottiePlayer';
+import { FeatureVisual } from './FeatureVisual';
 
 interface FeatureSectionProps {
   section: FeatureSectionData;
   index: number;
 }
 
-export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
+export const FeatureSection: React.FC<FeatureSectionProps> = ({ section, index }) => {
+  const sectionNumber = String(index + 1).padStart(2, '0');
   const isImageLeft = section.imagePosition === 'left';
 
   return (
     <section
       id={section.id}
-      className="py-14 sm:py-20 md:py-24 scroll-mt-[140px] transition-opacity duration-700 bg-[#f2f0ec]"
+      className="relative scroll-mt-[140px] py-14 transition-opacity duration-700 sm:py-20 md:py-24"
       data-modulewell=""
     >
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,15 +32,29 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                 : 'lg:col-span-6 lg:order-2'
             }`}
           >
-            <div className="w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[520px] relative">
-              <LottiePlayer
-                src={section.lottieUrl}
-                className="w-full aspect-square"
-                trigger="enter-viewport"
-                loop={true}
-                alt={section.altText}
-                badgeIcon={section.inlineIcon}
+            <div className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[520px]">
+              {/* Soft stage behind the animation */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-4 rounded-[42px] bg-[radial-gradient(closest-side,rgba(26,115,232,0.14),transparent)] blur-xl"
               />
+              <div className="relative overflow-hidden rounded-[32px] border border-white/70 bg-[linear-gradient(155deg,#ffffff_0%,#f6faff_55%,#f1f8f5_100%)] p-1.5 shadow-[0_20px_50px_-34px_rgba(60,64,67,0.5)] ring-1 ring-black/[0.03] sm:rounded-[36px] sm:p-2">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(#c8c4bc_0.8px,transparent_0.8px)] [background-size:16px_16px] opacity-35 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75px)]"
+                />
+                <LottiePlayer
+                  src={section.lottieUrl}
+                  className="relative w-full aspect-square rounded-[26px] sm:rounded-[30px]"
+                  trigger="enter-viewport"
+                  loop={true}
+                  alt={section.altText}
+                  badgeIcon={section.inlineIcon}
+                  fallback={
+                    <FeatureVisual variant={section.id} accent={section.iconColor || '#1a73e8'} />
+                  }
+                />
+              </div>
             </div>
           </div>
 
@@ -50,8 +66,14 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                 : 'lg:col-span-6 lg:order-1 lg:pr-6'
             }`}
           >
-            {/* Category Subtitle */}
-            <p className="text-[13px] sm:text-[14px] font-medium tracking-[0.08em] text-[#5f6368] uppercase mb-2">
+            {/* Category subtitle */}
+            <p className="mb-3 inline-flex items-center gap-2 self-start rounded-full border border-black/[0.06] bg-white/80 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.11em] text-[#5f6368] shadow-2xs">
+              <span className="tabular-nums text-[#9aa0a6]">{sectionNumber}</span>
+              <span className="h-2.5 w-px bg-black/10" />
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: section.iconColor || '#1a73e8' }}
+              />
               <span>{section.category}</span>
             </p>
 
@@ -79,12 +101,12 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({ section }) => {
                   href={section.ctaUrl}
                   target={section.isExternalCta ? '_blank' : '_self'}
                   rel={section.isExternalCta ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-1.5 text-[15px] font-medium text-[#1a73e8] hover:text-[#1557b0] transition-colors group cursor-pointer"
+                  className="group inline-flex items-center gap-2 rounded-full border border-[#1a73e8]/20 bg-white px-4 py-2 text-[13.5px] font-semibold text-[#0b57d0] shadow-2xs transition-all hover:-translate-y-0.5 hover:border-[#1a73e8]/40 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
                 >
-                  <span className="group-hover:underline underline-offset-4">{section.ctaText}</span>
-                  <svg className="w-4 h-4 fill-current group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24">
-                    <use href="#arrow-forward" />
-                  </svg>
+                  <span>{section.ctaText}</span>
+                  <span className="material-icons text-[16px] leading-none transition-transform group-hover:translate-x-0.5">
+                    arrow_forward
+                  </span>
                 </a>
               </div>
             )}

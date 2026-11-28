@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '../components/ui';
 
 export const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -15,7 +16,7 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-left space-y-16 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-5xl space-y-16 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -36,7 +37,7 @@ export const ContactPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Contact Info Cards (Left 5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-xs space-y-4">
+          <div className="glass glass-sheen rounded-3xl p-6 space-y-4">
             <h3 className="text-lg font-bold text-[#202124] flex items-center gap-2">
               <span className="material-icons text-blue-600">location_on</span>
               <span>Primary Operating Desks</span>
@@ -59,7 +60,7 @@ export const ContactPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-xs space-y-4">
+          <div className="glass glass-sheen rounded-3xl p-6 space-y-4">
             <h3 className="text-lg font-bold text-[#202124] flex items-center gap-2">
               <span className="material-icons text-emerald-600">call</span>
               <span>Direct Communication</span>
@@ -104,7 +105,7 @@ export const ContactPage: React.FC = () => {
         </div>
 
         {/* Contact Form (Right 7 Cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/5 shadow-xs">
+        <div className="lg:col-span-7 glass glass-sheen rounded-3xl p-6 sm:p-8">
           {sent ? (
             <div className="text-center py-12 space-y-4">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
@@ -116,13 +117,9 @@ export const ContactPage: React.FC = () => {
                 <strong>{destination}</strong> and respond to <strong>{email}</strong> within 1
                 business day.
               </p>
-              <button
-                type="button"
-                onClick={() => setSent(false)}
-                className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer"
-              >
+              <Button variant="tonal" size="md" onClick={() => setSent(false)} leadingIcon="edit">
                 Send another message
-              </button>
+              </Button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4 text-left">
@@ -223,13 +220,13 @@ export const ContactPage: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="submit"
-                  className="px-7 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
-                >
+              <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center">
+                <p className="flex-1 text-[11px] leading-relaxed text-neutral-500">
+                  Typical response time: within 1 business day (Sat–Thu).
+                </p>
+                <Button type="submit" variant="primary" size="lg" leadingIcon="send">
                   Send Advisory Message
-                </button>
+                </Button>
               </div>
             </form>
           )}

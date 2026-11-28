@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LANGUAGES } from '../data/walletData';
+import { Button } from './ui';
 import { AppPage } from './Header';
 
 interface FooterProps {
@@ -348,7 +349,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage, onNavigateFaq })
           onClick={() => setCookieConsentOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-black/10 text-left"
+            className="glass-panel w-full max-w-md rounded-2xl p-6 text-left"
             onClick={(e) => e.stopPropagation()}
           >
             <h4 className="text-lg font-bold text-[#202124] mb-2">Privacy & Cookie Settings</h4>
@@ -356,20 +357,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigatePage, onNavigateFaq })
               VisaHOBe uses secure data controls to deliver visa support services, maintain application security, and protect your identity in compliance with data privacy regulations.
             </p>
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setCookieConsentOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-full cursor-pointer"
-              >
+              <Button variant="ghost" size="sm" onClick={() => setCookieConsentOpen(false)}>
                 Customize
-              </button>
-              <button
-                type="button"
-                onClick={() => setCookieConsentOpen(false)}
-                className="px-5 py-2 text-sm font-medium text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full cursor-pointer"
-              >
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => setCookieConsentOpen(false)}>
                 Accept all
-              </button>
+              </Button>
             </div>
           </div>
         </div>

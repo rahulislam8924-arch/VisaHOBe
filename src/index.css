@@ -2,12 +2,51 @@
 /* Provides the `animate-in` / `fade-in` / `zoom-in-*` utilities used by the dialogs */
 @import "tw-animate-css";
 
+/* Self-hosted Material Icons so the icon set renders even when the Google CDN
+   is unreachable (offline previews, locked-down networks, air-gapped demos). */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-icons.woff2') format('woff2'),
+    url('/fonts/material-icons.woff') format('woff');
+}
+
+@layer base {
+  .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'liga';
+  }
+}
+
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Decorative blobs should never create a sideways scrollbar */
+    overflow-x: clip;
     font-family: 'Google Sans Text', 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, sans-serif;
     color: #3c4043;
-    background-color: #f2f0ec;
+    background-color: #f5f4f1;
+  }
+
+  body {
+    /* Soft vertical wash keeps the page airy so the glass surfaces read clean */
+    background-image: linear-gradient(180deg, #faf9f7 0%, #f4f2ee 38%, #f7f6f3 100%);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -91,23 +130,6 @@
   }
 }
 
-/* Jumplinks sticky styles */
-.glue-jumplinks {
-  position: relative;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  border-radius: 9999px;
-  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
-  padding: 6px 12px;
-  max-width: calc(100% - 32px);
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  transition: all 0.25s ease;
-}
-
 /* Hide scrollbar for jumplinks */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -137,5 +159,126 @@
   [role="dialog"] .overflow-y-auto {
     max-height: none !important;
     overflow: visible !important;
+  }
+}
+
+/* ===========================================================================
+   Liquid glass surface system
+   Translucent panels with a saturated backdrop blur, a bright inner rim and a
+   soft specular sheen — used for every floating surface (header, drawers,
+   modals, cards, buttons). Falls back to solid white where blur is unsupported.
+   =========================================================================== */
+@layer utilities {
+  .glass-sheen {
+    position: relative;
+    isolation: isolate;
+  }
+  .glass-sheen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background:
+      linear-gradient(118deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0) 62%, rgba(255, 255, 255, 0.28) 100%);
+    pointer-events: none;
+  }
+
+  /* Primary frosted surface */
+  .glass {
+    background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.58) 55%, rgba(255, 255, 255, 0.72) 100%);
+    -webkit-backdrop-filter: blur(20px) saturate(190%);
+    backdrop-filter: blur(20px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+      0 12px 32px -16px rgba(32, 33, 36, 0.28);
+  }
+
+  /* Lighter, pill-sized surfaces (chips, badges, secondary buttons) */
+  .glass-thin {
+    background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.5) 100%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 6px 18px -12px rgba(32, 33, 36, 0.3);
+  }
+
+  /* Blur-free glass for long card grids — same look, no per-tile compositing */
+  .glass-flat {
+    background-image: linear-gradient(140deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.66) 55%, rgba(255, 255, 255, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.35),
+      0 10px 26px -18px rgba(32, 33, 36, 0.3);
+  }
+
+  /* Denser surface for large panels and dialogs that hold body copy */
+  .glass-panel {
+    background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 60%, rgba(250, 252, 255, 0.9) 100%);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    backdrop-filter: blur(26px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 1),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+      0 24px 60px -32px rgba(32, 33, 36, 0.4);
+  }
+
+  /* Frosted bar that sits over scrolling content */
+  .glass-bar {
+    background-image: linear-gradient(180deg, rgba(247, 245, 241, 0.86) 0%, rgba(247, 245, 241, 0.7) 100%);
+    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    backdrop-filter: blur(22px) saturate(190%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+  }
+
+  /* Colour washes that give the glass something to refract */
+  .ambient-wash {
+    background-image:
+      radial-gradient(52rem 32rem at 8% -10%, rgba(26, 115, 232, 0.09), transparent 68%),
+      radial-gradient(46rem 30rem at 98% 0%, rgba(56, 189, 248, 0.07), transparent 66%),
+      radial-gradient(44rem 28rem at 50% 106%, rgba(16, 185, 129, 0.06), transparent 70%);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-flat,
+  .glass-thin,
+  .glass-panel {
+    background-image: none;
+    background-color: #ffffff;
+  }
+  .glass-bar {
+    background-image: none;
+    background-color: #f7f5f1;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-flat,
+  .glass-thin,
+  .glass-panel {
+    background-image: none;
+    background-color: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-bar {
+    background-image: none;
+    background-color: #f7f5f1;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-sheen::after {
+    display: none;
   }
 }

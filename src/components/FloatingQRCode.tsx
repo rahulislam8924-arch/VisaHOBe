@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { cn, iconButtonClass } from './ui';
 
 interface FloatingQRCodeProps {
   onOpenDownloadModal: () => void;
@@ -16,7 +17,7 @@ export const FloatingQRCode: React.FC<FloatingQRCodeProps> = ({ onOpenDownloadMo
         {/* The QR Card */}
         <div
           onClick={onOpenDownloadModal}
-          className={`bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-black/5 p-3 flex items-center gap-3 cursor-pointer hover:shadow-[0_6px_22px_rgba(0,0,0,0.2)] hover:scale-[1.02] transition-all duration-300 ${
+          className={`glass-panel flex cursor-pointer items-center gap-3 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] ${
             isCollapsed ? 'opacity-0 scale-90 pointer-events-none translate-x-8' : 'opacity-100 scale-100'
           }`}
           title="Click to view full download QR Code"
@@ -65,8 +66,12 @@ export const FloatingQRCode: React.FC<FloatingQRCodeProps> = ({ onOpenDownloadMo
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-8 h-8 rounded-full bg-white shadow-md border border-neutral-200/80 hover:bg-neutral-50 flex items-center justify-center text-neutral-600 hover:text-black transition-colors"
-          aria-label={isCollapsed ? 'Show QR Code' : 'Hide QR Code'}
+          className={cn(
+            iconButtonClass(),
+            'h-8 w-8 border border-black/[0.07] bg-white text-[#5f6368] shadow-md'
+          )}
+          aria-label={isCollapsed ? 'Show QR code' : 'Hide QR code'}
+          aria-expanded={!isCollapsed}
         >
           <svg className="w-4 h-4 fill-current transition-transform duration-300" viewBox="0 0 24 24">
             {isCollapsed ? (

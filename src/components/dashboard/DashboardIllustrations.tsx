@@ -114,7 +114,7 @@ export const PaymentShoppersIllustration: React.FC = () => {
 };
 
 // 3. Approved Visa & Digital Passes Illustration
-export const PassesIllustration: React.FC = () => {
+export const PassesIllustration: React.FC<{ holder?: string }> = ({ holder = 'A. MORGAN' }) => {
   return (
     <div className="relative w-44 h-28 sm:w-52 sm:h-32 shrink-0 flex items-center justify-center">
       {/* Background Soft Shape */}
@@ -140,7 +140,7 @@ export const PassesIllustration: React.FC = () => {
             <span className="material-icons text-xs">person</span>
           </div>
           <div className="text-[8px] text-neutral-600 leading-tight">
-            <p className="font-bold text-neutral-900">A. MORGAN</p>
+            <p className="font-bold text-neutral-900">{holder}</p>
             <p className="font-mono text-[7px]">MULT ENTRY • 10Y</p>
           </div>
         </div>

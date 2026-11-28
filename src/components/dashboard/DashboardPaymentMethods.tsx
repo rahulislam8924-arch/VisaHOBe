@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CardItem } from './AddCardModal';
+import { useToast } from './PortalToast';
 
 interface DashboardPaymentMethodsProps {
   cards: CardItem[];
@@ -7,6 +8,8 @@ interface DashboardPaymentMethodsProps {
   onSetDefault: (id: string) => void;
   onRemoveCard: (id: string) => void;
   onRenameCard: (id: string, nickname: string) => void;
+  /** Opens the payment history view that used to sit in the sidebar */
+  onOpenTransactions?: () => void;
 }
 
 export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = ({
@@ -15,9 +18,13 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
   onSetDefault,
   onRemoveCard,
   onRenameCard,
+  onOpenTransactions,
 }) => {
+  const { notify } = useToast();
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editedNickname, setEditedNickname] = useState('');
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const handleStartEdit = (card: CardItem) => {
     setEditingCardId(card.id);
@@ -35,7 +42,7 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div className="space-y-1">
           <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-            Consular Payment Methods
+            Payments
           </h2>
           <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
             Cards saved to your VisaHOBe account are used to settle official embassy application
@@ -43,25 +50,56 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenAddCard}
-          className="self-start sm:self-auto bg-[#0b57d0] hover:bg-[#0842a0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all shadow-xs active:scale-[0.98] inline-flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <span className="material-icons text-lg">add</span>
-          <span>Add consular payment card</span>
-        </button>
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:self-auto">
+          {onOpenTransactions && (
+            <button
+              type="button"
+              onClick={onOpenTransactions}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-medium text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+            >
+              <span className="material-icons text-lg">receipt_long</span>
+              <span>Payment history</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenAddCard}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#0b57d0] px-5 py-2.5 text-sm font-medium text-white shadow-xs transition-all hover:bg-[#0842a0] active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+          >
+            <span className="material-icons text-lg">add</span>
+            <span>Add consular payment card</span>
+          </button>
+        </div>
       </div>
 
       {/* Cards List in Material 3 container */}
-      <div className="bg-white rounded-[28px] p-6 sm:p-8 shadow-xs border border-black/5 space-y-6">
+      <div className="glass-flat glass-sheen rounded-[28px] p-6 sm:p-8 shadow-xs  space-y-6">
+        {cards.length === 0 && (
+          <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-neutral-300 bg-white/50 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-neutral-800">No payment card saved yet</p>
+              <p className="mt-0.5 text-xs text-[#444746]">
+                Add a card to settle DS-160 MRV fees, Schengen charges and VAC appointments.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenAddCard}
+              className="shrink-0 rounded-full bg-[#0b57d0] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#0842a0] cursor-pointer"
+            >
+              Add your first card
+            </button>
+          </div>
+        )}
+
         <div className="space-y-4 divide-y divide-neutral-100">
           {cards.map((card, idx) => {
             const isEditing = editingCardId === card.id;
             return (
               <div
                 key={card.id}
-                className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+                className={`relative flex flex-wrap flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
                   idx > 0 ? 'pt-6' : ''
                 }`}
               >
@@ -145,30 +183,95 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
                   <button
                     type="button"
                     onClick={() =>
-                      alert(
-                        `Cardholder: ${card.cardholderName}\nNumber: •••• ${card.lastFour}\nExp: ${card.expMonth}/${card.expYear}\nSecurity: Verified for consular payment processing.`
-                      )
+                      setExpandedCardId(expandedCardId === card.id ? null : card.id)
                     }
+                    aria-expanded={expandedCardId === card.id}
                     className="px-4 py-2 text-xs font-medium text-[#444746] hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
                   >
-                    Details
+                    {expandedCardId === card.id ? 'Hide details' : 'Details'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (
-                        confirm(
-                          `Remove ${card.nickname}? This card will no longer be available for visa fee settlement.`
-                        )
-                      ) {
-                        onRemoveCard(card.id);
-                      }
-                    }}
+                    onClick={() => setPendingRemoveId(card.id)}
                     className="px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
                   >
                     Remove
                   </button>
                 </div>
+
+                {expandedCardId === card.id && (
+                  <div className="mt-3 w-full pt-3 border-t border-neutral-100 md:mt-1 md:w-80 md:rounded-2xl md:border md:border-black/[0.06] md:bg-white md:p-4 md:shadow-lg">
+                    <dl className="space-y-1.5 text-xs">
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Cardholder</dt>
+                        <dd className="font-medium text-neutral-800 text-right">
+                          {card.cardholderName}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Card number</dt>
+                        <dd className="font-mono text-neutral-800">
+                          {card.network} •••• {card.lastFour}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Expires</dt>
+                        <dd className="font-mono text-neutral-800">
+                          {card.expMonth}/{card.expYear}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-neutral-500">Network token</dt>
+                        <dd className="font-medium text-emerald-600 flex items-center gap-1">
+                          <span className="material-icons text-xs">verified_user</span>
+                          Active
+                        </dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const text = `${card.network} •••• ${card.lastFour}`;
+                        if (navigator.clipboard?.writeText) {
+                          navigator.clipboard.writeText(text).catch(() => {});
+                        }
+                        notify('Card reference copied');
+                      }}
+                      className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-[#0b57d0] hover:underline cursor-pointer"
+                    >
+                      <span className="material-icons text-xs">content_copy</span>
+                      Copy card reference
+                    </button>
+                  </div>
+                )}
+
+                {pendingRemoveId === card.id && (
+                  <div className="mt-3 flex flex-col items-start justify-between gap-2 rounded-2xl border border-red-200 bg-red-50/70 p-3 sm:flex-row sm:items-center">
+                    <p className="text-xs text-red-800">
+                      Remove {card.nickname}? It will no longer settle embassy fees.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPendingRemoveId(null)}
+                        className="rounded-full px-3 py-1.5 text-xs font-medium text-[#444746] hover:bg-white cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onRemoveCard(card.id);
+                          setPendingRemoveId(null);
+                          setExpandedCardId(null);
+                        }}
+                        className="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 cursor-pointer"
+                      >
+                        Remove card
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

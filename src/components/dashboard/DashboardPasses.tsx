@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { DashboardPassItem } from '../../data/dashboardMockData';
+import {
+  getApplicationStatus,
+  parsePassDate,
+  STATUS_LABEL,
+} from '../../lib/portalMetrics';
 
 interface DashboardPassesProps {
   passes: DashboardPassItem[];
@@ -13,12 +18,17 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
     ? passes
     : passes.filter((p) => p.category === activeCategory);
 
+  const countFor = (id: string) =>
+    id === 'all' ? passes.length : passes.filter((p) => p.category === id).length;
+
+  const soonCutoff = new Date(Date.now() + 1000 * 60 * 60 * 24 * 180);
+
   return (
     <div className="space-y-6 text-left max-w-5xl animate-in fade-in duration-300">
       {/* Title */}
       <div className="space-y-1 pb-2">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-          Visas & Consular Passes
+          My Applications
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
           View your approved international travel visas, multiple-entry foils, and embassy
@@ -46,6 +56,15 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
             }`}
           >
             {tab.label}
+            <span
+              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                activeCategory === tab.id
+                  ? 'bg-white/70 text-[#001d35]'
+                  : 'bg-neutral-100 text-[#5f6368]'
+              }`}
+            >
+              {countFor(tab.id)}
+            </span>
           </button>
         ))}
       </div>
@@ -60,12 +79,23 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
       </div>
 
       {/* Passes Grid */}
+      {filteredPasses.length === 0 && (
+        <div className="glass-flat glass-sheen rounded-[28px] p-10 text-center shadow-xs">
+          <span className="material-icons text-4xl text-neutral-300">folder_off</span>
+          <p className="mt-2 text-sm text-[#444746]">
+            {passes.length === 0
+              ? 'No visa applications on file yet.'
+              : 'No records in this category — try another filter.'}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredPasses.map((pass) => (
           <div
             key={pass.id}
             onClick={() => onSelectPass(pass)}
-            className="bg-white rounded-[28px] border border-black/5 overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
+            className="glass-flat glass-sheen rounded-[28px]  overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
           >
             {/* Header banner */}
             <div
@@ -92,6 +122,29 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
                 </h4>
                 <p className="text-xs text-neutral-600 font-medium">{pass.seatOrNumber}</p>
                 <p className="text-xs text-[#444746] mt-1">{pass.expiryDate}</p>
+                {(() => {
+                  const status = getApplicationStatus(pass);
+                  const expiry = parsePassDate(pass.expiryDate);
+                  const soon = Boolean(expiry && expiry > new Date() && expiry <= soonCutoff);
+                  const tone =
+                    status === 'expired'
+                      ? 'bg-neutral-100 text-neutral-600'
+                      : soon
+                      ? 'bg-amber-50 text-amber-700'
+                      : status === 'scheduled'
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'bg-emerald-50 text-emerald-700';
+                  return (
+                    <span
+                      className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${tone}`}
+                    >
+                      <span className="material-icons text-[11px]">
+                        {status === 'expired' ? 'event_busy' : soon ? 'schedule' : 'verified'}
+                      </span>
+                      {status === 'expired' ? 'Expired' : soon ? 'Expires soon' : STATUS_LABEL[status]}
+                    </span>
+                  );
+                })()}
               </div>
 
               {/* Show barcode button */}

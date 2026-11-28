@@ -222,7 +222,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f0ec] text-[#3c4043] flex flex-col selection:bg-[#c2e7ff] relative">
+    <div className="relative flex min-h-screen flex-col bg-transparent text-[#3c4043] selection:bg-[#c2e7ff]">
       {/* SVG Symbols Definition */}
       <IconsMap />
 
@@ -255,6 +255,21 @@ export function App() {
               activeSection={activeSection}
               onSelectSection={handleSelectSection}
             />
+
+            {/* Feature stack intro */}
+            <div className="mx-auto max-w-3xl px-4 pb-2 pt-4 text-center sm:pt-8">
+              <span className="inline-flex items-center gap-2 rounded-full border border-black/[0.06] bg-white/75 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.13em] text-[#5f6368] shadow-2xs backdrop-blur-sm">
+                <span className="material-icons text-[14px] leading-none text-[#1a73e8]">explore</span>
+                Inside the portal
+              </span>
+              <h2 className="mt-4 text-[26px] font-bold leading-tight tracking-tight text-[#202124] sm:text-4xl">
+                Eight essentials, one clear visa journey
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-[#5f6368] sm:text-[15.5px]">
+                From consular fee receipts to passport return — every step of your file, tracked
+                and explained in plain language.
+              </p>
+            </div>
 
             {/* 8 Feature Sections */}
             <div className="space-y-4">

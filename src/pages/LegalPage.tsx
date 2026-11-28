@@ -4,7 +4,7 @@ export const LegalPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'disclaimer' | 'refund' | 'privacy' | 'terms' | 'fraud'>('disclaimer');
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-left space-y-12 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-4xl space-y-12 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -47,7 +47,7 @@ export const LegalPage: React.FC = () => {
       </div>
 
       {/* Content Panes */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-black/5 shadow-xs space-y-6 text-sm text-[#3c4043] leading-relaxed">
+      <div className="glass glass-sheen rounded-3xl p-6 sm:p-10 space-y-6 text-sm text-[#3c4043] leading-relaxed">
         {activeTab === 'disclaimer' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-[#202124]">Visa Services Legal Disclaimer</h2>

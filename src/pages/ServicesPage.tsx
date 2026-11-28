@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { VISAHOBE_SERVICES, ServiceItem } from '../data/visahobeData';
+import { Button, CardImage, FilterChip, iconButtonClass, cn } from '../components/ui';
 
 interface ServicesPageProps {
   onBookConsultation: () => void;
@@ -14,7 +15,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
     : VISAHOBE_SERVICES.filter((s) => s.category === activeCategory);
 
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-left space-y-16 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-6xl space-y-16 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -45,26 +46,34 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
         </p>
       </div>
 
-      {/* Category Filter Chips */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar pb-2">
+      {/* Category filters */}
+      <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar pb-1">
         {[
-          { id: 'all', label: 'All Services (9)' },
-          { id: 'core', label: 'Core Visa Services' },
-          { id: 'specialized', label: 'Specialized & Legalization' },
-          { id: 'corporate', label: 'Corporate & B2B' },
+          { id: 'all', label: 'All services', meta: VISAHOBE_SERVICES.length },
+          {
+            id: 'core',
+            label: 'Core visa services',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'core').length,
+          },
+          {
+            id: 'specialized',
+            label: 'Specialized & legalization',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'specialized').length,
+          },
+          {
+            id: 'corporate',
+            label: 'Corporate & B2B',
+            meta: VISAHOBE_SERVICES.filter((svc) => svc.category === 'corporate').length,
+          },
         ].map((tab) => (
-          <button
+          <FilterChip
             key={tab.id}
-            type="button"
-            onClick={() => setActiveCategory(tab.id as any)}
-            className={`px-5 py-2.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-              activeCategory === tab.id
-                ? 'bg-[#1a73e8] text-white shadow-xs'
-                : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
-            }`}
+            active={activeCategory === tab.id}
+            onClick={() => setActiveCategory(tab.id as typeof activeCategory)}
+            meta={tab.meta}
           >
             {tab.label}
-          </button>
+          </FilterChip>
         ))}
       </div>
 
@@ -74,16 +83,16 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
           <div
             key={service.id}
             onClick={() => setSelectedService(service)}
-            className="bg-white rounded-3xl overflow-hidden border border-black/5 shadow-xs hover:shadow-md hover:border-blue-300/80 transition-all cursor-pointer flex flex-col justify-between group"
+            className="glass-flat glass-sheen group flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_22px_44px_-26px_rgba(32,33,36,0.4)]"
           >
             {/* Card Image Header */}
             {service.imageUrl && (
               <div className="w-full h-44 overflow-hidden relative bg-neutral-100">
-                <img
+                <CardImage
                   src={service.imageUrl}
                   alt={service.title}
+                  icon={service.icon}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-xs text-[#001d35] px-2.5 py-1 rounded-full shadow-2xs">
@@ -118,7 +127,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Comprehensive Service Standards & Quality Checklist */}
-      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs space-y-6">
+      <div className="glass-flat glass-sheen rounded-3xl p-8 sm:p-10 space-y-6">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">Our Document Pre-Screening Protocol</h2>
           <p className="text-sm text-[#5f6368] mt-1">Every application dossier undergoes our 4-point administrative quality check</p>
@@ -152,7 +161,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Document attestation chain explanation */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-4">
+      <div className="glass-flat glass-sheen rounded-3xl p-8 space-y-4">
         <h2 className="text-xl sm:text-2xl font-bold text-[#202124]">Document Attestation Chain Guidance</h2>
         <p className="text-xs sm:text-sm text-[#5f6368] leading-relaxed">
           For educational degrees, marriage certificates, police clearances, and corporate documents destined for foreign embassies (e.g. UAE, Saudi Arabia, Kuwait, Qatar), documents must follow an authenticated statutory chain:
@@ -190,7 +199,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
             <button
               type="button"
               onClick={() => setSelectedService(null)}
-              className="absolute top-5 right-5 p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-full cursor-pointer"
+              className={cn(iconButtonClass(), 'absolute right-4 top-4 bg-white/85 backdrop-blur-xs shadow-xs')}
               aria-label="Close service details"
             >
               <span className="material-icons text-xl">close</span>
@@ -289,20 +298,22 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ onBookConsultation }
             </div>
 
             {/* Disclaimer & Action */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-100">
-              <p className="text-[11px] text-neutral-400 max-w-sm">
+            <div className="flex flex-col gap-4 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-sm text-[11px] leading-relaxed text-[#70757a]">
                 {selectedService.disclaimer}
               </p>
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="lg"
+                leadingIcon="calendar_month"
                 onClick={() => {
                   setSelectedService(null);
                   onBookConsultation();
                 }}
-                className="w-full sm:w-auto px-7 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs shadow-sm cursor-pointer"
+                className="w-full sm:w-auto"
               >
                 Book This Service
-              </button>
+              </Button>
             </div>
           </div>
         </div>

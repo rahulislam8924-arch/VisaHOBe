@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/ui';
 
 interface AboutPageProps {
   onOpenConsultation: () => void;
@@ -7,7 +8,7 @@ interface AboutPageProps {
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpenPortal }) => {
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-left space-y-16 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-5xl space-y-16 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Hero Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -27,7 +28,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
       </div>
 
       {/* Brand Identity & Core Purpose */}
-      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 sm:p-10 space-y-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">Who We Are & What Drives Us</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-[#3c4043] leading-relaxed">
           <div className="space-y-3">
@@ -64,7 +65,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
 
       {/* Mission & Vision Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-3">
+        <div className="glass glass-sheen rounded-3xl p-8 space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0b57d0] flex items-center justify-center">
             <span className="material-icons text-2xl">flag</span>
           </div>
@@ -77,7 +78,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-3">
+        <div className="glass glass-sheen rounded-3xl p-8 space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
             <span className="material-icons text-2xl">visibility</span>
           </div>
@@ -91,7 +92,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
       </div>
 
       {/* 10-Step operational workflow */}
-      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs space-y-8">
+      <div className="glass glass-sheen rounded-3xl p-8 sm:p-10 space-y-8">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">Our 10-Step Operational Workflow</h2>
           <p className="text-sm text-[#5f6368] mt-1">How every file is managed from initial inquiry to final passport delivery</p>
@@ -122,7 +123,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
       </div>
 
       {/* Safe Wording Matrix (Appendix B of Master Document) */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[#202124]">Our Strict Safe Wording Standard</h2>
           <p className="text-xs text-[#5f6368] mt-0.5">
@@ -199,20 +200,22 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onOpenConsultation, onOpen
           Experience visa assistance backed by integrity and accuracy.
         </h3>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onOpenConsultation}
-            className="px-7 py-3 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+            leadingIcon="calendar_month"
           >
             Schedule a Confidential Consultation
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
             onClick={onOpenPortal}
-            className="px-7 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-medium text-sm transition-all active:scale-[0.98] cursor-pointer"
+            leadingIcon="dashboard"
           >
             Access Client Portal
-          </button>
+          </Button>
         </div>
       </div>
     </div>

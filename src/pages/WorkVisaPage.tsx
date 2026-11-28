@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '../components/ui';
 
 interface WorkVisaPageProps {
   onBookConsultation: () => void;
@@ -6,7 +7,7 @@ interface WorkVisaPageProps {
 
 export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }) => {
   return (
-    <div className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-left space-y-16 animate-in fade-in duration-300">
+    <div className="ambient-wash mx-auto max-w-5xl space-y-16 animate-in fade-in px-4 py-10 text-left duration-300 sm:px-6 sm:py-16 lg:px-8">
       {/* Header */}
       <div className="space-y-4 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-300 shadow-2xs">
@@ -37,7 +38,7 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Legal Work Permit vs Tourist Visa */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-[#202124]">Work Permit vs Tourist Visa: The Legal Truth</h2>
           <p className="text-sm text-[#5f6368] mt-1">Understanding legal boundaries to prevent deportation, human trafficking, and permanent bans</p>
@@ -73,7 +74,7 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Bangladesh BMET Emigration Clearance Section */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-[#202124]">Bangladesh BMET Smart Card Clearance Process</h2>
           <p className="text-sm text-[#5f6368] mt-1">
@@ -109,7 +110,7 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Saudi Arabia Qiwa & Musaned Focus */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
         <div className="flex items-center gap-3">
           <span className="text-4xl">🇸🇦</span>
           <div>
@@ -144,7 +145,7 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
       </div>
 
       {/* Technical Skilled Occupations Checklist */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-[#202124]">Skilled Technical Occupations: Document Guidance</h2>
           <p className="text-sm text-[#5f6368] mt-1">Checklist requirements for certified technical trades</p>
@@ -201,7 +202,7 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
       </div>
 
       {/* 5 Golden Rules Against Recruitment Fraud */}
-      <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-4">
+      <div className="glass glass-sheen rounded-3xl p-8 space-y-4">
         <h2 className="text-xl sm:text-2xl font-bold text-[#202124]">5 Golden Rules Against Overseas Recruitment Fraud</h2>
         <div className="space-y-3 text-sm text-[#3c4043]">
           <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200 flex items-start gap-3">
@@ -232,13 +233,14 @@ export const WorkVisaPage: React.FC<WorkVisaPageProps> = ({ onBookConsultation }
         <h3 className="text-xl sm:text-2xl font-bold text-[#202124]">
           Need professional document verification for your overseas employment file?
         </h3>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="lg"
           onClick={onBookConsultation}
-          className="px-8 py-3.5 rounded-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+          leadingIcon="engineering"
         >
           Book Work Visa Documentation Advisory
-        </button>
+        </Button>
       </div>
     </div>
   );

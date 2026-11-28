@@ -1,11 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useToast } from './PortalToast';
+import type { PortalProfile } from '../../lib/portalStore';
 
-export type DashboardTab = 'home' | 'paymentmethods' | 'passes' | 'transactions' | 'settings';
+export type DashboardTab =
+  | 'home'
+  | 'agent'
+  | 'passes'
+  | 'paymentmethods'
+  | 'transactions'
+  | 'settings';
 
 interface DashboardLayoutProps {
   currentTab: DashboardTab;
   onSelectTab: (tab: DashboardTab) => void;
   onExitDashboard: () => void;
+  profile: PortalProfile;
   children: React.ReactNode;
 }
 
@@ -13,8 +22,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   currentTab,
   onSelectTab,
   onExitDashboard,
+  profile,
   children,
 }) => {
+  const { notify } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -43,20 +54,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     };
   }, []);
 
+  // Final client-facing navigation. Payment history stays reachable from the
+  // Payments view and the dashboard cards.
   const navItems: { id: DashboardTab; label: string; icon: string; path: string }[] = [
-    { id: 'home', label: 'Home', icon: 'home', path: '/portal/home' },
-    { id: 'paymentmethods', label: 'Payment methods', icon: 'credit_card', path: '/portal/paymentmethods' },
-    { id: 'passes', label: 'Visas & Passes', icon: 'confirmation_number', path: '/portal/passes' },
-    { id: 'transactions', label: 'Transactions', icon: 'receipt_long', path: '/portal/transactions' },
-    { id: 'settings', label: 'Settings', icon: 'settings', path: '/portal/settings' },
+    { id: 'home', label: 'Dashboard', icon: 'dashboard', path: '/portal/dashboard' },
+    { id: 'agent', label: 'AI Visa Agent', icon: 'auto_awesome', path: '/portal/ai-visa-agent' },
+    { id: 'passes', label: 'My Applications', icon: 'folder_shared', path: '/portal/applications' },
+    { id: 'paymentmethods', label: 'Payments', icon: 'payments', path: '/portal/payments' },
+    { id: 'settings', label: 'My Profile', icon: 'person', path: '/portal/profile' },
   ];
 
   const currentPath = navItems.find((n) => n.id === currentTab)?.path || '/portal/home';
 
   return (
-    <div className="min-h-screen bg-[#f0f4f9] text-[#1f1f1f] flex flex-col font-['Google_Sans_Text',Roboto,sans-serif]">
+    <div className="ambient-wash flex min-h-screen flex-col bg-[#f0f4f9] text-[#1f1f1f] font-['Google_Sans_Text',Roboto,sans-serif]">
       {/* 1. Chrome Browser URL Bar Simulation */}
-      <div className="bg-[#e9eef6] border-b border-[#c4c7c5]/50 px-3 py-1.5 flex items-center justify-between text-xs text-[#444746] select-none sticky top-0 z-50">
+      <div className="glass-bar sticky top-0 z-50 flex select-none items-center justify-between px-3 py-1.5 text-xs text-[#444746]">
         <div className="flex items-center gap-2 overflow-hidden flex-1 max-w-4xl">
           <button
             onClick={onExitDashboard}
@@ -73,7 +86,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <span className="material-icons text-base">refresh</span>
           </button>
 
-          <div className="bg-white border border-[#c4c7c5] rounded-full px-3.5 py-1 flex items-center gap-2 flex-1 shadow-2xs truncate">
+          <div className="glass-thin flex flex-1 items-center gap-2 truncate rounded-full px-3.5 py-1">
             <span className="material-icons text-neutral-600 text-sm">lock</span>
             <span className="font-mono text-[11px] sm:text-xs text-[#1f1f1f] truncate">
               https://visahobe.com{currentPath}?utm_medium=settings&utm_campaign=paymentmethods&utm_source=chrome
@@ -144,7 +157,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </button>
 
             {isHelpMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-neutral-200 py-2 z-50 text-left">
+              <div className="glass-panel absolute right-0 z-50 mt-2 w-64 rounded-2xl py-2 text-left">
                 <a
                   href="mailto:support@visahobe.com?subject=VisaHOBe%20portal%20support"
                   className="block px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50"
@@ -154,7 +167,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 <button
                   onClick={() => {
                     setIsHelpMenuOpen(false);
-                    alert('VisaHOBe support inquiry submitted. Our consular team will respond within 24 hours.');
+                    const reference = `VH-${Date.now().toString().slice(-6)}`;
+                    notify(`Support ticket ${reference} created — our consular team replies within 24 hours.`);
                   }}
                   className="w-full text-left px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 cursor-pointer"
                 >
@@ -165,14 +179,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
 
           {/* Consular tools 9-dots button */}
-          <button
-            type="button"
-            onClick={() => alert('VisaHOBe Services: E-Visas, Embassy MRV Fees, Document Attestation, Passport Tracking')}
-            className="p-2.5 text-[#444746] hover:text-[#1f1f1f] hover:bg-[#001d35]/5 rounded-full transition-colors cursor-pointer"
-            title="VisaHOBe services"
-          >
-            <span className="material-icons text-xl">apps</span>
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setIsProfileMenuOpen(false);
+                setIsHelpMenuOpen((open) => !open);
+              }}
+              className="p-2.5 text-[#444746] hover:text-[#1f1f1f] hover:bg-[#001d35]/5 rounded-full transition-colors cursor-pointer"
+              title="VisaHOBe services"
+              aria-label="VisaHOBe services"
+              aria-expanded={isHelpMenuOpen}
+            >
+              <span className="material-icons text-xl">apps</span>
+            </button>
+          </div>
 
           {/* Green User Profile Avatar */}
           <div className="relative">
@@ -180,22 +201,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               type="button"
               onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1e8e3e] text-white font-medium text-sm flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer shadow-xs ml-1"
-              title="Applicant Account: Alexander Morgan (alex.morgan@visahobe.com)"
+              title={`Applicant account: ${profile.name} (${profile.email})`}
             >
               A
             </button>
 
             {isProfileMenuOpen && (
               <div
-                className="absolute right-0 mt-2 w-72 bg-white rounded-3xl shadow-2xl border border-neutral-200 p-4 z-50 text-center animate-in fade-in"
+                className="glass-panel absolute right-0 z-50 mt-2 w-72 animate-in rounded-3xl p-4 text-center fade-in"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex flex-col items-center pb-3 border-b border-neutral-100">
                   <div className="w-16 h-16 rounded-full bg-[#1e8e3e] text-white font-bold text-2xl flex items-center justify-center mb-2 shadow-sm">
-                    A
+                    {(profile.name.trim().charAt(0) || 'A').toUpperCase()}
                   </div>
-                  <p className="font-bold text-neutral-900 text-base">Alexander Morgan</p>
-                  <p className="text-xs text-neutral-500">alex.morgan@visahobe.com</p>
+                  <p className="font-bold text-neutral-900 text-base">{profile.name}</p>
+                  <p className="text-xs text-neutral-500">{profile.email}</p>
                   <span className="mt-2 text-[11px] bg-emerald-50 text-emerald-700 font-medium px-2.5 py-0.5 rounded-full border border-emerald-200">
                     Verified Applicant Account
                   </span>
@@ -290,7 +311,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             {/* Feedback */}
             <button
               type="button"
-              onClick={() => alert('Send feedback to VisaHOBe customer service team')}
+              onClick={() => notify('Thanks — your feedback was sent to the VisaHOBe service team.', 'info')}
               className={`w-full flex items-center gap-4 px-4 py-2.5 rounded-full text-sm font-medium text-[#444746] hover:bg-[#001d35]/5 transition-colors cursor-pointer ${
                 !isSidebarOpen ? 'justify-center px-0' : ''
               }`}

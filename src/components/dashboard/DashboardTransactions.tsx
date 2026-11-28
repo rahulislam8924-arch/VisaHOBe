@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { TransactionData } from './TransactionReceiptModal';
+import { useToast } from './PortalToast';
+import { formatUsd } from '../../lib/portalMetrics';
 
 interface DashboardTransactionsProps {
   transactions: TransactionData[];
@@ -10,6 +12,7 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
   transactions,
   onSelectTransaction,
 }) => {
+  const { notify } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
 
@@ -28,17 +31,65 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
     return matchesSearch && matchesType;
   });
 
+  const totalPaid = transactions
+    .filter((tx) => tx.status !== 'Declined')
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  const filteredTotal = filtered
+    .filter((tx) => tx.status !== 'Declined')
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+
+  /** Real statement export of whatever the filters currently show */
+  const exportCsv = () => {
+    if (!filtered.length) {
+      notify('Nothing to export for the current filters', 'info');
+      return;
+    }
+    const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const rows = [
+      ['Receipt', 'Merchant', 'Category', 'Date', 'Time', 'Card', 'Status', 'Amount (USD)'],
+      ...filtered.map((tx) => [
+        tx.id.toUpperCase(),
+        tx.merchant,
+        tx.category,
+        tx.date,
+        tx.time,
+        `${tx.cardName} •••• ${tx.lastFour}`,
+        tx.status,
+        Math.abs(tx.amount).toFixed(2),
+      ]),
+    ];
+    const csv = rows.map((row) => row.map(escape).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'VisaHOBe-payment-history.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notify(`${filtered.length} transactions exported`);
+  };
+
   return (
     <div className="space-y-6 text-left max-w-4xl animate-in fade-in duration-300">
       {/* Title */}
       <div className="space-y-1 pb-2">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-          Consular Transactions & Fee History
+          Payment history
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
-          Official embassy visa application fees, biometric appointments, and passport courier
-          charges settled through the VisaHOBe Portal.
+          {transactions.length === 0
+            ? 'No statements yet — official embassy visa fees, biometric appointments and passport courier charges appear here once settled.'
+            : `${formatUsd(totalPaid)} across ${transactions.length} ${
+                transactions.length === 1 ? 'receipt' : 'receipts'
+              } — embassy visa fees, biometric appointments and passport courier charges.`}
         </p>
+        {transactions.length > 0 && (searchQuery || selectedType !== 'all') && (
+          <p className="text-xs font-medium text-[#0b57d0]">
+            Showing {filtered.length} of {transactions.length} · {formatUsd(filteredTotal)}
+          </p>
+        )}
       </div>
 
       {/* Search & Filter Toolbar */}
@@ -87,10 +138,19 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={exportCsv}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-neutral-50 cursor-pointer"
+        >
+          <span className="material-icons text-base">file_download</span>
+          <span>Export CSV</span>
+        </button>
       </div>
 
       {/* Transactions List */}
-      <div className="bg-white rounded-[28px] border border-black/5 shadow-xs divide-y divide-neutral-100 overflow-hidden">
+      <div className="glass-flat glass-sheen rounded-[28px]  shadow-xs divide-y divide-neutral-100 overflow-hidden">
         {filtered.length === 0 ? (
           <div className="p-12 text-center text-neutral-500">
             <span className="material-icons text-4xl text-neutral-300 mb-2">receipt_long</span>
