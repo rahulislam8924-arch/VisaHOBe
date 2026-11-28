@@ -18,7 +18,7 @@ export const DashboardPasses: React.FC<DashboardPassesProps> = ({ passes, onSele
       {/* Title */}
       <div className="space-y-1 pb-2">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-          Visas & Consular Passes
+          My Applications
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
           View your approved international travel visas, multiple-entry foils, and embassy

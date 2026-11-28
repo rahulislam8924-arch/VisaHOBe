@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export type DashboardTab = 'home' | 'paymentmethods' | 'passes' | 'transactions' | 'settings';
+export type DashboardTab =
+  | 'home'
+  | 'agent'
+  | 'passes'
+  | 'paymentmethods'
+  | 'transactions'
+  | 'settings';
 
 interface DashboardLayoutProps {
   currentTab: DashboardTab;
@@ -43,12 +49,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     };
   }, []);
 
+  // Final client-facing navigation. Payment history stays reachable from the
+  // Payments view and the dashboard cards.
   const navItems: { id: DashboardTab; label: string; icon: string; path: string }[] = [
-    { id: 'home', label: 'Home', icon: 'home', path: '/portal/home' },
-    { id: 'paymentmethods', label: 'Payment methods', icon: 'credit_card', path: '/portal/paymentmethods' },
-    { id: 'passes', label: 'Visas & Passes', icon: 'confirmation_number', path: '/portal/passes' },
-    { id: 'transactions', label: 'Transactions', icon: 'receipt_long', path: '/portal/transactions' },
-    { id: 'settings', label: 'Settings', icon: 'settings', path: '/portal/settings' },
+    { id: 'home', label: 'Dashboard', icon: 'dashboard', path: '/portal/dashboard' },
+    { id: 'agent', label: 'AI Visa Agent', icon: 'auto_awesome', path: '/portal/ai-visa-agent' },
+    { id: 'passes', label: 'My Applications', icon: 'folder_shared', path: '/portal/applications' },
+    { id: 'paymentmethods', label: 'Payments', icon: 'payments', path: '/portal/payments' },
+    { id: 'settings', label: 'My Profile', icon: 'person', path: '/portal/profile' },
   ];
 
   const currentPath = navItems.find((n) => n.id === currentTab)?.path || '/portal/home';

@@ -33,7 +33,7 @@ export const DashboardTransactions: React.FC<DashboardTransactionsProps> = ({
       {/* Title */}
       <div className="space-y-1 pb-2">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-          Consular Transactions & Fee History
+          Payment history
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
           Official embassy visa application fees, biometric appointments, and passport courier

@@ -7,6 +7,8 @@ interface DashboardPaymentMethodsProps {
   onSetDefault: (id: string) => void;
   onRemoveCard: (id: string) => void;
   onRenameCard: (id: string, nickname: string) => void;
+  /** Opens the payment history view that used to sit in the sidebar */
+  onOpenTransactions?: () => void;
 }
 
 export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = ({
@@ -15,6 +17,7 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
   onSetDefault,
   onRemoveCard,
   onRenameCard,
+  onOpenTransactions,
 }) => {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editedNickname, setEditedNickname] = useState('');
@@ -35,7 +38,7 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div className="space-y-1">
           <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-            Consular Payment Methods
+            Payments
           </h2>
           <p className="text-sm text-[#444746] leading-relaxed max-w-xl">
             Cards saved to your VisaHOBe account are used to settle official embassy application
@@ -43,14 +46,27 @@ export const DashboardPaymentMethods: React.FC<DashboardPaymentMethodsProps> = (
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenAddCard}
-          className="self-start sm:self-auto bg-[#0b57d0] hover:bg-[#0842a0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all shadow-xs active:scale-[0.98] inline-flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <span className="material-icons text-lg">add</span>
-          <span>Add consular payment card</span>
-        </button>
+        <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:self-auto">
+          {onOpenTransactions && (
+            <button
+              type="button"
+              onClick={onOpenTransactions}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-medium text-[#0b57d0] ring-1 ring-black/[0.06] transition-colors hover:bg-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+            >
+              <span className="material-icons text-lg">receipt_long</span>
+              <span>Payment history</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenAddCard}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#0b57d0] px-5 py-2.5 text-sm font-medium text-white shadow-xs transition-all hover:bg-[#0842a0] active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a73e8]/60"
+          >
+            <span className="material-icons text-lg">add</span>
+            <span>Add consular payment card</span>
+          </button>
+        </div>
       </div>
 
       {/* Cards List in Material 3 container */}

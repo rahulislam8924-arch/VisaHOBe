@@ -13,7 +13,7 @@ export const DashboardSettings: React.FC = () => {
       {/* Page Title & Subtitle */}
       <div className="space-y-2 pb-2">
         <h2 className="font-['Google_Sans',Roboto,sans-serif] text-3xl sm:text-4xl font-normal text-[#1f1f1f]">
-          Settings
+          My Profile
         </h2>
         <p className="text-sm text-[#444746] leading-relaxed max-w-2xl">
           Manage your consular email alerts, passport security, and privacy settings for VisaHOBe

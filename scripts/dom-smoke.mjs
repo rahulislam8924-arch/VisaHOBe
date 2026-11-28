@@ -167,6 +167,34 @@ if (japanCard) {
 window.location.hash = '#dashboard';
 await wait(250);
 check('portal view loads', doc.title === 'VisaHOBe Client Portal');
+
+const sidebarLabels = ['Dashboard', 'AI Visa Agent', 'My Applications', 'Payments', 'My Profile'];
+const sidebarText = text(doc.body);
+check(
+  'client sidebar shows the final five items',
+  sidebarLabels.every((label) => sidebarText.includes(label)),
+  sidebarLabels.filter((label) => !sidebarText.includes(label)).join(', ')
+);
+check(
+  'sidebar groups payment history under Payments',
+  !/\bTransactions\b/.test(text(doc.querySelector('aside, nav')) || ''),
+  'transactions still in the sidebar'
+);
+
+click(findByText('AI Visa Agent'));
+await wait(200);
+check('AI visa agent view opens', text(doc.body).includes('verified 190-country dataset'));
+const agentAsk = findByText('Do I need a visa for the UAE?');
+if (agentAsk) {
+  click(agentAsk);
+  await wait(900);
+  check('agent answers a destination question', text(doc.body).includes('United Arab Emirates'));
+}
+
+click(findByText('Payments'));
+await wait(150);
+check('payments view opens from the sidebar', text(doc.body).includes('Payment history'));
+
 window.location.hash = '';
 await wait(250);
 const demoButton = findByText('Preview a live digital visa pass demo');

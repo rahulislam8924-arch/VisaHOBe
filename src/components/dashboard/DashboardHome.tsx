@@ -113,7 +113,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
                     onClick={() => onNavigateTab('paymentmethods')}
                     className="text-xs font-semibold text-[#0b57d0] hover:underline cursor-pointer"
                   >
-                    View all payment methods →
+                    View all payments →
                   </button>
                 </div>
                 <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
@@ -146,7 +146,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
               <div className="space-y-2 max-w-sm">
                 <h3 className="font-['Google_Sans',Roboto,sans-serif] text-2xl font-normal text-[#1f1f1f]">
-                  Visas & Passes
+                  My Applications
                 </h3>
                 <p className="text-sm text-[#444746] leading-relaxed">
                   View approved e-Visas, consular appointment slips, travel authorizations, and more
@@ -190,7 +190,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({
             {/* Passes quick preview / View all button */}
             <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-neutral-500">{passes.length} active visas & passes</span>
+                <span className="text-xs text-neutral-500">{passes.length} active applications</span>
               </div>
               <button
                 type="button"

@@ -5,6 +5,7 @@ import { DashboardPaymentMethods } from './DashboardPaymentMethods';
 import { DashboardPasses } from './DashboardPasses';
 import { DashboardTransactions } from './DashboardTransactions';
 import { DashboardSettings } from './DashboardSettings';
+import { DashboardAgent } from './DashboardAgent';
 import { BarcodeModal } from './BarcodeModal';
 import { TransactionReceiptModal, TransactionData } from './TransactionReceiptModal';
 import { AddCardModal, CardItem } from './AddCardModal';
@@ -85,6 +86,14 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
           />
         )}
 
+        {currentTab === 'agent' && (
+          <DashboardAgent
+            passes={passes}
+            transactions={transactions}
+            onNavigateTab={setCurrentTab}
+          />
+        )}
+
         {currentTab === 'paymentmethods' && (
           <DashboardPaymentMethods
             cards={cards}
@@ -92,6 +101,7 @@ export const GoogleWalletDashboard: React.FC<GoogleWalletDashboardProps> = ({
             onSetDefault={handleSetDefault}
             onRemoveCard={handleRemoveCard}
             onRenameCard={handleRenameCard}
+            onOpenTransactions={() => setCurrentTab('transactions')}
           />
         )}
 
